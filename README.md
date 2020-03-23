@@ -1,5 +1,5 @@
-PLOD Tools
-==========
+penguin, a PLOD server
+======================
 
 Patient Locational Open Data (PLOD)
 
@@ -16,7 +16,6 @@ Patient Locational Open Data (PLOD)
 
 - UTF-8
 - User-side
-- Browser
     + Chrome
         * Mac: Version 80.0.3987.149
         * Windows10:
@@ -25,7 +24,7 @@ Patient Locational Open Data (PLOD)
         * Windows10:
         * Windows7:
 - Python3
-    + Tornado
+    + (plan)Tornado
 - MongoDB
 
 ## Reference
