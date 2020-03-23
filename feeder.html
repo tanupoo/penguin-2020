@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>template</title>
+    <!--<script type="text/javascript" src="template.js"></script>-->
+    <script type="text/javascript">
+    <!--
+
+var SERVER_PATH = '';
+var DEBUG_XHR = false;
+
+/* patientHealthCondition + postfix */
+const patientHealthConditionList = [
+    { "key": "特になし", "postfix": "Notspecial" },
+    { "key": "倦怠感", "postfix": "Malaise" },
+    { "key": "微熱", "postfix": "SlightFever" },
+    { "key": "高熱", "postfix": "HightFever" },
+    { "key": "悪寒", "postfix": "Chill" },
+    { "key": "咳", "postfix": "Cough" },
+];
+
+/* transportationMethod + postfix */
+const transportationMethodList = [
+    { "key": "バス", "postfix": "Bus" },
+    { "key": "タクシー", "postfix": "Taxi" },
+    { "key": "電車", "postfix": "Train" },
+    { "key": "徒歩", "postfix": "Walk" },
+    { "key": "自転車・バイク", "postfix": "Bike" },
+    { "key": "飛行機", "postfix": "Airplane" },
+    { "key": "船", "postfix": "Ship" },
+]
+
+window.addEventListener("load", ev_load, false);
+
+function post_request(url, callback, request)
+{
+    let xhr = new XMLHttpRequest();
+
+    if (DEBUG_XHR === false) {
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    } else {
+        m = 'UNSENT:' + xhr.readyState; // readyState will be 0
+        console.log(m);
+
+        xhr.open('POST', url, true);
+
+        m = 'OPENED:' + xhr.readyState; // readyState will be 1
+        console.log(m);
+
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+        xhr.onprogress = function () {
+            m = 'LOADING:' + xhr.readyState; // readyState will be 3
+            console.log(m);
+        }
+
+        xhr.onload = function () {
+            m = 'DONE' + xhr.readyState; // readyState will be 4
+            console.log(m);
+            console.log('this=', this);
+            console.log('load:', JSON.parse(xhr.responseText));
+        }
+    }
+
+    xhr.onreadystatechange = function() {
+        console.log('xhr state:', xhr.readyState);
+        if (xhr.readyState === 4) {
+            callback(xhr.status == 200 ? JSON.parse(xhr.responseText) : null);
+        }
+    }
+
+    xhr.send(JSON.stringify(request));
+}
+
+function add_select_options(obj, opts, key_selected)
+{
+    opts.forEach(x => {
+        let opt = document.createElement("option");
+        opt.text = x["key"];
+        opt.value = x["value"];
+        if (key_selected != null && x["key"] == key_selected) {
+            opt.selected = true;
+        }
+        obj.add(opt, null);
+    });
+}
+
+function add_checkbox(parent_obj, id_name, item_list)
+{
+    let div_obj, x;
+
+    item_list.forEach(kv => {
+        div_obj = document.createElement("div")
+
+        x = document.createElement("input");
+        x.type = "checkbox";
+        x.id = id_name+kv["postfix"];
+        div_obj.appendChild(x);
+
+        x = document.createElement("label")
+        x.htmlFor = id_name+kv["postfix"]
+        x.appendChild(document.createTextNode(kv["key"]));
+        div_obj.appendChild(x);
+
+        parent_obj.appendChild(div_obj);
+    });
+
+    div_obj = document.createElement("div")
+
+    x = document.createElement("label")
+    x.htmlFor = id_name + "FreeText"
+    x.appendChild(document.createTextNode("その他"));
+    div_obj.appendChild(x);
+
+    x = document.createElement("textarea");
+    x.id = id_name + "FreeText"
+    x.placeholder = "自由記述";
+    div_obj.appendChild(x);
+
+    parent_obj.appendChild(div_obj);
+}
+
+function add_input_select(parent_obj, id_name, select_opts, selected)
+{
+    let x, x2;
+
+    x = document.createElement("div");
+    x2 = document.createElement("select");
+    x2.id = id_name + "Selected";
+    add_select_options(x2, select_opts, selected);
+    x.appendChild(x2);
+
+    parent_obj.appendChild(x);
+}
+
+function add_input_select_freetext(parent_obj, id_name, select_opts, selected)
+{
+    let x, x2, x3;
+
+    x = document.createElement("div");
+    x2 = document.createElement("select");
+    x2.id = id_name + "Selected";
+    select_opts.push( { "key":"その他", "value":"Others" } );
+    add_select_options(x2, select_opts, selected);
+    x.appendChild(x2);
+
+    x2 = document.createElement("div");
+    x2.id = id_name + "FreeTextBlock";
+    x2.appendChild(document.createTextNode("その他"));
+    x3 = document.createElement("input");
+    x3.type = "text";
+    x3.id = id_name + "FreeText";
+    x3.placeholder = "選択肢にない場合に入力する。";
+    x2.appendChild(x3);
+    x.appendChild(x2);
+
+    parent_obj.appendChild(x);
+}
+
+function add_line_patient_health_condition_history()
+{
+    /*
+     日付: date
+     時刻: time
+     健康状態: checkbox+text
+     滞在地: select+text
+     移動手段: select+text
+     所見や患者の行動、その他: text
+     */
+    let table = document.getElementById("tablePatientHealthConditionHistory");
+    let row = table.insertRow(-1);
+    let row_index = table.rows.length;
+    let x, x2, x3, cell;
+
+    /* 日付: date */
+    cell = row.insertCell(-1);
+    add_input_date(cell, "patientHisotryDate" + row_index);
+
+    /* 時刻: time */
+    cell = row.insertCell(-1);
+    add_input_time(cell, "patientHisotryTime" + row_index);
+
+    /* 健康状態: checkbox+text,
+    特になし, 倦怠感, 発熱, 咳, ...
+    */
+    cell = row.insertCell(-1);
+    add_checkbox(cell, "patientHealthCondition" + row_index,
+        patientHealthConditionList);
+
+    /* 滞在地: select+text */
+    cell = row.insertCell(-1);
+    add_input_select_freetext(cell, "patientHistoryLocation" + row_index,
+        [
+            { "key":"千葉県", "value":"千葉県" },
+            { "key":"東京都", "value":"東京都" },
+            { "key":"埼玉県", "value":"埼玉県" },
+            { "key":"神奈川県", "value":"神奈川県" },
+        ],
+        "東京都");
+
+    /* 移動手段: select+text */
+    cell = row.insertCell(-1);
+    if (row.sectionRowIndex > 1) {
+        add_checkbox(cell, "transportationMethod" + row_index,
+            transportationMethodList);
+    }
+
+    /* 所見や患者の行動、その他: text */
+    cell = row.insertCell(-1);
+    x = document.createElement("textarea");
+    x.id = "patientHistoryLocationDetail" + row_index;
+    x.placeholder = "自由記述";
+    cell.appendChild(x);
+
+    /* DelLine */
+    cell = row.insertCell(-1);
+    x = document.createElement("input");
+    x.class = "inputDelLine"
+    x.type="button";
+    x.value = "削除";
+    x.addEventListener("click",
+        function(){ ev_click_del_line_patient_health_condition_history(row) }, false);
+    cell.appendChild(x);
+}
+
+function ev_click_add_line_patient_health_condition_history()
+{
+    add_line_patient_health_condition_history();
+}
+
+function ev_click_del_line_patient_health_condition_history(row)
+{
+    row.parentNode.deleteRow(row.sectionRowIndex);
+}
+
+function get_selected_value(target_id)
+{
+    console.log("get_selected_value=", target_id);
+    let x = document.getElementById(target_id);
+    let selected_value = x.options[x.selectedIndex].value;
+    if (selected_value != "") {
+        return selected_value;
+    } else {
+        return null;
+    }
+}
+
+function get_value_select_freetext(target_id)
+{
+    let a = get_selected_value(target_id + "Selected");
+    let b = document.getElementById(target_id + "FreeText").value;
+    if (b != "") {
+        if (a != "Others") {
+            window.alert(target_id + `: ${a}を選択され、かつ、その他のフィールドに ${b} が入っています。`);
+            return null;
+        }
+        return b;
+    } else {
+        return a;
+    }
+}
+
+function make_patient_data()
+{
+    let created_data = {
+        "publisher": get_value_select_freetext("publisher"),
+        "patientDisease": get_value_select_freetext("patientDisease"),
+        "dateConfirmed": document.getElementById("dateConfirmed").value,
+        "patientAge": get_selected_value("patientAgeSelected"),
+        "patientGender": get_selected_value("patientGenderSelected"),
+        "patientResidence": get_value_select_freetext("patientResidence"),
+        "patientHistory": [
+        ]
+    };
+
+    let table = document.getElementById("tablePatientHealthConditionHistory");
+    for (let i = 2; i <= table.rows.length; i++) {
+        let kv = {}
+        kv["patientHisotryDate"] = document.getElementById("patientHisotryDate" + i).value;
+        kv["patientHisotryTime"] = document.getElementById("patientHisotryTime" + i).value;
+        patientHealthConditionList.forEach(x => {
+            kv["patientHealthCondition" + x["postfix"]] = document.getElementById("patientHealthCondition" + i + x["postfix"]).checked;
+        });
+        kv["patientHealthCondition" +  "FreeText"] = document.getElementById("patientHealthCondition" + i + "FreeText").value;
+        kv["patientHistoryLocation"] = get_value_select_freetext("patientHistoryLocation" + i);
+        if (i > 2) {
+            transportationMethodList.forEach(x => {
+                kv["transportationMethod" + x["postfix"]] = document.getElementById("transportationMethod" + i + x["postfix"]).checked;
+            });
+        }
+        kv["inputPatientHistoryLocationDetail"] =
+            document.getElementById("inputPatientHistoryLocationDetail" + i);
+        created_data["patientHistory"].push(kv);
+    }
+
+    console.log("created_data=", created_data);
+    return created_data;
+}
+
+function send_patient_data(patient_data)
+{
+    if (Object.keys(patient_data).length != 0) {
+        // post only if any value are changed.
+        post_request(SERVER_PATH + '/feeder', function(content) {
+                console.log("callback=", content);
+                if (content) {
+                    // update , event id ?
+                    // put_current_value(content);
+                }
+            },
+            patient_data);
+    }
+}
+
+function ev_click_submit(a)
+{
+    if (true == confirm("登録しますか？")) {
+        send_patient_data(make_patient_data());
+    }
+}
+
+function ev_click_confirm(a)
+{
+    let created_data = make_patient_data();
+    let ret = confirm(JSON.stringify(created_data, undefined, 2));
+    if (ret == true) {
+        send_patient_data(created_data);
+    }
+}
+
+function add_input_date(parent_id, id_name)
+{
+    let local_time = new Date();
+    local_time.toLocaleDateString("ja-JP");
+
+    x = document.createElement("input");
+    x.type = "date";
+    x.id = id_name;
+    x.value = local_time.toJSON().slice(0,10);
+    x.defaultvalue = x.value;
+    parent_id.appendChild(x);
+}
+
+function add_input_time(parent_id, id_name)
+{
+    let local_time = new Date();
+    //local_time.toLocaleDateString("ja-JP");
+    //XXX set localtime!!!
+
+    x = document.createElement("input");
+    x.type = "time";
+    x.id = id_name;
+    x.value = local_time.toJSON().slice(11,19);
+    x.defaultvalue = x.value;
+    parent_id.appendChild(x);
+}
+
+function ev_load(e)
+{
+    let parent_obj;
+
+    parent_obj = document.getElementById("divPublisher");
+    add_input_select_freetext(parent_obj, "publisher",
+        [
+            { "key":"厚労省", "value":"厚労省" },
+            { "key":"茨城県", "value":"茨城県" },
+            { "key":"神奈川県", "value":"神奈川県" },
+            { "key":"群馬県", "value":"群馬県" },
+            { "key":"埼玉県", "value":"埼玉県" },
+            { "key":"千葉県", "value":"千葉県" },
+            { "key":"東京都", "value":"東京都" },
+            { "key":"栃木県", "value":"栃木県" },
+        ],
+        "厚労省");
+
+    parent_obj = document.getElementById("divDateConfirmed");
+    add_input_date(parent_obj, "dateConfirmed");
+
+    parent_obj = document.getElementById("divPatientAge");
+    add_input_select(parent_obj, "patientAge",
+        [
+            { "key":"0",  "value":"0" },
+            { "key":"10", "value":"10" },
+            { "key":"20", "value":"20" },
+            { "key":"30", "value":"30" },
+            { "key":"40", "value":"40" },
+            { "key":"50", "value":"50" },
+            { "key":"60", "value":"60" },
+            { "key":"70", "value":"70" },
+            { "key":"80", "value":"80" },
+            { "key":"90", "value":"90" },
+        ],
+        "50");
+
+    parent_obj = document.getElementById("divPatientDisease");
+    add_input_select_freetext(parent_obj, "patientDisease",
+        [
+            { "key":"新型コロナウイルス", "value":"新型コロナウイルス" },
+            { "key":"麻疹", "value":"麻疹" },
+            { "key":"未確定", "value":"未確定" },
+        ],
+        "新型コロナウイルス");
+
+    parent_obj = document.getElementById("divPatientResidence");
+    add_input_select_freetext(parent_obj, "patientResidence",
+        [
+            { "key":"茨城県", "value":"茨城県" },
+            { "key":"神奈川県", "value":"神奈川県" },
+            { "key":"群馬県", "value":"群馬県" },
+            { "key":"埼玉県", "value":"埼玉県" },
+            { "key":"千葉県", "value":"千葉県" },
+            { "key":"東京都", "value":"東京都" },
+            { "key":"栃木県", "value":"栃木県" },
+        ],
+        "東京都");
+
+    document.getElementById("addLinePatientHealthConditionHistory")
+        .addEventListener("click", ev_click_add_line_patient_health_condition_history, false);
+    add_line_patient_health_condition_history();
+    add_line_patient_health_condition_history();
+
+    document.getElementById("confirmButton").
+            addEventListener("click", ev_click_confirm, false);
+    document.getElementById("submitButton").
+            addEventListener("click", ev_click_submit, false);
+}
+
+    -->
+    </script>
+
+    <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
+    <style type="text/css">
+    .divBlock { padding: 10px; margin-bottom: 10px; border: 1px dotted #333333; }
+    #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
+    #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
+    #divDateConfirmed, #dateConfirmed { display: inline-block; }
+    #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
+    #divPatientAge, #patientAgeSelected { display: inline-block; }
+    .comment { display: block; } /* XXX comment visibility: none or block */
+    </style>
+
+</head>
+<body>
+
+    <div class="divBlock">
+        <label for="divPublisher">所轄の自治体名:</label>
+        <div id="divPublisher"></div>
+        <!-- insert dynamically -->
+    </div>
+
+    <div class="divBlock">
+        <label for="divPatientDisease">患者の病名:</label>
+        <div id="divPatientDisease"></div>
+        <!-- insert dynamically -->
+    </div>
+
+    <div class="divBlock">
+        <label for="divDateConfirmed">患者の状態が確認された日付:</label>
+        <div id="divDateConfirmed"> </div>
+        <!-- insert dynamically -->
+    </div>
+
+    <div class="divBlock">
+        <label for="divPatientAge">患者の年代:</label>
+        <div id="divPatientAge"></div>
+        <!-- insert dynamically -->
+    </div>
+
+    <div class="divBlock">
+        <div id="divPatientGender">
+            <label for="patientGenderSelected">患者の性別:</label>
+            <select id="patientGenderSelected">
+                <option value="gender:male">男性</option>
+                <option value="gender:female">女性</option>
+                <option value="gender:noanswer" selected>答えたくない</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="divBlock">
+        <label for="divPatientResidence">患者の居住地域:</label>
+        <div id="divPatientResidence"></div>
+        <!-- insert dynamically -->
+    </div>
+
+    <div class="divBlock">
+        <label for="divPatientHealthConditionHistory">患者の状態の履歴:</label>
+        <div id="divPatientHealthConditionHistory">
+            <table id="tablePatientHealthConditionHistory" border=1>
+                <tr>
+                    <th>日付</th>
+                    <th>時刻</th>
+                    <th>健康状態</th>
+                    <th>滞在地</th>
+                    <th>移動手段</th>
+                    <th>所見や患者の行動、その他</th>
+                </tr>
+                <!-- insert dynamically -->
+            </table>
+            <input id="addLinePatientHealthConditionHistory" type="button" value="行を増やす">
+        </div>
+    </div>
+
+    <button id="confirmButton" type="button">確認画面へ移動する。</button>
+
+    <button id="submitButton" type="button">登録する。</button>
+
+    <hr>
+
+    <div class="comment">XXX 基本、入力できる箇所を埋める方向。とはいえ、入力必須箇所は？</div>
+    <div class="comment">XXX 患者の状態と、MedicalConditionとの違いや関係は？</div>
+    <div class="comment">XXX リストで見て編集したくなるはず。別画面か。</div>
+    <div class="comment">XXX いけてる date pickerを使う。</div>
+
+</body>
+</html>
+
