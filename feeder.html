@@ -232,7 +232,9 @@ function ev_click_add_line_patient_health_condition_history()
 
 function ev_click_del_line_patient_health_condition_history(row)
 {
-    row.parentNode.deleteRow(row.sectionRowIndex);
+    if (true == confirm("削除しますか？")) {
+        row.parentNode.deleteRow(row.sectionRowIndex);
+    }
 }
 
 function get_selected_value(target_id)
@@ -517,6 +519,7 @@ function ev_load(e)
     <div class="comment">XXX 基本、入力できる箇所を埋める方向。とはいえ、入力必須箇所は？</div>
     <div class="comment">XXX 患者の状態と、MedicalConditionとの違いや関係は？</div>
     <div class="comment">XXX リストで見て編集したくなるはず。別画面か。</div>
+    <div class="comment">XXX 履歴の追加削除にバグがいる。idに番号を入れるのはやめるか？</div>
     <div class="comment">XXX いけてる date pickerを使う。</div>
 
 </body>
