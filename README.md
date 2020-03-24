@@ -24,6 +24,7 @@ Patient Locational Open Data (PLOD)
         * Windows10:
         * Windows7:
 - Python3
+    + pymongo
     + (plan)Tornado
 - MongoDB
 
