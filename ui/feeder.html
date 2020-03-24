@@ -18,6 +18,7 @@ const patientHealthConditionList = [
     { "key": "高熱", "postfix": "HightFever" },
     { "key": "悪寒", "postfix": "Chill" },
     { "key": "咳", "postfix": "Cough" },
+    { "key": "鼻水", "postfix": "Cough" },
 ];
 
 /* transportationMethod + postfix */
@@ -292,8 +293,8 @@ function make_patient_data()
                 kv["transportationMethod" + x["postfix"]] = document.getElementById("transportationMethod" + i + x["postfix"]).checked;
             });
         }
-        kv["inputPatientHistoryLocationDetail"] =
-            document.getElementById("inputPatientHistoryLocationDetail" + i);
+        kv["patientHistoryLocationDetail"] =
+            document.getElementById("patientHistoryLocationDetail" + i);
         created_data["patientHistory"].push(kv);
     }
 
@@ -305,11 +306,12 @@ function send_patient_data(patient_data)
 {
     if (Object.keys(patient_data).length != 0) {
         // post only if any value are changed.
-        post_request(SERVER_PATH + '/feeder', function(content) {
+        post_request(SERVER_PATH + '/feed', function(content) {
                 console.log("callback=", content);
                 if (content) {
-                    // update , event id ?
-                    // put_current_value(content);
+                    confirm("EventID " + content["result"]["event_id"] +
+                        " で、登録されました。");
+                    //put_current_value(content);
                 }
             },
             patient_data);
