@@ -134,6 +134,18 @@ async def downlink_handler(request):
     logger.debug("accepted downlink request: {}".format(kx_data))
     await send_downlink(kx_data)
 
+async def provide_feeder_handler(request):
+    """
+    all document must be placed under the ui directory.
+    """
+    common_access_log(request)
+    path = "./ui/feeder.html"
+    logger.debug("DEBUG: serving {}".format(path))
+    if os.path.exists(path):
+        return web.FileResponse(path)
+    else:
+        raise web.HTTPNotFound()
+
 async def get_doc_handler(request):
     """
     all document must be placed under the ui directory.
@@ -146,7 +158,7 @@ async def get_doc_handler(request):
     else:
         raise web.HTTPNotFound()
 
-async def feed_handler(request):
+async def receive_feeder_handler(request):
     common_access_log(request)
     heaers = request.headers
     if config[CONF_DEBUG_LEVEL] > 1:
@@ -193,10 +205,10 @@ async def feed_handler(request):
     #
     return gen_http_response({"status":"success", "event_id":event_id})
 
-async def hatch_handler(request):
+async def provide_json_handler(request):
     pass
 
-async def spawn_handler(request):
+async def provide_rdf_handler(request):
     pass
 
 def set_logger(log_file=None, logging_stdout=False,
@@ -280,10 +292,11 @@ if not check_config(config, debug_mode=opt.debug):
     exit(1)
 # make routes.
 app = web.Application(logger=logger)
-app.router.add_route("POST", "/feed", feed_handler)
-app.router.add_route("GET", "/spawn", spawn_handler)
-app.router.add_route("GET", "/hatch", hatch_handler)
-app.router.add_route("GET", "/{tail:.*}", get_doc_handler)
+app.router.add_route("GET", "/crest", provide_feeder_handler)
+app.router.add_route("POST", "/beak", receive_feeder_handler)
+app.router.add_route("GET", "/spawn", provide_json_handler)
+app.router.add_route("GET", "/hatch", provide_rdf_handler)
+#app.router.add_route("GET", "/{tail:.*}", get_doc_handler)
 logger.info("Starting Penguin, a PLOD server listening on {}://{}:{}/"
             .format("https" if config.get(CONF_SERVER_CERT) else "http",
                     config.get(CONF_SERVER_ADDR) if config.get(CONF_SERVER_ADDR) else "*",

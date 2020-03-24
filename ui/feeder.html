@@ -306,7 +306,7 @@ function send_patient_data(patient_data)
 {
     if (Object.keys(patient_data).length != 0) {
         // post only if any value are changed.
-        post_request(SERVER_PATH + '/feed', function(content) {
+        post_request(SERVER_PATH + '/beak', function(content) {
                 console.log("callback=", content);
                 if (content) {
                     confirm("EventID " + content["result"]["event_id"] +
