@@ -194,7 +194,7 @@ async def receive_feeder_handler(request):
     # need to add some info such as event_id.
     event_id = str(uuid.uuid4())
     kv_data.update({"event_id": event_id})
-    print("kv_data", json.dumps(kv_data))
+    logger.debug("kv_data: {}".format(json.dumps(kv_data)))
 
     # submit kv_data into database if needed.
     if config[CONF_DB_CONN]:
