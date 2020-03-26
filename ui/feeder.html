@@ -656,6 +656,9 @@ function ev_load(e)
         font-size: 18px;
     }
 
+    .description {
+        font-size: 10px;
+    }
     .comment { display: block; } /* XXX comment visibility: none or block */
 
     </style>
@@ -715,8 +718,9 @@ function ev_load(e)
         </div>
     </div>
 
-    <div id="divPatientHealthConditionHistoryBlock">
+    <div class="divBlock" id="divPatientHealthConditionHistoryBlock">
         <label for="divPatientHealthConditionHistory">患者の状態の履歴:</label>
+        <div class="description">移動がある場合は、日付を移動開始の時刻とし、「移動:***」まで全て入力する。</div>
         <div id="divPatientHealthConditionHistory">
             <table id="tablePatientHealthConditionHistory" border=1>
                 <tr>
@@ -741,7 +745,6 @@ function ev_load(e)
 
     <hr>
 
-    <div class="comment">XXX 基本、入力できる箇所を埋める方向。とはいえ、入力必須箇所は？</div>
     <div class="comment">XXX リストで見て編集したくなるはず。別画面か。</div>
     <div class="comment">XXX いけてる date pickerを使う。</div>
     <div class="comment">XXX freetextに入力したらselectをその他にする。</div>
