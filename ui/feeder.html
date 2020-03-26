@@ -25,13 +25,35 @@ const publisherList = [
 
 /* location */
 const locationList = [
-    { "key":"茨城県", "value":"Ibaraki" },
-    { "key":"神奈川県", "value":"Kanagawa" },
-    { "key":"群馬県", "value":"Gunma" },
-    { "key":"埼玉県", "value":"Saitama" },
-    { "key":"千葉県", "value":"Chiba" },
-    { "key":"東京都", "value":"Tokyo" },
-    { "key":"栃木県", "value":"Tochigi" },
+    { "key":"茨城県", "value":"gnjp:Ibaraki" },
+    { "key":"神奈川県", "value":"gnjp:Kanagawa" },
+    { "key":"群馬県", "value":"gnjp:Gunma" },
+    { "key":"埼玉県", "value":"gnjp:Saitama" },
+    { "key":"千葉県", "value":"gnjp:Chiba" },
+    { "key":"東京都", "value":"gnjp:Tokyo" },
+    { "key":"栃木県", "value":"gnjp:Tochigi" },
+];
+
+/* age */
+const ageList = [
+    { "key":"0-9",  "value":"0s" },
+    { "key":"10代", "value":"10s" },
+    { "key":"20代", "value":"20s" },
+    { "key":"30代", "value":"30s" },
+    { "key":"40代", "value":"40s" },
+    { "key":"50代", "value":"50s" },
+    { "key":"60代", "value":"60s" },
+    { "key":"70代", "value":"70s" },
+    { "key":"80代", "value":"80s" },
+    { "key":"90代", "value":"90s" },
+    { "key":"非公開", "value":"Unspecified" },
+];
+
+/* gender */
+const genderList = [
+    { "key":"男性", "value":"Male" },
+    { "key":"女性", "value":"Female" },
+    { "key":"答えたくない", "value":"Unspecified" },
 ];
 
 /* disease */
@@ -568,25 +590,17 @@ function ev_load(e)
     add_input_date_time("divDateConfirmed", "dateConfirmed", null, false);
 
     parent_obj = document.getElementById("divPatientAge");
-    add_input_select(parent_obj, "patientAge",
-        [
-            { "key":"0",  "value":"0" },
-            { "key":"10", "value":"10" },
-            { "key":"20", "value":"20" },
-            { "key":"30", "value":"30" },
-            { "key":"40", "value":"40" },
-            { "key":"50", "value":"50" },
-            { "key":"60", "value":"60" },
-            { "key":"70", "value":"70" },
-            { "key":"80", "value":"80" },
-            { "key":"90", "value":"90" },
-            { "key":"非公開", "value":"Unspecified" },
-        ],
-        "50");
+    add_input_select(parent_obj, "patientAge", ageList, "Unspecified");
+
+    parent_obj = document.getElementById("divPatientGender");
+    add_input_select(parent_obj, "patientGender", genderList, "Unspecified");
 
     add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "新型コロナウイルス");
+
     add_input_select_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", locationList, "東京都");
+
     document.getElementById("addLinePatientHealthConditionHistory").addEventListener("click", ev_click_add_line_patient_health_condition_history, false);
+
     add_line_patient_health_condition_history();
     add_line_patient_health_condition_history();
 
@@ -674,14 +688,9 @@ function ev_load(e)
     </div>
 
     <div class="divBlock">
-        <div id="divPatientGender">
-            <label for="patientGenderSelected">患者の性別:</label>
-            <select id="patientGenderSelected">
-                <option value="gender:male">男性</option>
-                <option value="gender:female">女性</option>
-                <option value="gender:noanswer" selected>答えたくない</option>
-            </select>
-        </div>
+        <label for="patientGenderSelected">患者の性別:</label>
+        <div id="divPatientGender"></div>
+        <!-- insert dynamically -->
     </div>
 
     <div class="divBlock">
