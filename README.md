@@ -10,6 +10,7 @@ a Patient Locational Open Data (PLOD) server.
 ## Acknowledgements
 
 - Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
+- [Japan local goverment list](https://www.soumu.go.jp/denshijiti/code.html)
 
 ## links to the useful tools
 
@@ -37,7 +38,10 @@ a Patient Locational Open Data (PLOD) server.
 ## Components
 
 - User-side: Browser (Chrome, Firefox)
-    + Input helper
+    + entry form
+        * jquery
+        * https://github.com/xdan/datetimepicker
+        * https://github.com/clivezhg/select2-to-tree
 - Server-side: Python3
     + PLOD Data Collector
     + RDF publisher
