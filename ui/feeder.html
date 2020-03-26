@@ -4,12 +4,19 @@
     <meta charset="UTF-8">
     <title>PLOD feeder</title>
     <!--<script type="text/javascript" src="template.js"></script>-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script-->
+
+    <link rel="stylesheet" href="datetimepicker-master/jquery.datetimepicker.css">
+    <script type="text/javascript" src="datetimepicker-master/jquery.js"></script>
+    <script type="text/javascript" src="datetimepicker-master/build/jquery.datetimepicker.full.min.js"></script>
+
     <script type="text/javascript">
-    <!--
 
 var SERVER_PATH = '';
 var DEBUG_XHR = false;
+
+jQuery.datetimepicker.setLocale("ja");
 
 /*
  * NOTE: if you change the value of the lists.
@@ -71,8 +78,8 @@ const diseaseList = [
     { "key":"未確定", "value":"Unconfirmed" },
 ];
 
-/* patientHealthCondition + postfix */
-const patientHealthConditionList = [
+/* patientCondition + postfix */
+const patientConditionList = [
     { "key": "倦怠感", "postfix": "Malaise" },
     { "key": "喀痰", "postfix": "Sputum" },
     { "key": "発熱", "postfix": "Fever" },
@@ -85,16 +92,35 @@ const patientHealthConditionList = [
 
 /* transportationMethod + postfix */
 const transportationMethodList = [
-    { "key": "バス", "postfix": "Bus" },
     { "key": "タクシー", "postfix": "Taxi" },
+    { "key": "バス", "postfix": "Bus" },
     { "key": "電車", "postfix": "Train" },
-    { "key": "徒歩", "postfix": "Walk" },
     { "key": "飛行機", "postfix": "Airplane" },
     { "key": "船", "postfix": "Ship" },
+    { "key": "徒歩", "postfix": "Walk" },
     { "key": "自家用車・自転車・バイク", "postfix": "Bike" },
 ]
 
 window.addEventListener("load", ev_load, false);
+
+let row_num = 0;
+
+function debug_table(table)
+{
+    console.log("xxx === debug_table() ===");
+    for (var r = 0, n = table.rows.length; r < n; r++) {
+        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
+            console.log("xxx cell():", r, c, table.rows[r].cells[c]);
+        }
+    }
+}
+
+function get_row_num()
+{
+    // no purpose than making a cell to be unique. 
+    row_num += 1;
+    return row_num;
+}
 
 function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list)
 {
@@ -189,28 +215,32 @@ function add_input_select_freetext_to_obj(parent_obj, target_id, select_opts, va
     parent_obj.appendChild(x);
 }
 
-function add_input_date_to_obj(parent_obj, target_id)
+function get_current_date()
 {
     let local_time = new Date();
+    return local_time.toJSON().slice(0,10);
+}
 
+function add_input_date_to_obj(parent_obj, target_id)
+{
     let x = document.createElement("input");
-    x.type = "date";
+    x.type = "text";
     x.id = target_id;
-    x.value = local_time.toJSON().slice(0,10);
-    x.defaultvalue = x.value;
     parent_obj.appendChild(x);
+    jQuery(`#${x.id}`).val(get_current_date());
+    jQuery(`#${x.id}`).datetimepicker({ format: "Y-m-d", timepicker: false, });
+    console.log("=== xxx add time", x.id);
+    console.log(parent_obj);
 }
 
 function add_input_time_to_obj(parent_obj, target_id)
 {
     let local_time = new Date();
     let x = document.createElement("input");
-    x.type = "time";
+    x.type = "text";
     x.id = target_id;
-    // should not set the default value in order to know whether the value is inputed or not.
-    //x.value = "12:00:00";
-    x.defaultvalue = x.value;
     parent_obj.appendChild(x);
+    jQuery(`#${x.id}`).datetimepicker({ datepicker: false, format: "H:i", minTime: "00:00", maxTime: "24:00", step: 30, defaultTime: "12:00" });
 }
 
 function add_input_date_time_to_obj(parent_obj, target_date_id, target_time_id, line_break)
@@ -224,16 +254,6 @@ function add_input_date_time_to_obj(parent_obj, target_date_id, target_time_id, 
     }
 }
 
-function add_input_date_time(parent_id, target_date_id, target_time_id, line_break)
-{
-    let parent_obj = document.getElementById(parent_id);
-    add_input_date_time_to_obj(parent_obj, target_date_id, target_time_id, line_break)
-}
-
-function add_input_location_to_obj(parent_obj, target_id)
-{
-}
-
 function add_input_textarea_to_obj(parent_obj, target_id)
 {
     let x = document.createElement("textarea");
@@ -242,77 +262,89 @@ function add_input_textarea_to_obj(parent_obj, target_id)
     parent_obj.appendChild(x);
 }
 
-let row_num = 0;
-
-function get_row_num()
+function add_input_del_line_to_obj(parent_obj, row)
 {
-    row_num += 1;
-    return row_num;
+    let x = document.createElement("input");
+    x.class = "inputDelLine"
+    x.type="button";
+    x.value = "削除";
+    x.addEventListener("click", function(){ ev_click_del_line(row) }, false);
+    parent_obj.appendChild(x);
 }
 
-function add_line_patient_health_condition_history()
+function add_line_patient_location_history()
 {
-    /*
-     "日付", cellPatientHisotryDateTime, date+time
-        patientHisotryDate, date
-        patientHisotryTime, time
-     "健康状態", patientHealthCondition, checkbox+text
-     "滞在地", patientHistoryLocation, select+text
-     "所見や患者の行動、その他", patientHistoryDetail, text
-     "移動:目的地", patientHistoryDestination, select+text
-     "移動:到着時間", patientHisotryArribalDateTime, date+time
-        patientHisotryArribalDate, date
-        patientHisotryArribalTime, time
-     "移動:手段", transportationMethod, select+text
-     */
-    let table = document.getElementById("tablePatientHealthConditionHistory");
+    let table = document.getElementById("tablePatientLocationHistory");
     let row = table.insertRow(-1);
     let row_index = table.rows.length;
     let row_num = get_row_num();
     let x, x2, x3, cell;
 
-    /* 日付: date+time */
+    /* "出発時間",
+        patientLocationHistoryDepartureDate, date
+        patientLocationHistoryDepartureTime, time
+     */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj(cell, "patientHisotryDate" + row_num, "patientHisotryTime" + row_num, true);
+    add_input_date_time_to_obj(cell, "patientLocationHistoryDepartureDate" + row_num, "patientLocationHistoryDepartureTime" + row_num, true);
 
-    /* 健康状態: checkbox+text, */
+    /* "出発地", patientLocationHistoryDepartureFrom, select+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "patientHealthCondition", patientHealthConditionList);
+    add_input_select_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "gnjp:Tokyo");
 
-    /* 滞在地: select+text */
+    /* "到着時間", patientLocationHistoryArrivalDateTime, date+time */
     cell = row.insertCell(-1);
-    add_input_select_freetext_to_obj(cell, "patientHistoryLocation" + row_num, locationList, "gnjp:Tokyo");
+    add_input_date_time_to_obj(cell, "patientLocationHistoryArrivalDate" + row_num, "patientLocationHistoryArrivalTime" + row_num, true);
 
-    /* 所見や患者の行動、その他: text */
+    /* "目的地", patientLocationHistoryArrivalTo, select+text */
     cell = row.insertCell(-1);
-    add_input_textarea_to_obj(cell, "patientHistoryDetail" + row_num);
+    add_input_select_freetext_to_obj(cell, "patientLocationHistoryArrivalTo" + row_num, locationList, "Others");
 
-    /* 移動:目的地: select+text */
-    cell = row.insertCell(-1);
-    add_input_select_freetext_to_obj(cell, "patientHistoryDestination" + row_num, locationList, "Others");
-
-    /* 移動:到着時間: date+time */
-    cell = row.insertCell(-1);
-    add_input_date_time_to_obj(cell, "patientHisotryArribalDate" + row_num, "patientHisotryArribalTime" + row_num, true);
-
-    /* 移動:手段: select+text */
+    /* "移動手段", transportationMethod, select+text */
     cell = row.insertCell(-1);
     add_input_checkbox_freetext_to_obj(cell, "transportationMethod", transportationMethodList);
 
+    /* "所見や患者の行動、その他", patientLocationHistoryDetail, text */
+    cell = row.insertCell(-1);
+    add_input_textarea_to_obj(cell, "patientLocationHistoryDetail" + row_num);
+
     /* DelLine */
     cell = row.insertCell(-1);
-    x = document.createElement("input");
-    x.class = "inputDelLine"
-    x.type="button";
-    x.value = "削除";
-    x.addEventListener("click",
-        function(){ ev_click_del_line_patient_health_condition_history(row) }, false);
-    cell.appendChild(x);
+    add_input_del_line_to_obj(cell, row);
+}
+
+function add_line_patient_condition_history()
+{
+    let table = document.getElementById("tablePatientConditionHistory");
+    let row = table.insertRow(-1);
+    let row_index = table.rows.length;
+    let row_num = get_row_num();
+    let x, x2, x3, cell;
+
+    /*
+     "日付", cellPatientConditionHistoryDateTime, date+time
+        patientConditionHistoryDate, date
+        patientConditionHistoryTime, time
+    */
+    cell = row.insertCell(-1);
+    add_input_date_time_to_obj(cell, "patientConditionHistoryDate" + row_num, "patientConditionHistoryTime" + row_num, true);
+
+    /* "健康状態", patientConditionHistoryStatus, checkbox+text */
+    cell = row.insertCell(-1);
+    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList);
+
+    /* "所見や患者の行動、その他", patientConditionHistoryDetail, text */
+    cell = row.insertCell(-1);
+    add_input_textarea_to_obj(cell, "patientConditionHistoryDetail" + row_num);
+
+    /* DelLine */
+    cell = row.insertCell(-1);
+    add_input_del_line_to_obj(cell, row);
 }
 
 /*
  * functions for submission
  */
+/* XXX delete post_request() when you confirm whether this program can work on a cell phone */
 /*
 function post_request(url, callback, request)
 {
@@ -384,7 +416,7 @@ function get_element_by_regex(parent_obj, target_regex)
     /* first, walk this level. */
     for (let i = 0; i < parent_obj.childNodes.length; i++) {
         x = parent_obj.childNodes[i];
-        console.log("==> xxx by_regex:", i, x.id, target_regex, x);
+        //console.log("==> xxx by_regex:", i, x.id, target_regex, x);
         a = get_element_by_regex(x, target_regex);
         if (a != undefined) {
             return a;
@@ -409,13 +441,13 @@ function get_one_value(target_id, a, b)
 
 function get_value_select_freetext_in_obj(parent_obj, target_id)
 {
-    console.log("xxx in_obj 0:", parent_obj, target_id);
+    //console.log("xxx in_obj 0:", parent_obj, target_id);
     let ax = get_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+Selected$`));
     let a = ax.options[ax.selectedIndex].value;
-    console.log("xxx a=", a);
+    //console.log("xxx a=", a);
     let bx = get_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+FreeText$`));
     let b = bx.value;
-    console.log("xxx b=", b);
+    //console.log("xxx b=", b);
     return get_one_value(target_id, a, b);
 }
 
@@ -431,47 +463,31 @@ function make_patient_data()
     let created_data = {
         "publisher": get_value_select_freetext("publisher"),
         "patientDisease": get_value_select_freetext("patientDisease"),
-        "dateConfirmed": document.getElementById("dateConfirmed").value,
+        "dateConfirmed": jQuery("#dateConfirmed").val(),
         "patientAge": get_selected_value("patientAgeSelected"),
         "patientGender": get_selected_value("patientGenderSelected"),
         "patientResidence": get_value_select_freetext("patientResidence"),
-        "patientHistory": [
+        "patientLocationHistory": [
+        ],
+        "patientConditionHistory": [
         ]
     };
+    let table;
 
-    /*
-     0, "日付", cellPatientHisotryDateTime, date+time
-        patientHisotryDate, date
-        patientHisotryTime, time
-     1, "健康状態", patientHealthCondition, checkbox+text
-     2, "滞在地", patientHistoryLocation, select+text
-     3, "所見や患者の行動、その他", patientHistoryDetail, text
-     4, "移動:目的地", patientHistoryDestination, select+text
-     5, "移動:到着時間", patientHisotryArribalDateTime, date+time
-        patientHisotryArribalDate, date
-        patientHisotryArribalTime, time
-     6 "移動:手段", transportationMethod, select+text
-    */
-
-    let table = document.getElementById("tablePatientHealthConditionHistory");
-
-    /* XXX table debug */
-            /*
-    for (var r = 0, n = table.rows.length; r < n; r++) {
-        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
-            console.log("xxx table:", r, c, table.rows[r].cells[c]);
-        }
-    }
-            */
-    /* XXX end of thd debug */
+    table = document.getElementById("tablePatientLocationHistory");
+    debug_table(table);
 
     for (let i = 1; i < table.rows.length; i++) {
-        console.log("xxx xxx table:", i, table.rows[i]);
+        //console.log("xxx LH table:", i, table.rows[i]);
         let kv = {};
         row = table.rows[i];
-        kv["patientHisotryDate"] = get_element_by_regex(row.cells[0], new RegExp("patientHisotryDate\\d+$")).value;
-        kv["patientHisotryTime"] = get_element_by_regex(row.cells[0], new RegExp("patientHisotryTime\\d+$")).value;
-        row.cells[1].childNodes.forEach(x => { // patientHealthCondition
+        kv["patientLocationHistoryDepartureDate"] = get_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
+        kv["patientLocationHistoryDepartureTime"] = get_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
+        kv["patientLocationHistoryDepartureFrom"] = get_value_select_freetext_in_obj(row.cells[1], "patientLocationHistoryDepartureFrom");
+        kv["patientLocationHistoryArrivalDate"] = get_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
+        kv["patientLocationHistoryArrivalTime"] = get_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
+        kv["patientLocationHistoryArrivalTo"] = get_value_select_freetext_in_obj(row.cells[3], "patientLocationHistoryArrivalTo");
+        row.cells[4].childNodes.forEach(x => { // transportationMethod
             x.childNodes.forEach(y => {
                 if (y.type == "checkbox") {
                     kv[y.name] = y.checked;
@@ -481,12 +497,19 @@ function make_patient_data()
                 }
             });
         });
-        kv["patientHistoryLocation"] = get_value_select_freetext_in_obj(row.cells[2], "patientHistoryLocation");
-        kv["patientHistoryDetail"] = get_element_by_regex(row.cells[3], new RegExp("patientHistoryDetail\\d+$")).value;
-        kv["patientHistoryDestination"] = get_value_select_freetext_in_obj(row.cells[4], "patientHistoryDestination");
-        kv["patientHisotryArribalDate"] = get_element_by_regex(row.cells[5], new RegExp("patientHisotryArribalDate\\d+$")).value;
-        kv["patientHisotryArribalTime"] = get_element_by_regex(row.cells[5], new RegExp("patientHisotryArribalTime\\d+$")).value;
-        row.cells[6].childNodes.forEach(x => { // transportationMethod
+        kv["patientLocationHistoryDetail"] = get_element_by_regex(row.cells[5], new RegExp("patientLocationHistoryDetail\\d+$")).value;
+        created_data["patientLocationHistory"].push(kv);
+    }
+
+    table = document.getElementById("tablePatientConditionHistory");
+    debug_table(table);
+
+    for (let i = 1; i < table.rows.length; i++) {
+        //console.log("xxx LH table:", i, table.rows[i]);
+        let kv = {};
+        kv["patientConditionHistoryDate"] = get_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
+        kv["patientConditionHistoryTime"] = get_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
+        row.cells[1].childNodes.forEach(x => { // patientConditionHistoryStatus
             x.childNodes.forEach(y => {
                 if (y.type == "checkbox") {
                     kv[y.name] = y.checked;
@@ -496,7 +519,8 @@ function make_patient_data()
                 }
             });
         });
-        created_data["patientHistory"].push(kv);
+        kv["patientConditionHistoryDetail"] = get_element_by_regex(row.cells[2], new RegExp("patientConditionHistoryDetail\\d+$")).value;
+        created_data["patientConditionHistory"].push(kv);
     }
 
     console.log("created_data=", created_data);
@@ -537,12 +561,17 @@ function send_patient_data(patient_data)
 /*
  * event handlers
  */
-function ev_click_add_line_patient_health_condition_history()
+function ev_click_add_line_patient_location_history()
 {
-    add_line_patient_health_condition_history();
+    add_line_patient_location_history();
 }
 
-function ev_click_del_line_patient_health_condition_history(row)
+function ev_click_add_line_patient_condition_history()
+{
+    add_line_patient_condition_history();
+}
+
+function ev_click_del_line(row)
 {
     if (true == confirm("削除しますか？")) {
         row.parentNode.deleteRow(row.sectionRowIndex);
@@ -590,7 +619,8 @@ function ev_load(e)
 
     add_input_select_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "MHLW");
 
-    add_input_date_time("divDateConfirmed", "dateConfirmed", null, false);
+    jQuery("#dateConfirmed").val(get_current_date());
+    jQuery("#dateConfirmed, #datePicker2").datetimepicker({ format: "Y-m-d", timepicker: false, });
 
     add_input_select_to_obj(document.getElementById("divPatientAge"), "patientAge", ageList, "Unspecified");
 
@@ -600,16 +630,17 @@ function ev_load(e)
 
     add_input_select_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", locationList, "gnjp:Tokyo");
 
-    document.getElementById("addLinePatientHealthConditionHistory").addEventListener("click", ev_click_add_line_patient_health_condition_history, false);
+    document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_add_line_patient_location_history, false);
+    add_line_patient_location_history();
 
-    add_line_patient_health_condition_history();
-    add_line_patient_health_condition_history();
+    document.getElementById("addLinePatientConditionHistory").addEventListener("click", ev_click_add_line_patient_condition_history, false);
+    //add_line_patient_condition_history();
+    //add_line_patient_condition_history();
 
     document.getElementById("confirmButton").addEventListener("click", ev_click_confirm, false);
     document.getElementById("submitButton").addEventListener("click", ev_click_submit, false);
 }
 
-    -->
     </script>
 
     <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
@@ -692,8 +723,8 @@ function ev_load(e)
         </div>
 
         <div id="divBlockDateConfirmed">
-            <label for="divDateConfirmed">患者の状態が確認された日付:</label>
-            <div id="divDateConfirmed"> </div>
+            <label for="dateConfirmed">患者の状態が確認された日付:</label>
+            <input id="dateConfirmed" type="text" />
             <!-- insert dynamically -->
         </div>
     </div>
@@ -718,23 +749,38 @@ function ev_load(e)
         </div>
     </div>
 
-    <div class="divBlock" id="divPatientHealthConditionHistoryBlock">
-        <label for="divPatientHealthConditionHistory">患者の状態の履歴:</label>
-        <div class="description">移動がある場合は、日付を移動開始の時刻とし、「移動:***」まで全て入力する。</div>
-        <div id="divPatientHealthConditionHistory">
-            <table id="tablePatientHealthConditionHistory" border=1>
+    <hr>
+    <div class="divBlock" id="divPatientLocationHistoryBlock">
+        <label for="divPatientLocationHistory">患者の移動の履歴:</label>
+        <div id="divPatientLocationHistory">
+            <table id="tablePatientLocationHistory" border=1>
                 <tr>
-                    <th>日付</th>
-                    <th>健康状態</th>
-                    <th>滞在地</th>
+                    <th>出発時間</th>
+                    <th>出発地</th>
+                    <th>到着時間</th>
+                    <th>目的地</th>
+                    <th>手段</th>
                     <th>所見や患者の行動、その他</th>
-                    <th>移動:目的地</th>
-                    <th>移動:到着時間</th>
-                    <th>移動:手段</th>
                 </tr>
                 <!-- insert dynamically -->
             </table>
-            <input id="addLinePatientHealthConditionHistory" type="button" value="行を増やす">
+            <input id="addLinePatientLocationHistory" type="button" value="行を増やす">
+        </div>
+    </div>
+
+    <hr>
+    <div class="divBlock" id="divPatientConditionHistoryBlock">
+        <label for="divPatientConditionHistory">患者の状態の履歴:</label>
+        <div id="divPatientConditionHistory">
+            <table id="tablePatientConditionHistory" border=1>
+                <tr>
+                    <th>日付</th>
+                    <th>健康状態</th>
+                    <th>所見や状況、その他</th>
+                </tr>
+                <!-- insert dynamically -->
+            </table>
+            <input id="addLinePatientConditionHistory" type="button" value="行を増やす">
         </div>
     </div>
 
@@ -745,9 +791,8 @@ function ev_load(e)
 
     <hr>
 
-    <div class="comment">XXX リストで見て編集したくなるはず。別画面か。</div>
-    <div class="comment">XXX いけてる date pickerを使う。</div>
-    <div class="comment">XXX freetextに入力したらselectをその他にする。</div>
+    <div class="comment">XXX 整理できたらエクセルlikeな編集画面にする</div>
+    <div class="comment">XXX 更新・確認もできたら便利</div>
 
     <div class="modal js-modal">
         <div class="modal-bg js-modal-close-no"></div>
