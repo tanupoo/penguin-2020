@@ -1,16 +1,22 @@
 penguin, a PLOD server
 ======================
 
-Patient Locational Open Data (PLOD)
+a Patient Locational Open Data (PLOD) server.
 
-## Components
+## Reference
 
-- User-side: Browser (Chrome, Firefox)
-    + Input helper
-- Server-side: Python3
-    + PLOD Data Collector
-    + RDF publisher
-- Database: MongoDB
+- [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
+
+## Acknowledgements
+
+- Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
+
+## links to the useful tools
+
+- RDF to JSON-LD [ttl2jsonld](https://frogcat.github.io/ttl2jsonld/demo/a)
+- JSON-LD to any [jsonld.js](https://github.com/digitalbazaar/jsonld.js)
+- [graph viewer](https://www.kanzaki.com/works/2009/pub/graph-draw).
+- many information and tools about RFD at (https://www.kanzaki.com/docs/sw/)
 
 ## Requirements
 
@@ -28,12 +34,79 @@ Patient Locational Open Data (PLOD)
     + (plan)Tornado
 - MongoDB
 
-## Reference
+## Components
 
-- https://arxiv.org/abs/2003.06199
+- User-side: Browser (Chrome, Firefox)
+    + Input helper
+- Server-side: Python3
+    + PLOD Data Collector
+    + RDF publisher
+- Database: MongoDB
+
+## I/F
+
+- /crest: providing a PLOD feeder for your input.
+- /beak: submittion of a PLOD.
+- /tummy: providing a RDF.
+- /flipper: 
 
 ## Data model
 
+e.g.
+
+```
+{
+    "event_id": "bd3626e0-ed90-439e-859d-05e0ed839822"
+    "publisher": "厚労省",
+    "patientDisease": "新型コロナウイルス",
+    "dateConfirmed": "2020-03-24",
+    "patientAge": "50",
+    "patientGender": "gender:noanswer",
+    "patientResidence": "東京都",
+    "patientHistory": [
+        {
+            "patientHisotryDate": "2020-03-24",
+            "patientHisotryTime": "02:49:33",
+            "patientHealthConditionNotspecial": false,
+            "patientHealthConditionMalaise": false,
+            "patientHealthConditionSlightFever": false,
+            "patientHealthConditionHightFever": false,
+            "patientHealthConditionChill": false,
+            "patientHealthConditionCough": false,
+            "patientHealthConditionFreeText": "",
+            "patientHistoryLocation": "東京都",
+            "patientHistoryLocationDetail": {}
+        },
+        {
+            "patientHisotryDate": "2020-03-24",
+            "patientHisotryTime": "02:49:33",
+            "patientHealthConditionNotspecial": false,
+            "patientHealthConditionMalaise": false,
+            "patientHealthConditionSlightFever": false,
+            "patientHealthConditionHightFever": false,
+            "patientHealthConditionChill": false,
+            "patientHealthConditionCough": false,
+            "patientHealthConditionFreeText": "",
+            "patientHistoryLocation": "東京都",
+            "transportationMethodBus": false,
+            "transportationMethodTaxi": false,
+            "transportationMethodTrain": false,
+            "transportationMethodWalk": false,
+            "transportationMethodBike": false,
+            "transportationMethodAirplane": false,
+            "transportationMethodShip": false,
+            "patientHistoryLocationDetail": {}
+        }
+    ],
+}
+```
+
+## TODO
+
+- JSON to JSON-LD to RDF, or JSON to RDF ?
+- uri_prefix: 固定値 e.g. https://plod.info/data/
+
+- moveAction
 - eventId
     + event identifier, uuid, rdfs:label
 - eventDate:
@@ -73,108 +146,3 @@ Patient Locational Open Data (PLOD)
 - MedicalCode:
     + infectiousDiseaseど同様か？
 
-## JSON to RDF
-
-- moveAction
-    + startTime: 粒度は %Y-%m-%d で十分か？
-    + endTime: 粒度は %Y-%m-%d で十分か？
-    + fromLocation: 自治体単位か？
-    + toLocation: 自治体単位か？
-    + transportMethod: [電車,バス,飛行機,徒歩,自転車,バイク,タクシー]
-        * 公共機関かその他かで十分かも？
-        * 公共機関なら路線名もか？
-
-- uri_prefix: 固定値 e.g. https://plod.info/data/
-
-## 要検討
-
-- 国籍
-
-## Data model
-
-```
-{
-    "eventId": uuid,
-    "
-}
-```
-
-## RDF sample
-
-```
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix schema: <https://schema.org/> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix gnjp: <http://geonames.jp/resource/> .
-@prefix plod: <https://plod.info/property/> .
-
-<https://plod.info/data/12202001311> a schema:Event ;
-    rdfs:label "12202001311" .
-
-<https://plod.info/data/12202001311-R01> a schema:Report ;
-    rdfs:label "12202001311-R01" ;
-    schema:mainEntity <https://plod.info/data/12202001311> ;
-    plod:numberOfPatients "1"^^schema:Integer ;
-    schema:datePublished "2020-01-31"^^schema:DateTime ;
-    schema:publisher gnjp:Chiba ;
-    schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html>;
-    dcterms:isReferencedBy <https://www.pref.chiba.lg.jp/shippei/kansenshou/keihatu-index.html>.
-
-<https://plod.info/data/12202001311-P01> a schema:Patient ;
-    rdfs:label "12202001311-P01" ;
-    schema:subjectOf <https://plod.info/data/12202001311> ;
-    schema:healthCondition <https://plod.info/entity/COVID-19> ;
-    plod:dateConfirmed "2020-01-31"^^schema:DateTime ;
-    foaf:age "20s" ;
-    schema:gender "Female" ;
-    schema:homeLocation gnjp:Chiba .
-
-<https://plod.info/data/12202001311-P01-M01> a schema:MoveAction ;
-    rdfs:label "12202001311-P01-M01" ;
-    schema:agent <https://plod.info/data/12202001311-P01> ;
-    schema:startTime "2020-01-16"^^schema:DateTime ;
-    schema:endTime "2020-01-16"^^schema:DateTime ;
-    schema:fromLocation gnjp:Tokyo ;
-    schema:toLocation gnjp:Osaka ;
-    schema:instrument "Airplane"@ja .
-
-<https://plod.info/data/12202001311-P01-M02> a schema:MoveAction ;
-    rdfs:label "12202001311-P01-M02" ;
-    schema:agent <https://plod.info/data/12202001311-P01> ;
-    schema:startTime "2020-01-22"^^schema:DateTime ;
-    schema:endTime "2020-01-22"^^schema:DateTime ;
-    schema:fromLocation gnjp:Osaka ;
-    schema:toLocation gnjp:Tokyo ;
-    schema:instrument "Bus"@ja .
-
-<http://geonames.jp/resource/Tokyo> a schema:Place ;
-    rdfs:label "Tokyo" .
-
-<http://geonames.jp/resource/Osaka> a schema:Place ;
-    rdfs:label "Osaka" .
-
-<http://geonames.jp/resource/Chiba> a schema:Place ;
-    rdfs:label "Chiba" .
-
-<https://plod.info/entity/COVID-19> a schema:InfectiousDisease ;
-    rdfs:label "COVID-19" ;
-    schema:name "2019-nCoV acute respiratory disease"@en ;
-    schema:infectiousAgent "2019-nCoV" ;
-    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1> .
-
-<http://purl.bioontology.org/ontology/ICD10/U07.1> a schema:MedicalCode ;
-    schema:codeValue "U07.1" ;
-    schema:codingSystem "ICD-10" .
-```
-
-```
-<https://plod.info/data/29202001281-P01-M01> a schema:MoveAction .
-    schema:agent <https://plod.info/data/29202001281-P01> ;
-    schema:startTime "2020-01-08"^^schema:DateTime ;
-    schema:endTime "2020-01-11"^^schema:DateTime ;
-    schema:fromLocation "" ;
-    schema:toLocation "" ;
-    schema:instrument "Bus" .
-```
