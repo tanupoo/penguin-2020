@@ -150,7 +150,7 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list)
 
     x = document.createElement("label")
     x.htmlFor = target_name + "FreeText"
-    x.appendChild(document.createTextNode("その他"));
+    //x.appendChild(document.createTextNode("その他"));
     div_obj.appendChild(x);
 
     x = document.createElement("textarea");
@@ -204,11 +204,11 @@ function add_input_select_freetext_to_obj(parent_obj, target_id, select_opts, va
     x2 = document.createElement("div");
     //x2.classList.add(target_id + "FreeTextBlock");
     x2.id = target_id + "FreeTextBlock";
-    x2.appendChild(document.createTextNode("その他"));
+    //x2.appendChild(document.createTextNode("選択肢にない場合、その他を選んで記述する。"));
     x3 = document.createElement("input");
     x3.type = "text";
     x3.id = target_id + "FreeText";
-    x3.placeholder = "選択肢にない場合に入力する。";
+    x3.placeholder = "選択肢にない場合、その他を選んでから記述する。";
     x2.appendChild(x3);
     x.appendChild(x2);
 
@@ -706,6 +706,11 @@ function ev_load(e)
     #divPatientAge, #patientAgeSelected { display: inline-block; }
     #divPatientGender, #patientGenderSelected { display: inline-block; }
     #plodLogo { float:left; margin-right: 10px; }
+
+    input::-webkit-input-placeholder { font-size: 8px; }
+    input:-moz-placeholder { font-size: 8px; }
+    input::-moz-placeholder { font-size: 8px; }
+    input:-ms-input-placeholder { font-size: 8px; }
 
     .divModelBlock {
         display: none;
