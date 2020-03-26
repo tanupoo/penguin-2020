@@ -300,7 +300,7 @@ app.router.add_route("POST", "/beak", receive_feeder_handler)
 app.router.add_route("GET", "/spawn", provide_json_handler)
 app.router.add_route("GET", "/hatch", provide_rdf_handler)
 app.router.add_route("GET", "/image/{name:.*\.png}", get_doc_handler)
-app.router.add_route("GET", "/favicon.ico", get_doc_handler)
+app.router.add_route("GET", "/{name:.*\.(js|css|ico)}", get_doc_handler)
 # /image/draft-penguin.png
 logger.info("Starting Penguin, a PLOD server listening on {}://{}:{}/"
             .format("https" if config.get(CONF_SERVER_CERT) else "http",
