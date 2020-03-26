@@ -11,6 +11,14 @@
 var SERVER_PATH = '';
 var DEBUG_XHR = false;
 
+/*
+ * NOTE: if you change the value of the lists.
+ * you have to check value_selected in below functions.
+ *     add_input_select_to_obj()
+ *     add_input_select_freetext_to_obj()
+ *     add_input_select_options_to_obj()
+ */
+
 /* publisher */
 const publisherList = [
     { "key":"厚労省", "value":"MHLW" },
@@ -53,7 +61,7 @@ const ageList = [
 const genderList = [
     { "key":"男性", "value":"Male" },
     { "key":"女性", "value":"Female" },
-    { "key":"答えたくない", "value":"Unspecified" },
+    { "key":"非公開", "value":"Unspecified" },
 ];
 
 /* disease */
@@ -127,7 +135,7 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list)
     parent_obj.appendChild(div_obj);
 }
 
-function add_input_select_options_to_obj(parent_obj, opts, key_selected)
+function add_input_select_options_to_obj(parent_obj, opts, value_selected)
 {
     /*
      * parent_obj, not parent_id, should be passed here.
@@ -137,34 +145,34 @@ function add_input_select_options_to_obj(parent_obj, opts, key_selected)
         let opt = document.createElement("option");
         opt.text = x["key"];
         opt.value = x["value"];
-        if (key_selected != null && x["key"] == key_selected) {
+        if (value_selected != null && x["value"] == value_selected) {
             opt.selected = true;
         }
         parent_obj.add(opt, null);
     });
 }
 
-function add_input_select(parent_obj, target_id, select_opts, selected)
+function add_input_select_to_obj(parent_obj, target_id, select_opts, value_selected)
 {
     let x, x2;
 
     x = document.createElement("div");
     x2 = document.createElement("select");
     x2.id = target_id + "Selected";
-    add_input_select_options_to_obj(x2, select_opts, selected);
+    add_input_select_options_to_obj(x2, select_opts, value_selected);
     x.appendChild(x2);
 
     parent_obj.appendChild(x);
 }
 
-function add_input_select_freetext_to_obj(parent_obj, target_id, select_opts, selected)
+function add_input_select_freetext_to_obj(parent_obj, target_id, select_opts, value_selected)
 {
     let x, x2, x3;
 
     x = document.createElement("div");
     x2 = document.createElement("select");
     x2.id = target_id + "Selected";
-    add_input_select_options_to_obj(x2, select_opts.concat({ "key":"その他", "value":"Others" }), selected);
+    add_input_select_options_to_obj(x2, select_opts.concat({ "key":"その他", "value":"Others" }), value_selected);
     x.appendChild(x2);
 
     x2 = document.createElement("div");
@@ -179,11 +187,6 @@ function add_input_select_freetext_to_obj(parent_obj, target_id, select_opts, se
     x.appendChild(x2);
 
     parent_obj.appendChild(x);
-}
-
-function add_input_publisher_to_obj(parent_obj, target_id)
-{
-    add_input_select_freetext_to_obj(parent_obj, target_id, publisherList, "厚労省");
 }
 
 function add_input_date_to_obj(parent_obj, target_id)
@@ -278,7 +281,7 @@ function add_line_patient_health_condition_history()
 
     /* 滞在地: select+text */
     cell = row.insertCell(-1);
-    add_input_select_freetext_to_obj(cell, "patientHistoryLocation" + row_num, locationList, "東京都");
+    add_input_select_freetext_to_obj(cell, "patientHistoryLocation" + row_num, locationList, "gnjp:Tokyo");
 
     /* 所見や患者の行動、その他: text */
     cell = row.insertCell(-1);
@@ -286,7 +289,7 @@ function add_line_patient_health_condition_history()
 
     /* 移動:目的地: select+text */
     cell = row.insertCell(-1);
-    add_input_select_freetext_to_obj(cell, "patientHistoryDestination" + row_num, locationList, "その他");
+    add_input_select_freetext_to_obj(cell, "patientHistoryDestination" + row_num, locationList, "Others");
 
     /* 移動:到着時間: date+time */
     cell = row.insertCell(-1);
@@ -585,19 +588,17 @@ function ev_load(e)
 {
     let parent_obj;
 
-    add_input_publisher_to_obj(document.getElementById("divPublisher"), "publisher");
+    add_input_select_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "MHLW");
 
     add_input_date_time("divDateConfirmed", "dateConfirmed", null, false);
 
-    parent_obj = document.getElementById("divPatientAge");
-    add_input_select(parent_obj, "patientAge", ageList, "Unspecified");
+    add_input_select_to_obj(document.getElementById("divPatientAge"), "patientAge", ageList, "Unspecified");
 
-    parent_obj = document.getElementById("divPatientGender");
-    add_input_select(parent_obj, "patientGender", genderList, "Unspecified");
+    add_input_select_to_obj(document.getElementById("divPatientGender"), "patientGender", genderList, "Unspecified");
 
-    add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "新型コロナウイルス");
+    add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "covid2019");
 
-    add_input_select_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", locationList, "東京都");
+    add_input_select_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", locationList, "gnjp:Tokyo");
 
     document.getElementById("addLinePatientHealthConditionHistory").addEventListener("click", ev_click_add_line_patient_health_condition_history, false);
 
@@ -613,13 +614,18 @@ function ev_load(e)
 
     <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
     <style type="text/css">
-    .divBlock { padding: 10px; margin-bottom: 10px; border: 1px dotted #333333; }
+    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
+    #divBlockPublisher, #divBlockPatientDisease, #divBlockDateConfirmed,
+    #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence
+    { display: inline-block; padding: 10px; border: 1px dotted #333333; }
 
     #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
     #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
     #divDateConfirmed, #dateConfirmed { display: inline-block; }
     #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
     #divPatientAge, #patientAgeSelected { display: inline-block; }
+    #divPatientGender, #patientGenderSelected { display: inline-block; }
+    #plodLogo { float:left; margin-right: 10px; }
 
     .modal {
         display: none;
@@ -658,48 +664,58 @@ function ev_load(e)
 <body>
 
     <div>
-        <img src="image/PLOD-v0.1-48x48.png" alt="PLOD logo">
-        <span>注意事項的な記述がここに入るイメージ</span>
+        <img id="plodLogo" src="image/PLOD-v0.1-48x48.png" alt="PLOD logo">
+        <div>
+            <span>Patient Locational Open Data (PLOD) Entry Form</span>
+            <br>
+            <span>注意事項的な記述がここに入る想定</span>
+        </div>
     </div>
     <hr>
 
     <div class="divBlock">
-        <label for="divPublisher">所轄の自治体名:</label>
-        <div id="divPublisher"></div>
-        <!-- insert dynamically -->
+        <div id="divBlockPublisher">
+            <label for="divPublisher">所轄の自治体名:</label>
+            <div id="divPublisher"></div>
+            <!-- insert dynamically -->
+        </div>
     </div>
 
     <div class="divBlock">
-        <label for="divPatientDisease">患者の病名:</label>
-        <div id="divPatientDisease"></div>
-        <!-- insert dynamically -->
+        <div id="divBlockPatientDisease">
+            <label for="divPatientDisease">患者の病名:</label>
+            <div id="divPatientDisease"></div>
+            <!-- insert dynamically -->
+        </div>
+
+        <div id="divBlockDateConfirmed">
+            <label for="divDateConfirmed">患者の状態が確認された日付:</label>
+            <div id="divDateConfirmed"> </div>
+            <!-- insert dynamically -->
+        </div>
     </div>
 
     <div class="divBlock">
-        <label for="divDateConfirmed">患者の状態が確認された日付:</label>
-        <div id="divDateConfirmed"> </div>
-        <!-- insert dynamically -->
+        <div id="divBlockPatientAge">
+            <label for="divPatientAge">患者の年代:</label>
+            <div id="divPatientAge"></div>
+            <!-- insert dynamically -->
+        </div>
+
+        <div id="divBlockPatientGender">
+            <label for="divPatientGender">患者の性別:</label>
+            <div id="divPatientGender"></div>
+            <!-- insert dynamically -->
+        </div>
+
+        <div id="divBlockPatientResidence">
+            <label for="divPatientResidence">患者の居住地域:</label>
+            <div id="divPatientResidence"></div>
+            <!-- insert dynamically -->
+        </div>
     </div>
 
-    <div class="divBlock">
-        <label for="divPatientAge">患者の年代:</label>
-        <div id="divPatientAge"></div>
-        <!-- insert dynamically -->
-    </div>
-
-    <div class="divBlock">
-        <label for="patientGenderSelected">患者の性別:</label>
-        <div id="divPatientGender"></div>
-        <!-- insert dynamically -->
-    </div>
-
-    <div class="divBlock">
-        <label for="divPatientResidence">患者の居住地域:</label>
-        <div id="divPatientResidence"></div>
-        <!-- insert dynamically -->
-    </div>
-
-    <div class="divBlock">
+    <div id="divPatientHealthConditionHistoryBlock">
         <label for="divPatientHealthConditionHistory">患者の状態の履歴:</label>
         <div id="divPatientHealthConditionHistory">
             <table id="tablePatientHealthConditionHistory" border=1>
