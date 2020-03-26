@@ -527,8 +527,18 @@ function make_patient_data()
     return created_data;
 }
 
-function send_patient_data(patient_data)
+async function send_patient_data(patient_data)
 {
+    fetch(SERVER_PATH + "/beak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(patient_data),
+    }).then(response => {
+        console.log("response:", response);
+        return response.json();
+    }).then(content => confirm("EventID " + content["result"]["event_id"] + " で、登録されました。"))
+    .catch(error => console.error("Error:", error));
+    /*
     $.ajax({
         url: SERVER_PATH + "/beak",
         type: "POST",
@@ -542,6 +552,7 @@ function send_patient_data(patient_data)
             //put_current_value(content);
         }
     });
+    */
     /*
     if (Object.keys(patient_data).length != 0) {
         // post only if any value are changed.
@@ -585,6 +596,17 @@ function ev_click_submit(a)
     }
 }
 
+function ev_click_confirm_no()
+{
+    jQuery(".divModelBlock").fadeOut();
+}
+
+function ev_click_confirm_yes()
+{
+    jQuery(".divModelBlock").fadeOut();
+    send_patient_data(make_patient_data());
+}
+
 function ev_click_confirm(a)
 {
     let created_data = make_patient_data();
@@ -592,25 +614,7 @@ function ev_click_confirm(a)
     let x = document.getElementById("confirmMessage");
     x.innerText = JSON.stringify(created_data, undefined, 2);
 
-    $('.js-modal').fadeIn();
-
-    $('.js-modal-close-no').on('click',function(){
-        $('.js-modal').fadeOut();
-        return false;
-    });
-
-    $('#js-modal-close-yes').on('click',function(){
-        $('.js-modal').fadeOut();
-        send_patient_data(make_patient_data());
-        return false;
-    });
-
-    /*
-    let ret = confirm(JSON.stringify(created_data, undefined, 2) + "<br>登録しますか？");
-    if (ret == true) {
-        send_patient_data(created_data);
-    }
-    */
+    jQuery(".divModelBlock").fadeIn();
 }
 
 function ev_load(e)
@@ -639,6 +643,11 @@ function ev_load(e)
 
     document.getElementById("confirmButton").addEventListener("click", ev_click_confirm, false);
     document.getElementById("submitButton").addEventListener("click", ev_click_submit, false);
+
+    /* modal window for confirming */
+    document.getElementById("confirmButtonYes").addEventListener("click", ev_click_confirm_yes, false);
+    jQuery(".confirmButtonNo").on("click", ev_click_confirm_no);
+
 }
 
     </script>
@@ -658,20 +667,20 @@ function ev_load(e)
     #divPatientGender, #patientGenderSelected { display: inline-block; }
     #plodLogo { float:left; margin-right: 10px; }
 
-    .modal {
+    .divModelBlock {
         display: none;
         height: 100vh;
         position: fixed;
         top: 0;
         width: 100%;
     }
-    .modal-bg {
+    .divModalContainer {
         background: rgba(0,0,0,0.8);
         height: 100vh;
         position: absolute;
         width: 100%;
     }
-    #modal-content {
+    #divModalContent {
         background: #fff;
         left: 50%;
         padding: 40px;
@@ -794,13 +803,13 @@ function ev_load(e)
     <div class="comment">XXX 整理できたらエクセルlikeな編集画面にする</div>
     <div class="comment">XXX 更新・確認もできたら便利</div>
 
-    <div class="modal js-modal">
-        <div class="modal-bg js-modal-close-no"></div>
-        <div id="modal-content">
+    <div class="divModelBlock">
+        <div class="divModalContainer confirmButtonNo"></div>
+        <div id="divModalContent">
             <div>
                 登録しますか？
-                <input class="js-modal-close-no" type="button" value="いいえ">
-                <input id="js-modal-close-yes" type="button" value="はい">
+                <input class="confirmButtonNo" type="button" value="いいえ">
+                <input id="confirmButtonYes" type="button" value="はい">
             </div>
             <hr>
             <div id="confirmMessage"></div>
