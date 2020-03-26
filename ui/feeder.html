@@ -8,7 +8,7 @@
     <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script-->
 
     <link rel="stylesheet" href="datetimepicker-master/jquery.datetimepicker.css">
-    <script type="text/javascript" src="datetimepicker-master/jquery.js"></script>
+    <script type="text/javascript" src="datetimepicker-master/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="datetimepicker-master/build/jquery.datetimepicker.full.min.js"></script>
 
     <script type="text/javascript">
@@ -228,9 +228,10 @@ function add_input_date_to_obj(parent_obj, target_id)
     x.id = target_id;
     parent_obj.appendChild(x);
     jQuery(`#${x.id}`).val(get_current_date());
-    jQuery(`#${x.id}`).datetimepicker({ format: "Y-m-d", timepicker: false, });
-    console.log("=== xxx add time", x.id);
-    console.log(parent_obj);
+    jQuery(`#${x.id}`).datetimepicker({
+        timepicker: false,
+        format: "Y-m-d",
+    });
 }
 
 function add_input_time_to_obj(parent_obj, target_id)
@@ -240,7 +241,12 @@ function add_input_time_to_obj(parent_obj, target_id)
     x.type = "text";
     x.id = target_id;
     parent_obj.appendChild(x);
-    jQuery(`#${x.id}`).datetimepicker({ datepicker: false, format: "H:i", minTime: "00:00", maxTime: "24:00", step: 30, defaultTime: "12:00" });
+    jQuery(`#${x.id}`).datetimepicker({
+        datepicker: false,
+        format: "H:i",
+        step: 30,
+        defaultTime: "12:00",
+    });
 }
 
 function add_input_date_time_to_obj(parent_obj, target_date_id, target_time_id, line_break)
@@ -400,7 +406,7 @@ function get_selected_value(target_id)
     }
 }
 
-function get_element_by_regex(parent_obj, target_regex)
+function get_one_element_by_regex(parent_obj, target_regex)
 {
     let x, a;
 
@@ -417,13 +423,44 @@ function get_element_by_regex(parent_obj, target_regex)
     for (let i = 0; i < parent_obj.childNodes.length; i++) {
         x = parent_obj.childNodes[i];
         //console.log("==> xxx by_regex:", i, x.id, target_regex, x);
-        a = get_element_by_regex(x, target_regex);
+        a = get_one_element_by_regex(x, target_regex);
         if (a != undefined) {
             return a;
         }
     }
 
     return undefined;
+}
+
+function get_elements_by_regex(parent_obj, target_regex)
+{
+    let x, a;
+
+    if (parent_obj.id && parent_obj.id.match(target_regex)) {
+        console.log("==> match", parent_obj.id);
+        return [parent_obj];
+    }
+
+    if (parent_obj.children == undefined) {
+        return undefined;
+    }
+
+    /* first, walk this level. */
+    let result = [];
+    for (let i = 0; i < parent_obj.childNodes.length; i++) {
+        x = parent_obj.childNodes[i];
+        //console.log("==> xxx by_regex:", i, x.id, target_regex, x);
+        a = get_elements_by_regex(x, target_regex);
+        if (a != undefined) {
+            result = result.concat(a);
+        }
+    }
+
+    if (result.length == 0) {
+        return undefined;
+    } else {
+        return result;
+    }
 }
 
 function get_one_value(target_id, a, b)
@@ -442,10 +479,10 @@ function get_one_value(target_id, a, b)
 function get_value_select_freetext_in_obj(parent_obj, target_id)
 {
     //console.log("xxx in_obj 0:", parent_obj, target_id);
-    let ax = get_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+Selected$`));
+    let ax = get_one_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+Selected$`));
     let a = ax.options[ax.selectedIndex].value;
     //console.log("xxx a=", a);
-    let bx = get_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+FreeText$`));
+    let bx = get_one_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+FreeText$`));
     let b = bx.value;
     //console.log("xxx b=", b);
     return get_one_value(target_id, a, b);
@@ -480,12 +517,12 @@ function make_patient_data()
     for (let i = 1; i < table.rows.length; i++) {
         //console.log("xxx LH table:", i, table.rows[i]);
         let kv = {};
-        row = table.rows[i];
-        kv["patientLocationHistoryDepartureDate"] = get_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
-        kv["patientLocationHistoryDepartureTime"] = get_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
+        let row = table.rows[i];
+        kv["patientLocationHistoryDepartureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
+        kv["patientLocationHistoryDepartureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
         kv["patientLocationHistoryDepartureFrom"] = get_value_select_freetext_in_obj(row.cells[1], "patientLocationHistoryDepartureFrom");
-        kv["patientLocationHistoryArrivalDate"] = get_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
-        kv["patientLocationHistoryArrivalTime"] = get_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
+        kv["patientLocationHistoryArrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
+        kv["patientLocationHistoryArrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
         kv["patientLocationHistoryArrivalTo"] = get_value_select_freetext_in_obj(row.cells[3], "patientLocationHistoryArrivalTo");
         row.cells[4].childNodes.forEach(x => { // transportationMethod
             x.childNodes.forEach(y => {
@@ -497,7 +534,7 @@ function make_patient_data()
                 }
             });
         });
-        kv["patientLocationHistoryDetail"] = get_element_by_regex(row.cells[5], new RegExp("patientLocationHistoryDetail\\d+$")).value;
+        kv["patientLocationHistoryDetail"] = get_one_element_by_regex(row.cells[5], new RegExp("patientLocationHistoryDetail\\d+$")).value;
         created_data["patientLocationHistory"].push(kv);
     }
 
@@ -507,8 +544,9 @@ function make_patient_data()
     for (let i = 1; i < table.rows.length; i++) {
         //console.log("xxx LH table:", i, table.rows[i]);
         let kv = {};
-        kv["patientConditionHistoryDate"] = get_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
-        kv["patientConditionHistoryTime"] = get_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
+        let row = table.rows[i];
+        kv["patientConditionHistoryDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
+        kv["patientConditionHistoryTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
         row.cells[1].childNodes.forEach(x => { // patientConditionHistoryStatus
             x.childNodes.forEach(y => {
                 if (y.type == "checkbox") {
@@ -519,7 +557,7 @@ function make_patient_data()
                 }
             });
         });
-        kv["patientConditionHistoryDetail"] = get_element_by_regex(row.cells[2], new RegExp("patientConditionHistoryDetail\\d+$")).value;
+        kv["patientConditionHistoryDetail"] = get_one_element_by_regex(row.cells[2], new RegExp("patientConditionHistoryDetail\\d+$")).value;
         created_data["patientConditionHistory"].push(kv);
     }
 
@@ -585,6 +623,8 @@ function ev_click_add_line_patient_condition_history()
 function ev_click_del_line(row)
 {
     if (true == confirm("削除しますか？")) {
+        jQuery(get_elements_by_regex(row, new RegExp("Date\\d+$"))).datetimepicker("destroy");
+        jQuery(get_elements_by_regex(row, new RegExp("Time\\d+$"))).datetimepicker("destroy");
         row.parentNode.deleteRow(row.sectionRowIndex);
     }
 }
@@ -624,7 +664,7 @@ function ev_load(e)
     add_input_select_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "MHLW");
 
     jQuery("#dateConfirmed").val(get_current_date());
-    jQuery("#dateConfirmed, #datePicker2").datetimepicker({ format: "Y-m-d", timepicker: false, });
+    jQuery("#dateConfirmed").datetimepicker({ format: "Y-m-d", timepicker: false, });
 
     add_input_select_to_obj(document.getElementById("divPatientAge"), "patientAge", ageList, "Unspecified");
 
