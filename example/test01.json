@@ -1,0 +1,72 @@
+{
+    "event_id": "12202001311",
+    "_id": "ObjectId:5e7d9ace0810c91d43c60130",
+    "publisher": "千葉県",
+    "patientDisease": "covid2019",
+    "dateConfirmed": "2020-01-31",
+    "patientAge": "20s",
+    "patientGender": "Female",
+    "patientResidence": "千葉県",
+    "patientLocationHistory": [
+        {
+            "patientLocationHistoryDepartureDate": "2020-01-16",
+            "patientLocationHistoryDepartureTime": "",
+            "patientLocationHistoryDepartureFrom": "東京都",
+            "patientLocationHistoryArrivalDate": "2020-01-16",
+            "patientLocationHistoryArrivalTime": "",
+            "patientLocationHistoryArrivalTo": "大阪府",
+            "transportationMethodTaxi": false,
+            "transportationMethodBus": false,
+            "transportationMethodTrain": true,
+            "transportationMethodAirplane": false,
+            "transportationMethodShip": false,
+            "transportationMethodWalk": false,
+            "transportationMethodFreeText": "",
+            "patientLocationHistoryDetail": ""
+        },
+        {
+            "patientLocationHistoryDepartureDate": "2020-01-22",
+            "patientLocationHistoryDepartureTime": "",
+            "patientLocationHistoryDepartureFrom": "大阪府",
+            "patientLocationHistoryArrivalDate": "2020-01-22",
+            "patientLocationHistoryArrivalTime": "",
+            "patientLocationHistoryArrivalTo": "東京都",
+            "transportationMethodTaxi": false,
+            "transportationMethodBus": false,
+            "transportationMethodTrain": true,
+            "transportationMethodAirplane": false,
+            "transportationMethodShip": false,
+            "transportationMethodWalk": false,
+            "transportationMethodFreeText": "",
+            "patientLocationHistoryDetail": ""
+        }
+    ],
+    "patientConditionHistory": [
+        {
+            "patientConditionHistoryDate": "2020-01-16",
+            "patientConditionHistoryTime": "",
+            "patientConditionHistoryStatusMalaise": true,
+            "patientConditionHistoryStatusSputum": false,
+            "patientConditionHistoryStatusFever": false,
+            "patientConditionHistoryStatusChill": false,
+            "patientConditionHistoryStatusCough": false,
+            "patientConditionHistoryStatusHospitalized": false,
+            "patientConditionHistoryStatusPositive": false,
+            "patientConditionHistoryStatusFreeText": "",
+            "patientConditionHistoryDetail": ""
+        },
+        {
+            "patientConditionHistoryDate": "2020-01-22",
+            "patientConditionHistoryTime": "",
+            "patientConditionHistoryStatusMalaise": false,
+            "patientConditionHistoryStatusSputum": false,
+            "patientConditionHistoryStatusFever": false,
+            "patientConditionHistoryStatusChill": true,
+            "patientConditionHistoryStatusCough": false,
+            "patientConditionHistoryStatusHospitalized": false,
+            "patientConditionHistoryStatusPositive": false,
+            "patientConditionHistoryStatusFreeText": "",
+            "patientConditionHistoryDetail": ""
+        }
+    ]
+}

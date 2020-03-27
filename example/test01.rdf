@@ -1,0 +1,64 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix gnjp: <http://geonames.jp/resource/> .
+@prefix plod: <https://plod.info/property/> .
+
+<https://plod.info/data/12202001311> a schema:Event ;
+    rdfs:label "12202001311" .
+
+<https://plod.info/data/12202001311-R01> a schema:Report ;
+    rdfs:label "12202001311-R01" ;
+    schema:mainEntity <https://plod.info/data/12202001311> ;
+    plod:numberOfPatients "1"^^schema:Integer ;
+    schema:datePublished "2020-01-31"^^schema:DateTime ;
+    schema:publisher gnjp:Chiba ;
+    schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> ;
+    dcterms:isReferencedBy <https://www.pref.chiba.lg.jp/shippei/kansenshou/keihatu-index.html>.
+
+<https://plod.info/data/12202001311-P01> a schema:Patient ;
+    rdfs:label "12202001311-P01" ;
+    schema:subjectOf <https://plod.info/data/12202001311> ;
+    schema:healthCondition <https://plod.info/entity/COVID-19> ;
+    plod:dateConfirmed "2020-01-31"^^schema:DateTime ;
+    foaf:age "20s" ;
+    schema:gender "Female" ;
+    schema:homeLocation gnjp:Chiba .
+
+<https://plod.info/data/12202001311-P01-M01> a schema:MoveAction ;
+    rdfs:label "12202001311-P01-M01" ;
+    schema:agent <https://plod.info/data/12202001311-P01> ;
+    schema:startTime "2020-01-16"^^schema:DateTime ;
+    schema:fromLocation gnjp:Tokyo ;
+    schema:toLocation gnjp:Osaka ;
+    schema:instrument "Train"@ja .
+
+<https://plod.info/data/12202001311-P01-M02> a schema:MoveAction ;
+    rdfs:label "12202001311-P01-M02" ;
+    schema:agent <https://plod.info/data/12202001311-P01> ;
+    schema:startTime "2020-01-22"^^schema:DateTime ;
+    schema:fromLocation gnjp:Osaka ;
+    schema:toLocation gnjp:Tokyo ;
+    schema:instrument "Train"@ja .
+
+<http://geonames.jp/resource/Chiba> a schema:Place ;
+    rdfs:label "Chiba" .
+
+<http://geonames.jp/resource/Tokyo> a schema:Place ;
+    rdfs:label "Tokyo" .
+
+<http://geonames.jp/resource/Osaka> a schema:Place ;
+    rdfs:label "Osaka" .
+
+<https://plod.info/entity/COVID-19> a schema:InfectiousDisease ;
+    rdfs:label "COVID-19" ;
+    schema:name "2019-nCoV acute respiratory disease"@en ;
+    schema:infectiousAgent "2019-nCoV" ;
+    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1> .
+
+<http://purl.bioontology.org/ontology/ICD10/U07.1> a schema:MedicalCode ;
+    schema:codeValue "U07.1" ;
+    schema:codingSystem "ICD-10" .
+
