@@ -619,8 +619,10 @@ async function send_patient_data(patient_data)
     }).then(response => {
         console.log("response:", response);
         return response.json();
-    }).then(content => confirm("EventID " + content["result"]["event_id"] + " で、登録されました。"))
-    .catch(error => console.error("Error:", error));
+    }).then(content => {
+        confirm("EventID " + content["result"]["event_id"] + " で、登録されました。");
+        window.location.reload(false);
+    }).catch(error => console.error("Error:", error));
     /*
     $.ajax({
         url: SERVER_PATH + "/beak",
@@ -776,6 +778,7 @@ function ev_load(e)
     input:-moz-placeholder { font-size: 8px; }
     input::-moz-placeholder { font-size: 8px; }
     input:-ms-input-placeholder { font-size: 8px; }
+    textarea::placeholder { font-size: 8px; }
 
     /* below are for the modal block */
     .divModelBlock {
@@ -807,21 +810,24 @@ function ev_load(e)
         font-size: 18px;
     }
 
-    .comment { display: block; } /* XXX comment visibility: none or block */
-
     </style>
 
 </head>
 <body>
 
     <div>
-        <a href="image/PLOD-v0.1.png">
-            <img id="plodLogo" src="image/PLOD-v0.1-48x48.png" alt="PLOD logo">
-        </a>
-        <div>
+        <div style="display:inline-block">
+            <a href="image/PLOD-v0.1.png">
+                <img id="plodLogo" src="image/PLOD-v0.1-48x48.png" alt="PLOD logo">
+            </a>
+        </div>
+        <div style="display:inline-block; width:60%;">
             <span>Patient Locational Open Data (PLOD) Entry Form</span>
             <br>
             <span>注意事項的な記述がここに入る想定</span>
+        </div>
+        <div style="display:inline-block; float:right;">
+            <a href="http://127.0.0.1:8081">編集(臨時)</a>
         </div>
     </div>
     <hr>
@@ -909,9 +915,6 @@ function ev_load(e)
     </div>
 
     <hr>
-
-    <div class="comment">XXX 整理できたらエクセルlikeな編集画面にする</div>
-    <div class="comment">XXX 更新・確認もできたら便利</div>
 
     <div class="divModelBlock">
         <div class="divModalContainer confirmButtonNo"></div>
