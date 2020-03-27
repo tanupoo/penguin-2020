@@ -1,3 +1,6 @@
 [submodule "ui/datetimepicker"]
 	path = ui/datetimepicker
 	url = https://github.com/tanupoo/datetimepicker
+[submodule "ui/select2-to-tree"]
+	path = ui/select2-to-tree
+	url = http://github.com/tanupoo/select2-to-tree
