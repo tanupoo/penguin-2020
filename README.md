@@ -59,49 +59,79 @@ e.g.
 
 ```
 {
-    "event_id": "bd3626e0-ed90-439e-859d-05e0ed839822"
-    "publisher": "厚労省",
-    "patientDisease": "新型コロナウイルス",
-    "dateConfirmed": "2020-03-24",
-    "patientAge": "50",
-    "patientGender": "gender:noanswer",
-    "patientResidence": "東京都",
-    "patientHistory": [
+    "publisher": "千葉県",
+    "localIdentifier": "13例目,千葉県内1例目",
+    "patientDisease": "covid2019",
+    "dateConfirmed": "2020-01-31",
+    "patientAge": "20s",
+    "patientGender": "Female",
+    "patientResidence": "千葉県",
+    "patientLocationHistory": [
         {
-            "patientHisotryDate": "2020-03-24",
-            "patientHisotryTime": "02:49:33",
-            "patientHealthConditionNotspecial": false,
-            "patientHealthConditionMalaise": false,
-            "patientHealthConditionSlightFever": false,
-            "patientHealthConditionHightFever": false,
-            "patientHealthConditionChill": false,
-            "patientHealthConditionCough": false,
-            "patientHealthConditionFreeText": "",
-            "patientHistoryLocation": "東京都",
-            "patientHistoryLocationDetail": {}
-        },
-        {
-            "patientHisotryDate": "2020-03-24",
-            "patientHisotryTime": "02:49:33",
-            "patientHealthConditionNotspecial": false,
-            "patientHealthConditionMalaise": false,
-            "patientHealthConditionSlightFever": false,
-            "patientHealthConditionHightFever": false,
-            "patientHealthConditionChill": false,
-            "patientHealthConditionCough": false,
-            "patientHealthConditionFreeText": "",
-            "patientHistoryLocation": "東京都",
-            "transportationMethodBus": false,
+            "patientLocationHistoryDepartureDate": "2020-01-16",
+            "patientLocationHistoryDepartureTime": "",
+            "patientLocationHistoryDepartureFrom": "東京都",
+            "patientLocationHistoryArrivalDate": "2020-01-16",
+            "patientLocationHistoryArrivalTime": "",
+            "patientLocationHistoryArrivalTo": "大阪府",
             "transportationMethodTaxi": false,
-            "transportationMethodTrain": false,
-            "transportationMethodWalk": false,
-            "transportationMethodBike": false,
+            "transportationMethodBus": false,
+            "transportationMethodTrain": true,
             "transportationMethodAirplane": false,
             "transportationMethodShip": false,
-            "patientHistoryLocationDetail": {}
+            "transportationMethodWalk": false,
+            "transportationMethodFreeText": "",
+            "patientLocationHistoryDetail": ""
+        },
+        {
+            "patientLocationHistoryDepartureDate": "2020-01-22",
+            "patientLocationHistoryDepartureTime": "",
+            "patientLocationHistoryDepartureFrom": "大阪府",
+            "patientLocationHistoryArrivalDate": "2020-01-22",
+            "patientLocationHistoryArrivalTime": "",
+            "patientLocationHistoryArrivalTo": "東京都",
+            "transportationMethodTaxi": false,
+            "transportationMethodBus": false,
+            "transportationMethodTrain": true,
+            "transportationMethodAirplane": false,
+            "transportationMethodShip": false,
+            "transportationMethodWalk": false,
+            "transportationMethodFreeText": "",
+            "patientLocationHistoryDetail": ""
         }
     ],
+    "patientConditionHistory": [
+        {
+            "patientConditionHistoryDate": "2020-01-16",
+            "patientConditionHistoryTime": "",
+            "patientConditionHistoryStatusMalaise": true,
+            "patientConditionHistoryStatusSputum": false,
+            "patientConditionHistoryStatusFever": false,
+            "patientConditionHistoryStatusChill": false,
+            "patientConditionHistoryStatusCough": false,
+            "patientConditionHistoryStatusHospitalized": false,
+            "patientConditionHistoryStatusPositive": false,
+            "patientConditionHistoryStatusFreeText": "",
+            "patientConditionHistoryDetail": ""
+        },
+        {
+            "patientConditionHistoryDate": "2020-01-22",
+            "patientConditionHistoryTime": "",
+            "patientConditionHistoryStatusMalaise": false,
+            "patientConditionHistoryStatusSputum": false,
+            "patientConditionHistoryStatusFever": false,
+            "patientConditionHistoryStatusChill": true,
+            "patientConditionHistoryStatusCough": false,
+            "patientConditionHistoryStatusHospitalized": false,
+            "patientConditionHistoryStatusPositive": false,
+            "patientConditionHistoryStatusFreeText": "",
+            "patientConditionHistoryDetail": ""
+        }
+    ],
+    "event_id": "1ef3c491-a892-4410-b4db-dc755c656cd1",
+    "_id": "ObjectId:5e7d9ace0810c91d43c60130"
 }
+
 ```
 
 ## TODO

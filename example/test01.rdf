@@ -6,51 +6,51 @@
 @prefix gnjp: <http://geonames.jp/resource/> .
 @prefix plod: <https://plod.info/property/> .
 
-<https://plod.info/data/12202001311> a schema:Event ;
-    rdfs:label "12202001311" .
+<https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1> a schema:Event ;
+    rdfs:label "1ef3c491-a892-4410-b4db-dc755c656cd1" .
 
-<https://plod.info/data/12202001311-R01> a schema:Report ;
-    rdfs:label "12202001311-R01" ;
-    schema:mainEntity <https://plod.info/data/12202001311> ;
+<https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1-R01> a schema:Report ;
+    rdfs:label "1ef3c491-a892-4410-b4db-dc755c656cd1-R01" ;
+    schema:mainEntity <https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1> ;
     plod:numberOfPatients "1"^^schema:Integer ;
     schema:datePublished "2020-01-31"^^schema:DateTime ;
-    schema:publisher gnjp:Chiba ;
+    schema:publisher gnjp:千葉県 ;
     schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> ;
     dcterms:isReferencedBy <https://www.pref.chiba.lg.jp/shippei/kansenshou/keihatu-index.html>.
 
-<https://plod.info/data/12202001311-P01> a schema:Patient ;
-    rdfs:label "12202001311-P01" ;
-    schema:subjectOf <https://plod.info/data/12202001311> ;
+<https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1-P01> a schema:Patient ;
+    rdfs:label "1ef3c491-a892-4410-b4db-dc755c656cd1-P01" ;
+    schema:subjectOf <https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1> ;
     schema:healthCondition <https://plod.info/entity/COVID-19> ;
     plod:dateConfirmed "2020-01-31"^^schema:DateTime ;
     foaf:age "20s" ;
     schema:gender "Female" ;
-    schema:homeLocation gnjp:Chiba .
+    schema:homeLocation gnjp:千葉県 .
 
-<https://plod.info/data/12202001311-P01-M01> a schema:MoveAction ;
-    rdfs:label "12202001311-P01-M01" ;
-    schema:agent <https://plod.info/data/12202001311-P01> ;
+<https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1-P01-M01> a schema:MoveAction ;
+    rdfs:label "1ef3c491-a892-4410-b4db-dc755c656cd1-P01-M01" ;
+    schema:agent <https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1-P01> ;
     schema:startTime "2020-01-16"^^schema:DateTime ;
-    schema:fromLocation gnjp:Tokyo ;
-    schema:toLocation gnjp:Osaka ;
+    schema:fromLocation gnjp:東京都 ;
+    schema:toLocation gnjp:大阪府 ;
     schema:instrument "Train"@ja .
 
-<https://plod.info/data/12202001311-P01-M02> a schema:MoveAction ;
-    rdfs:label "12202001311-P01-M02" ;
-    schema:agent <https://plod.info/data/12202001311-P01> ;
+<https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1-P01-M02> a schema:MoveAction ;
+    rdfs:label "1ef3c491-a892-4410-b4db-dc755c656cd1-P01-M02" ;
+    schema:agent <https://plod.info/data/1ef3c491-a892-4410-b4db-dc755c656cd1-P01> ;
     schema:startTime "2020-01-22"^^schema:DateTime ;
-    schema:fromLocation gnjp:Osaka ;
-    schema:toLocation gnjp:Tokyo ;
+    schema:fromLocation gnjp:大阪府 ;
+    schema:toLocation gnjp:東京都 ;
     schema:instrument "Train"@ja .
 
-<http://geonames.jp/resource/Chiba> a schema:Place ;
-    rdfs:label "Chiba" .
+<http://geonames.jp/resource/千葉県> a schema:Place ;
+    rdfs:label "千葉県" .
 
-<http://geonames.jp/resource/Tokyo> a schema:Place ;
-    rdfs:label "Tokyo" .
+<http://geonames.jp/resource/東京都> a schema:Place ;
+    rdfs:label "東京都" .
 
-<http://geonames.jp/resource/Osaka> a schema:Place ;
-    rdfs:label "Osaka" .
+<http://geonames.jp/resource/大阪府> a schema:Place ;
+    rdfs:label "大阪府" .
 
 <https://plod.info/entity/COVID-19> a schema:InfectiousDisease ;
     rdfs:label "COVID-19" ;
