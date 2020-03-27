@@ -168,6 +168,8 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, 
     x.name = target_name + "FreeText"
     if (placeholder_text != undefined) {
         x.placeholder = placeholder_text;
+    } else {
+        x.placeholder = "備考等自由記述";
     }
     x.classList.add(target_name + "FreeText");
     div_obj.appendChild(x);
@@ -305,11 +307,28 @@ function add_input_date_time_to_obj(parent_obj, target_date_id, target_time_id, 
     }
 }
 
-function add_input_textarea_to_obj(parent_obj, target_id)
+function add_input_text_to_obj(parent_obj, target_id, placeholder_text)
+{
+    let x = document.createElement("input");
+    x.id = target_id;
+    x.type = "text";
+    if (placeholder_text != undefined) {
+        x.placeholder = placeholder_text;
+    } else {
+        x.placeholder = "備考等自由記述";
+    }
+    parent_obj.appendChild(x);
+}
+
+function add_input_textarea_to_obj(parent_obj, target_id, placeholder_text)
 {
     let x = document.createElement("textarea");
     x.id = target_id;
-    x.placeholder = "備考など自由記述";
+    if (placeholder_text != undefined) {
+        x.placeholder = placeholder_text;
+    } else {
+        x.placeholder = "備考等自由記述";
+    }
     parent_obj.appendChild(x);
 }
 
@@ -352,7 +371,7 @@ function add_line_patient_location_history()
 
     /* "移動手段", transportationMethod, select+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "transportationMethod", transportationMethodList, "自由記述\n(自家用車、バイクなど他人と遭遇せず単独行動した場合など)");
+    add_input_checkbox_freetext_to_obj(cell, "transportationMethod", transportationMethodList, "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)");
 
     /* "所見や患者の行動、その他", patientLocationHistoryDetail, text */
     cell = row.insertCell(-1);
@@ -381,7 +400,7 @@ function add_line_patient_condition_history()
 
     /* "健康状態", patientConditionHistoryStatus, checkbox+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList, "自由記述");
+    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList);
 
     /* "所見や患者の行動、その他", patientConditionHistoryDetail, text */
     cell = row.insertCell(-1);
@@ -544,6 +563,7 @@ function make_patient_data()
 {
     let created_data = {
         "publisher": get_value_select_freetext("publisher"),
+        "localIdentifier": jQuery("#localIdentifier").val(),
         "patientDisease": get_value_select_freetext("patientDisease"),
         "dateConfirmed": jQuery("#dateConfirmed").val(),
         "patientAge": get_selected_value("patientAgeSelected"),
@@ -717,7 +737,9 @@ function ev_load(e)
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
     locationList = JSON.parse(JSON.stringify(lgList));
 
+    /* layout the blocks */
     add_input_select2_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "厚労省");
+    add_input_text_to_obj(document.getElementById("divLocalIdentifier"), "localIdentifier", "所轄における本件の識別子等あれば入力する。");
 
     jQuery("#dateConfirmed").val(get_current_date());
     jQuery("#dateConfirmed").datetimepicker({ format: "Y-m-d", timepicker: false, });
@@ -765,7 +787,9 @@ function ev_load(e)
     #divBlockPublisher, #divBlockPatientDisease, #divBlockDateConfirmed,
     #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence
     { display: inline-block; padding: 10px; border: 1px dotted #333333; }
+
     #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
+    #divBlockLocalIdentifier, #divLocalIdentifier { display: inline-block; }
     #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
     #divDateConfirmed, #dateConfirmed { display: inline-block; }
     #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
@@ -837,6 +861,13 @@ function ev_load(e)
             <label for="divPublisher">所轄の自治体名:</label>
             <div id="divPublisher"></div>
             <!-- insert dynamically -->
+        </div>
+        <div class="divBlock">
+            <div id="divBlockLocalIdentifier">
+                <label for="divLocalIdentifier">所轄の管理名:</label>
+                <div id="divLocalIdentifier"></div>
+                <!-- insert dynamically -->
+            </div>
         </div>
     </div>
 
