@@ -7,8 +7,15 @@
 
     <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script-->
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet">
+    <link href="select2-to-tree/src/select2totree.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <script src="select2-to-tree/src/select2totree.js"></script>
+    <script src="lglist-select2-20200327.js"></script>
+
     <link rel="stylesheet" href="datetimepicker/jquery.datetimepicker.css">
-    <script type="text/javascript" src="datetimepicker/jquery-1.10.2.min.js"></script>
+    <!--script type="text/javascript" src="datetimepicker/jquery-1.10.2.min.js"></script-->
     <script type="text/javascript" src="datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
     <script type="text/javascript">
@@ -27,7 +34,10 @@ jQuery.datetimepicker.setLocale("ja");
  */
 
 /* publisher */
-const publisherList = [
+//const publisherList = [];    // produced from lgList.
+let publisherList = [];    // produced from lgList.
+/*
+= [
     { "key":"厚労省", "value":"MHLW" },
     { "key":"茨城県", "value":"Ibaraki" },
     { "key":"神奈川県", "value":"Kanagawa" },
@@ -37,9 +47,12 @@ const publisherList = [
     { "key":"東京都", "value":"Tokyo" },
     { "key":"栃木県", "value":"Tochigi" },
 ];
+*/
 
 /* location */
-const locationList = [
+let locationList;   // copied from lgList at this time.
+/*
+= [
     { "key":"茨城県", "value":"gnjp:Ibaraki" },
     { "key":"神奈川県", "value":"gnjp:Kanagawa" },
     { "key":"群馬県", "value":"gnjp:Gunma" },
@@ -48,6 +61,7 @@ const locationList = [
     { "key":"東京都", "value":"gnjp:Tokyo" },
     { "key":"栃木県", "value":"gnjp:Tochigi" },
 ];
+*/
 
 /* age */
 const ageList = [
@@ -98,7 +112,8 @@ const transportationMethodList = [
     { "key": "飛行機", "postfix": "Airplane" },
     { "key": "船", "postfix": "Ship" },
     { "key": "徒歩", "postfix": "Walk" },
-    { "key": "自家用車・自転車・バイク", "postfix": "Bike" },
+    // any vehicles that you can drive solely are not in case.
+    // { "key": "自家用車・自転車・バイク", "postfix": "Bike" },
 ]
 
 window.addEventListener("load", ev_load, false);
@@ -122,7 +137,7 @@ function get_row_num()
     return row_num;
 }
 
-function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list)
+function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, placeholder_text)
 {
     /*
      * add target_name + postfix as the name of the checkboxes.
@@ -132,6 +147,7 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list)
 
     item_list.forEach(kv => {
         div_obj = document.createElement("div")
+        div_obj.classList.add(target_name + "Checkbox");
 
         x = document.createElement("input");
         x.type = "checkbox";
@@ -148,14 +164,12 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list)
 
     div_obj = document.createElement("div")
 
-    x = document.createElement("label")
-    x.htmlFor = target_name + "FreeText"
-    //x.appendChild(document.createTextNode("その他"));
-    div_obj.appendChild(x);
-
     x = document.createElement("textarea");
     x.name = target_name + "FreeText"
-    x.placeholder = "備考など自由記述";
+    if (placeholder_text != undefined) {
+        x.placeholder = placeholder_text;
+    }
+    x.classList.add(target_name + "FreeText");
     div_obj.appendChild(x);
 
     parent_obj.appendChild(div_obj);
@@ -178,27 +192,56 @@ function add_input_select_options_to_obj(parent_obj, opts, value_selected)
     });
 }
 
-function add_input_select_to_obj(parent_obj, target_id, select_opts, value_selected)
+function add_input_select_to_obj(parent_obj, target_id, select_list, value_selected)
 {
     let x, x2;
 
     x = document.createElement("div");
     x2 = document.createElement("select");
     x2.id = target_id + "Selected";
-    add_input_select_options_to_obj(x2, select_opts, value_selected);
+    add_input_select_options_to_obj(x2, select_list, value_selected);
     x.appendChild(x2);
 
     parent_obj.appendChild(x);
 }
 
-function add_input_select_freetext_to_obj(parent_obj, target_id, select_opts, value_selected)
+function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_given, value_selected)
+{
+    let x, x2, x3;
+
+    let select_list = select_list_given.concat({ "id": "Others", "text": "その他" });
+    x = document.createElement("div");
+    x2 = document.createElement("select");
+    x2.id = target_id + "Selected";
+    x.appendChild(x2);
+    jQuery(x2).select2ToTree({
+        treeData: {dataArr: select_list},
+        multiple: false,
+        dropdownAutoWidth: "auto",
+        width: "auto",
+    }).val(value_selected).trigger("change");
+    /* if value_selected doesn't apper, you should check if the value exists in the select_list_given. */
+
+    x2 = document.createElement("div");
+    x2.id = target_id + "FreeTextBlock";
+    x3 = document.createElement("input");
+    x3.type = "text";
+    x3.id = target_id + "FreeText";
+    x3.placeholder = "選択肢にない場合、その他を選んでから記述する。";
+    x2.appendChild(x3);
+    x.appendChild(x2);
+
+    parent_obj.appendChild(x);
+}
+
+function add_input_select_freetext_to_obj(parent_obj, target_id, select_list, value_selected)
 {
     let x, x2, x3;
 
     x = document.createElement("div");
     x2 = document.createElement("select");
     x2.id = target_id + "Selected";
-    add_input_select_options_to_obj(x2, select_opts.concat({ "key":"その他", "value":"Others" }), value_selected);
+    add_input_select_options_to_obj(x2, select_list.concat({ "key":"その他", "value":"Others" }), value_selected);
     x.appendChild(x2);
 
     x2 = document.createElement("div");
@@ -226,6 +269,7 @@ function add_input_date_to_obj(parent_obj, target_id)
     let x = document.createElement("input");
     x.type = "text";
     x.id = target_id;
+    x.classList.add("inputDate");
     parent_obj.appendChild(x);
     jQuery(`#${x.id}`).val(get_current_date());
     jQuery(`#${x.id}`).datetimepicker({
@@ -240,6 +284,7 @@ function add_input_time_to_obj(parent_obj, target_id)
     let x = document.createElement("input");
     x.type = "text";
     x.id = target_id;
+    x.classList.add("inputTime");
     parent_obj.appendChild(x);
     jQuery(`#${x.id}`).datetimepicker({
         datepicker: false,
@@ -295,19 +340,19 @@ function add_line_patient_location_history()
 
     /* "出発地", patientLocationHistoryDepartureFrom, select+text */
     cell = row.insertCell(-1);
-    add_input_select_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "gnjp:Tokyo");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都:非公開");
 
     /* "到着時間", patientLocationHistoryArrivalDateTime, date+time */
     cell = row.insertCell(-1);
     add_input_date_time_to_obj(cell, "patientLocationHistoryArrivalDate" + row_num, "patientLocationHistoryArrivalTime" + row_num, true);
 
-    /* "目的地", patientLocationHistoryArrivalTo, select+text */
+    /* "到着地", patientLocationHistoryArrivalTo, select+text */
     cell = row.insertCell(-1);
-    add_input_select_freetext_to_obj(cell, "patientLocationHistoryArrivalTo" + row_num, locationList, "Others");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalTo" + row_num, locationList, "Others");
 
     /* "移動手段", transportationMethod, select+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "transportationMethod", transportationMethodList);
+    add_input_checkbox_freetext_to_obj(cell, "transportationMethod", transportationMethodList, "自由記述\n(自家用車、バイクなど他人と遭遇せず単独行動した場合など)");
 
     /* "所見や患者の行動、その他", patientLocationHistoryDetail, text */
     cell = row.insertCell(-1);
@@ -336,7 +381,7 @@ function add_line_patient_condition_history()
 
     /* "健康状態", patientConditionHistoryStatus, checkbox+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList);
+    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList, "自由記述");
 
     /* "所見や患者の行動、その他", patientConditionHistoryDetail, text */
     cell = row.insertCell(-1);
@@ -661,7 +706,16 @@ function ev_load(e)
 {
     let parent_obj;
 
-    add_input_select_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "MHLW");
+//    select_list_given.concat({ "id": "Others", "text": "その他" });
+
+    /* create other list bsaed from lgList. */
+    lgList.forEach(x => {
+        publisherList.push({ "id": x["id"], "text": x["text"] });
+    });
+    publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
+    locationList = JSON.parse(JSON.stringify(lgList));
+
+    add_input_select2_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "厚労省");
 
     jQuery("#dateConfirmed").val(get_current_date());
     jQuery("#dateConfirmed").datetimepicker({ format: "Y-m-d", timepicker: false, });
@@ -672,11 +726,13 @@ function ev_load(e)
 
     add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "covid2019");
 
-    add_input_select_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", locationList, "gnjp:Tokyo");
+    add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都:非公開");
 
+    /* create patient's location history */
     document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_add_line_patient_location_history, false);
     add_line_patient_location_history();
 
+    /* create patient's condition history */
     document.getElementById("addLinePatientConditionHistory").addEventListener("click", ev_click_add_line_patient_condition_history, false);
     //add_line_patient_condition_history();
     //add_line_patient_condition_history();
@@ -694,11 +750,19 @@ function ev_load(e)
 
     <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
     <style type="text/css">
+
+    * { font-size: 14px; }
+    .inputDate, .inputTime { width: 100px; }
+    .transportationMethodCheckbox { display: inline-block; }
+    .transportationMethodFreeText { width: 300px; }
+    .patientConditionHistoryStatusCheckbox { display: inline-block; margin-right:8px; }
+    .patientConditionHistoryStatusFreeText { width: 500px; }
+
+    /* below are for alignment of the blocks. */
     .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
     #divBlockPublisher, #divBlockPatientDisease, #divBlockDateConfirmed,
     #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence
     { display: inline-block; padding: 10px; border: 1px dotted #333333; }
-
     #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
     #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
     #divDateConfirmed, #dateConfirmed { display: inline-block; }
@@ -707,11 +771,13 @@ function ev_load(e)
     #divPatientGender, #patientGenderSelected { display: inline-block; }
     #plodLogo { float:left; margin-right: 10px; }
 
+    /* below are for the placeholder */
     input::-webkit-input-placeholder { font-size: 8px; }
     input:-moz-placeholder { font-size: 8px; }
     input::-moz-placeholder { font-size: 8px; }
     input:-ms-input-placeholder { font-size: 8px; }
 
+    /* below are for the modal block */
     .divModelBlock {
         display: none;
         height: 100vh;
@@ -741,9 +807,6 @@ function ev_load(e)
         font-size: 18px;
     }
 
-    .description {
-        font-size: 10px;
-    }
     .comment { display: block; } /* XXX comment visibility: none or block */
 
     </style>
@@ -811,12 +874,12 @@ function ev_load(e)
         <div id="divPatientLocationHistory">
             <table id="tablePatientLocationHistory" border=1>
                 <tr>
-                    <th>出発時間</th>
-                    <th>出発地</th>
-                    <th>到着時間</th>
-                    <th>目的地</th>
-                    <th>手段</th>
-                    <th>所見や患者の行動、その他</th>
+                    <th class="trPatientLocationHistoryDepartureDateTime">出発時間</th>
+                    <th class="trPatientLocationHistoryDepartureFrom">出発地</th>
+                    <th class="trPatientLocationHistoryDepartureDateTime">到着時間</th>
+                    <th class="trPatientLocationHistoryArrivalTo">到着地</th>
+                    <th class="trTransportationMethod">手段</th>
+                    <th class="trPatientLocationHistoryDetail">所見や患者の行動、その他</th>
                 </tr>
                 <!-- insert dynamically -->
             </table>
