@@ -10,14 +10,13 @@ a Patient Locational Open Data (PLOD) server.
 ## Acknowledgements
 
 - Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
-- [Japan local goverment list](https://www.soumu.go.jp/denshijiti/code.html)
-
 ## links to the useful tools
 
 - RDF to JSON-LD [ttl2jsonld](https://frogcat.github.io/ttl2jsonld/demo/a)
 - JSON-LD to any [jsonld.js](https://github.com/digitalbazaar/jsonld.js)
 - [graph viewer](https://www.kanzaki.com/works/2009/pub/graph-draw).
 - many information and tools about RFD at (https://www.kanzaki.com/docs/sw/)
+- [Japan local goverment list](https://www.soumu.go.jp/denshijiti/code.html)
 
 ## Requirements
 
