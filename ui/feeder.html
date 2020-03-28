@@ -781,18 +781,23 @@ function ev_load(e)
     * { font-size: 14px; }
     .inputDate, .inputTime { width: 100px; }
     .transportationMethodCheckbox { display: inline-block; }
-    .transportationMethodFreeText { width: 300px; }
+    .transportationMethodFreeText { width: 340px; }
     .patientConditionHistoryStatusCheckbox { display: inline-block; margin-right:8px; }
     .patientConditionHistoryStatusFreeText { width: 500px; }
+    /*textarea[id^="patientLocationHistoryDetail"]  { width: 500px; }*/
+    input[id^="patientLocationHistoryDepartureFrom"] { width: 180px; }
+    input[id^="patientLocationHistoryArrivalTo"] { width: 180px; }
+    /*textarea[id^="patientConditionHistoryDetail2"]  { width: 500px; }*/
 
     /* below are for alignment of the blocks. */
-    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
-    #divBlockPublisher, #divBlockPatientDisease, #divBlockDateConfirmed,
-    #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence
+    .divBlock { padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
+    #divBlockPublisher, #divBlockLocalIdentifier, #divBlockPatientDisease,
+    #divBlockDateConfirmed, #divBlockPatientAge, #divBlockPatientGender,
+    #divBlockPatientResidence
     { display: inline-block; padding: 10px; border: 1px dotted #333333; }
 
     #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
-    #divBlockLocalIdentifier, #divLocalIdentifier { display: inline-block; }
+    #divLocalIdentifier, #localIdentifier { display: inline-block; }
     #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
     #divDateConfirmed, #dateConfirmed { display: inline-block; }
     #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
@@ -865,12 +870,10 @@ function ev_load(e)
             <div id="divPublisher"></div>
             <!-- insert dynamically -->
         </div>
-        <div class="divBlock">
-            <div id="divBlockLocalIdentifier">
-                <label for="divLocalIdentifier">所轄の管理名:</label>
-                <div id="divLocalIdentifier"></div>
-                <!-- insert dynamically -->
-            </div>
+        <div id="divBlockLocalIdentifier">
+            <label for="divLocalIdentifier">所轄の管理名:</label>
+            <div id="divLocalIdentifier"></div>
+            <!-- insert dynamically -->
         </div>
     </div>
 
