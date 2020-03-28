@@ -172,7 +172,7 @@ class db_connector():
             nb_rows = 1
             for x in self.col.find(selector):
                 _id = str(x.pop("_id"))
-                x.update({"_id": f"ObjectId:{_id}"})
+                x.update({"_id": f"{_id}"})
                 result.append(x)
                 nb_rows += 1
                 if self.config[CONF_DB_MAX_ROWS] == 0:
