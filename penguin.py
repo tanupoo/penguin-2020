@@ -31,6 +31,7 @@ ws_map = {}
 #
 CONF_DEBUG_MODE = "debug_mode"
 CONF_DEBUG_LEVEL = "debug_level"
+CONF_LOG_FILE = "log_file"
 CONF_SERVER_ADDR = "server_addr"
 CONF_SERVER_PORT = "server_port"
 CONF_SERVER_CERT = "server_cert"
@@ -48,6 +49,7 @@ def check_config(config, debug_mode=False):
     # overwrite the debug level if opt.debug is True.
     config.setdefault(CONF_DEBUG_MODE, debug_mode)
     config.setdefault(CONF_DEBUG_LEVEL, 0)
+    config.setdefault(CONF_LOG_FILE, "penguin.log")
     # set the access point of the server.
     config.setdefault(CONF_SERVER_ADDR, "::")
     config.setdefault(CONF_SERVER_PORT, "65481")
@@ -336,13 +338,13 @@ try:
 except Exception as e:
     print("ERROR: {} read error. {}".format(opt.config_file, e))
     exit(1)
-# update config.
-logger = set_logger(log_file=config.get("log_file"),
-                    logging_stdout=opt.logging_stdout,
-                    debug_mode=opt.debug)
 if not check_config(config, debug_mode=opt.debug):
     print("ERROR: error in {}.".format(opt.config_file))
     exit(1)
+# set logger.
+logger = set_logger(log_file=config[CONF_LOG_FILE],
+                    logging_stdout=opt.logging_stdout,
+                    debug_mode=opt.debug)
 # make ssl context.
 logger.debug(f"cert specified: {config.get(CONF_SERVER_CERT)}")
 if config.get(CONF_SERVER_CERT):
