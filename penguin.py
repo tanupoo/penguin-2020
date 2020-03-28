@@ -19,10 +19,16 @@ CONF_SERVER_ADDR = "server_addr"
 CONF_SERVER_PORT = "server_port"
 CONF_SERVER_CERT = "server_cert"
 CONF_DEBUG_LEVEL = "debug_level"
-CONF_OPT_DEBUG = "opt_debug"
 CONF_TZ = "tz"
 CONF_DEFAULT_SERVER_PORT = "65481"
 CONF_SSL_CTX = "__ssl_ctx"
+CONF_DB_ADDR = "db_addr"
+CONF_DB_PORT = "db_port"
+CONF_DB_NAME = "db_name"
+CONF_DB_COLLECTION = "db_collction"
+CONF_DB_USERNAME = "db_username"
+CONF_DB_PASSWORD = "db_password"
+CONF_DB_TIMEOUT = "db_timeout"
 CONF_DB_CONN = "__db_conn"
 
 LOG_FMT = "%(asctime)s.%(msecs)d %(lineno)d %(message)s"
@@ -68,51 +74,23 @@ def gen_common_response(msg, status=200, log_text=None):
 # MongoDB
 #
 class db_connector():
-    """
-    e.g.
-        from db_connector_mongodb import db_connector
-
-        p = handler(logger=self.logger, debug_level=self.debug_level,
-                   db_connect="parameter_for_connect")
-        p.submit(kv_data)
-
-    e.g. of <parameter_for_connect>
-        host=127.0.0.1 port=5432 dbname=postgres user=demo password=demo1
-    """
-    def __init__(self, **kwargs):
-        """
-        kwargs should contain: logger, debug_level
-        """
-        self.logger = kwargs.get("logger")
-        self.debug_level = kwargs.get("debug_level", 0)
-        self.tz = kwargs.get("tz", "GMT")
-        self.db_init(**kwargs)
-
-    def db_init(self, **kwargs):
-        """
-        db_name: default is "lorawan".
-        db_collection: default is "sensors".
-        db_addr: default is "localhost".
-        db_port: default is 27017.
-        db_timeout: default is 2000. (2 sec)
-        """
-        self.db_name = kwargs.setdefault("db_name", "plod")
-        self.db_col_name = kwargs.setdefault("db_collection", "draft")
-        self.db_addr = kwargs.setdefault("db_addr", "localhost")
-        self.db_port = kwargs.setdefault("db_port", 27017)
-        # XXX
-        self.db_username = kwargs.setdefault("db_username", "root")
-        self.db_password = kwargs.setdefault("db_upassword", "example")
-        timeout = kwargs.setdefault("db_timeout", 2000)
-        self.logger.info(f"""Connect MongoDB on {self.db_addr}:{self.db_port}
-                         for {self.db_name}.{self.db_col_name}""")
-        self.con = MongoClient(self.db_addr, self.db_port,
-                               serverSelectionTimeoutMS=timeout,
-                               username=self.db_username,
-                               password=self.db_password)
-        self.db = self.con[self.db_name]
-        self.col = self.db[self.db_col_name]
-        return True
+    def __init__(self, config, logger):
+        self.config = config
+        self.logger = logger
+        self.debug_level = config.setdefault(CONF_DEBUG_LEVEL, 0)
+        self.con = MongoClient(
+                self.config[CONF_DB_ADDR],
+                self.config[CONF_DB_PORT],
+                username=self.config[CONF_DB_USERNAME],
+                password=self.config[CONF_DB_PASSWORD],
+                serverSelectionTimeoutMS=self.config[CONF_DB_TIMEOUT])
+        self.db = self.con[self.config[CONF_DB_NAME]]
+        self.col = self.db[self.config[CONF_DB_COLLECTION]]
+        self.logger.info("Connect MongoDB {}.{} on {}:{}".
+                         format(self.config[CONF_DB_NAME],
+                                self.config[CONF_DB_COLLECTION],
+                                self.config[CONF_DB_ADDR],
+                                self.config[CONF_DB_PORT]))
 
     def db_submit(self, kv_data, **kwargs):
         try:
@@ -201,10 +179,9 @@ async def receive_feeder_handler(request):
         logger.debug("db_submit() will be called.")
         if config[CONF_DB_CONN].db_submit(kv_data):
             logger.info(f"Submited kv_data for {event_id} successfully.")
-        # even if error, proceed next anyway.
-        # remove ObjectID("...") from kv_data as MongoDB adds "_id":ObjectID().
-        if kv_data.get("_id"):
-            kv_data.pop("_id")
+        ## if you use kv_data, you need to care aboout "_id":ObjectID().
+        # if kv_data.get("_id"):
+        #     kv_data.pop("_id")
     #
     return gen_http_response({"status":"success", "event_id":event_id})
 
@@ -252,6 +229,15 @@ def check_config(config, debug_mode=False):
     config[CONF_SERVER_PORT] = int(config[CONF_SERVER_PORT])
     config.setdefault(CONF_TZ, "Asia/Tokyo")
     config.setdefault(CONF_SERVER_CERT, None)
+    config.setdefault(CONF_DB_ADDR, "localhost")
+    config.setdefault(CONF_DB_PORT, "27017")
+    config.setdefault(CONF_DB_USERNAME, "root")
+    config.setdefault(CONF_DB_PASSWORD, "example")
+    config.setdefault(CONF_DB_NAME, "plod")
+    config.setdefault(CONF_DB_COLLECTION, "draft")
+    config.setdefault(CONF_DB_TIMEOUT, "2000")
+    config[CONF_DB_PORT] = int(config[CONF_DB_PORT])
+    config[CONF_DB_TIMEOUT] = int(config[CONF_DB_TIMEOUT])
     # make ssl context.
     logger.debug(f"cert specified: {config.get(CONF_SERVER_CERT)}")
     if config.get(CONF_SERVER_CERT):
@@ -259,10 +245,7 @@ def check_config(config, debug_mode=False):
                 ssl.Purpose.CLIENT_AUTH)
         config[CONF_SSL_CTX].load_cert_chain(config[CONF_SERVER_CERT])
     #
-    config[CONF_DB_CONN] = db_connector(
-            logger=logger,
-            tz=config[CONF_TZ],
-            debug_level=config[CONF_DEBUG_LEVEL])
+    config[CONF_DB_CONN] = db_connector(config, logger)
     return True
 
 """
