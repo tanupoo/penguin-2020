@@ -29,13 +29,12 @@ ws_map = {}
 #
 # config
 #
+CONF_DEBUG_MODE = "debug_mode"
+CONF_DEBUG_LEVEL = "debug_level"
 CONF_SERVER_ADDR = "server_addr"
 CONF_SERVER_PORT = "server_port"
 CONF_SERVER_CERT = "server_cert"
-CONF_DEBUG_MODE = "debug_mode"
-CONF_DEBUG_LEVEL = "debug_level"
 CONF_TZ = "tz"
-CONF_DEFAULT_SERVER_PORT = "65481"
 CONF_DB_ADDR = "db_addr"
 CONF_DB_PORT = "db_port"
 CONF_DB_NAME = "db_name"
@@ -51,8 +50,7 @@ def check_config(config, debug_mode=False):
     config.setdefault(CONF_DEBUG_LEVEL, 0)
     # set the access point of the server.
     config.setdefault(CONF_SERVER_ADDR, "::")
-    config.setdefault(CONF_SERVER_PORT, CONF_DEFAULT_SERVER_PORT)
-    config[CONF_SERVER_PORT] = int(config[CONF_SERVER_PORT])
+    config.setdefault(CONF_SERVER_PORT, "65481")
     config.setdefault(CONF_TZ, "Asia/Tokyo")
     config.setdefault(CONF_SERVER_CERT, None)
     config.setdefault(CONF_DB_ADDR, "localhost")
@@ -64,6 +62,7 @@ def check_config(config, debug_mode=False):
     config.setdefault(CONF_DB_TIMEOUT, "2000")
     config.setdefault(CONF_DB_MAX_ROWS, "200")
     # convert into number.
+    config[CONF_SERVER_PORT] = int(config[CONF_SERVER_PORT])
     config[CONF_DB_PORT] = int(config[CONF_DB_PORT])
     config[CONF_DB_TIMEOUT] = int(config[CONF_DB_TIMEOUT])
     config[CONF_DB_MAX_ROWS] = int(config[CONF_DB_MAX_ROWS])
