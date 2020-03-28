@@ -14,14 +14,28 @@ from datetime import datetime
 from pymongo import MongoClient
 import pymongo.errors
 import uuid
+from json2turtle import plod_json2turtle
+from bson.objectid import ObjectId
+import re
 
+__CONF_SSL_CTX = "__ssl_ctx"
+__CONF_DB_CONN = "__db_conn"
+
+LOG_FMT = "%(asctime)s.%(msecs)d %(lineno)d %(message)s"
+LOG_DATE_FMT = "%Y-%m-%dT%H:%M:%S"
+
+ws_map = {}
+
+#
+# config
+#
 CONF_SERVER_ADDR = "server_addr"
 CONF_SERVER_PORT = "server_port"
 CONF_SERVER_CERT = "server_cert"
+CONF_DEBUG_MODE = "debug_mode"
 CONF_DEBUG_LEVEL = "debug_level"
 CONF_TZ = "tz"
 CONF_DEFAULT_SERVER_PORT = "65481"
-CONF_SSL_CTX = "__ssl_ctx"
 CONF_DB_ADDR = "db_addr"
 CONF_DB_PORT = "db_port"
 CONF_DB_NAME = "db_name"
@@ -29,13 +43,35 @@ CONF_DB_COLLECTION = "db_collction"
 CONF_DB_USERNAME = "db_username"
 CONF_DB_PASSWORD = "db_password"
 CONF_DB_TIMEOUT = "db_timeout"
-CONF_DB_CONN = "__db_conn"
+CONF_DB_MAX_ROWS = "db_max_rows"
 
-LOG_FMT = "%(asctime)s.%(msecs)d %(lineno)d %(message)s"
-LOG_DATE_FMT = "%Y-%m-%dT%H:%M:%S"
+def check_config(config, debug_mode=False):
+    # overwrite the debug level if opt.debug is True.
+    config.setdefault(CONF_DEBUG_MODE, debug_mode)
+    config.setdefault(CONF_DEBUG_LEVEL, 0)
+    # set the access point of the server.
+    config.setdefault(CONF_SERVER_ADDR, "::")
+    config.setdefault(CONF_SERVER_PORT, CONF_DEFAULT_SERVER_PORT)
+    config[CONF_SERVER_PORT] = int(config[CONF_SERVER_PORT])
+    config.setdefault(CONF_TZ, "Asia/Tokyo")
+    config.setdefault(CONF_SERVER_CERT, None)
+    config.setdefault(CONF_DB_ADDR, "localhost")
+    config.setdefault(CONF_DB_PORT, "27017")
+    config.setdefault(CONF_DB_USERNAME, "root")
+    config.setdefault(CONF_DB_PASSWORD, "example")
+    config.setdefault(CONF_DB_NAME, "plod")
+    config.setdefault(CONF_DB_COLLECTION, "draft")
+    config.setdefault(CONF_DB_TIMEOUT, "2000")
+    config.setdefault(CONF_DB_MAX_ROWS, "200")
+    # convert into number.
+    config[CONF_DB_PORT] = int(config[CONF_DB_PORT])
+    config[CONF_DB_TIMEOUT] = int(config[CONF_DB_TIMEOUT])
+    config[CONF_DB_MAX_ROWS] = int(config[CONF_DB_MAX_ROWS])
+    return True
 
-ws_map = {}
-
+#
+# HTTP response
+#
 def common_access_log(request):
     """
     logger.info("Access from {} {} {}".format(request.remote,
@@ -44,9 +80,15 @@ def common_access_log(request):
     """
     pass
 
-def gen_http_response(msg, status=200, log_text=None):
+def dumps_utf8(data):
+    return json.dumps(data, ensure_ascii=False)
+
+def http_response_turtle(msg):
+    return web.Response(body=msg, content_type="text/turtle")
+
+def http_response(msg, status=200, log_text=None):
     res_msg = gen_common_response(msg, status=200, log_text=log_text)
-    return web.json_response(res_msg, status=status)
+    return web.json_response(res_msg, status=status, dumps=dumps_utf8)
 
 def gen_common_response(msg, status=200, log_text=None):
     """
@@ -62,7 +104,10 @@ def gen_common_response(msg, status=200, log_text=None):
     if status != 200:
         logger.error("{} status={} error={}".format(msg, status, log_text))
     else:
-        logger.debug("{} status={}".format(msg, status))
+        if config[CONF_DEBUG_LEVEL] > 1:
+            logger.debug("result {} status={}".format(msg, status))
+        else:
+            logger.debug("result {} bytes status={}".format(len(msg), status))
     #
     return {
             "msg_type": "response",
@@ -77,7 +122,6 @@ class db_connector():
     def __init__(self, config, logger):
         self.config = config
         self.logger = logger
-        self.debug_level = config.setdefault(CONF_DEBUG_LEVEL, 0)
         self.con = MongoClient(
                 self.config[CONF_DB_ADDR],
                 self.config[CONF_DB_PORT],
@@ -91,6 +135,8 @@ class db_connector():
                                 self.config[CONF_DB_COLLECTION],
                                 self.config[CONF_DB_ADDR],
                                 self.config[CONF_DB_PORT]))
+        self.re_objectid = re.compile("^[a-f0-9]+$")
+        self.re_eventid = re.compile("^[\-a-f0-9]+$")
 
     def db_submit(self, kv_data, **kwargs):
         try:
@@ -102,6 +148,40 @@ class db_connector():
         self.logger.debug("Succeeded submitting data into MongoDB.")
         return True
 
+    def find(self, selector):
+        """
+        selector: string like
+            "5e7d9ace0810c91d43c60130" => { "_id": ObjectID("...") }
+            "{}" => {}
+            "1ef3c491-a892-4410-b4db-dc755c656cd1" => { "event_id": "..." }
+            '{ "any_key": "any_value" }' => { "any_key": "any_value" }
+            None => error
+        """
+        #
+        if len(selector) == 0:
+            selector = {}
+        elif self.re_objectid.match(selector):
+            selector = { "_id": ObjectId(selector) }
+        elif self.re_eventid.match(selector):
+            selector = { "event_id": selector }
+        else:
+            selector = json.loads(selector)
+        #
+        result = []
+        try:
+            nb_rows = 1
+            for x in self.col.find(selector):
+                _id = str(x.pop("_id"))
+                x.update({"_id": f"ObjectId:{_id}"})
+                result.append(x)
+                nb_rows += 1
+                if self.config[CONF_DB_MAX_ROWS] == 0:
+                    continue
+                elif nb_rows > self.config[CONF_DB_MAX_ROWS]:
+                    break
+            return True, result
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            return False, str(e)
 
 #
 # REST API
@@ -159,12 +239,12 @@ async def receive_feeder_handler(request):
         elif isinstance(content, str):
             kv_data = json.loads(content)
         else:
-            return gen_http_response(
+            return http_response(
                     "The payload type is neigther bytes nor str. {}"
                     .format(type(content)),
                     status=404)
     except json.decoder.JSONDecodeError as e:
-        return gen_http_response(
+        return http_response(
                 "The payload format was not likely JSON.",
                 status=404, log_text=str(e))
 
@@ -175,21 +255,43 @@ async def receive_feeder_handler(request):
     logger.debug("kv_data: {}".format(json.dumps(kv_data)))
 
     # submit kv_data into database if needed.
-    if config[CONF_DB_CONN]:
+    if config[__CONF_DB_CONN]:
         logger.debug("db_submit() will be called.")
-        if config[CONF_DB_CONN].db_submit(kv_data):
+        if config[__CONF_DB_CONN].db_submit(kv_data):
             logger.info(f"Submited kv_data for {event_id} successfully.")
         ## if you use kv_data, you need to care aboout "_id":ObjectID().
         # if kv_data.get("_id"):
         #     kv_data.pop("_id")
     #
-    return gen_http_response({"status":"success", "event_id":event_id})
+    return http_response({"event_id":event_id})
 
-async def provide_json_handler(request):
-    pass
-
-async def provide_rdf_handler(request):
-    pass
+async def provide_plod_handler(request):
+    """
+    e.g. /tummy/json/all
+    cond:
+        all:
+        event_id:
+        _id:
+        mongodb query:
+    """
+    if not config[__CONF_DB_CONN]:
+        return False, "DB hasn't been ready."
+    #
+    output_format = request.match_info["fmt"]
+    condition = request.match_info["cond"]
+    if output_format not in ["json", "turtle"]:
+        return False, f"{output_format} is not supported."
+    # XXX should check the condition ?
+    if condition == "all":
+        condition = ""
+    logger.debug(f"Try seraching db by [{condition}]")
+    result = config[__CONF_DB_CONN].find(condition)
+    if result[0] == False:
+        return result
+    if output_format == "json":
+        return http_response(result[1])
+    elif output_format == "turtle":
+        return http_response_turtle(plod_json2turtle(result[1][0]))
 
 def set_logger(log_file=None, logging_stdout=False,
                debug_mode=False):
@@ -218,36 +320,6 @@ def set_logger(log_file=None, logging_stdout=False,
         logger.setLevel(logging.INFO)
     return logger
 
-def check_config(config, debug_mode=False):
-    # overwrite the debug level if opt.debug is True.
-    if debug_mode == True:
-        config[CONF_DEBUG_LEVEL] = 99
-    logger.debug(f"expanded sys.path={sys.path}")
-    # set the access point of the server.
-    config.setdefault(CONF_SERVER_ADDR, "::")
-    config.setdefault(CONF_SERVER_PORT, CONF_DEFAULT_SERVER_PORT)
-    config[CONF_SERVER_PORT] = int(config[CONF_SERVER_PORT])
-    config.setdefault(CONF_TZ, "Asia/Tokyo")
-    config.setdefault(CONF_SERVER_CERT, None)
-    config.setdefault(CONF_DB_ADDR, "localhost")
-    config.setdefault(CONF_DB_PORT, "27017")
-    config.setdefault(CONF_DB_USERNAME, "root")
-    config.setdefault(CONF_DB_PASSWORD, "example")
-    config.setdefault(CONF_DB_NAME, "plod")
-    config.setdefault(CONF_DB_COLLECTION, "draft")
-    config.setdefault(CONF_DB_TIMEOUT, "2000")
-    config[CONF_DB_PORT] = int(config[CONF_DB_PORT])
-    config[CONF_DB_TIMEOUT] = int(config[CONF_DB_TIMEOUT])
-    # make ssl context.
-    logger.debug(f"cert specified: {config.get(CONF_SERVER_CERT)}")
-    if config.get(CONF_SERVER_CERT):
-        config[CONF_SSL_CTX] = ssl.create_default_context(
-                ssl.Purpose.CLIENT_AUTH)
-        config[CONF_SSL_CTX].load_cert_chain(config[CONF_SERVER_CERT])
-    #
-    config[CONF_DB_CONN] = db_connector(config, logger)
-    return True
-
 """
 main
 """
@@ -259,9 +331,6 @@ ap.add_argument("-d", action="store_true", dest="debug",
 ap.add_argument("-D", action="store_true", dest="logging_stdout",
                help="enable to show messages onto stdout.")
 opt = ap.parse_args()
-# XXX
-# XXX for test
-# XXX
 # load the config file.
 try:
     config = json.load(open(opt.config_file))
@@ -269,21 +338,27 @@ except Exception as e:
     print("ERROR: {} read error. {}".format(opt.config_file, e))
     exit(1)
 # update config.
-config.setdefault(CONF_DEBUG_LEVEL, 0)  # only CONF_DEBUG_LEVEL needs here.
 logger = set_logger(log_file=config.get("log_file"),
                     logging_stdout=opt.logging_stdout,
                     debug_mode=opt.debug)
 if not check_config(config, debug_mode=opt.debug):
     print("ERROR: error in {}.".format(opt.config_file))
     exit(1)
+# make ssl context.
+logger.debug(f"cert specified: {config.get(CONF_SERVER_CERT)}")
+if config.get(CONF_SERVER_CERT):
+    config[__CONF_SSL_CTX] = ssl.create_default_context(
+            ssl.Purpose.CLIENT_AUTH)
+    config[__CONF_SSL_CTX].load_cert_chain(config[CONF_SERVER_CERT])
+# make mongodb connection.
+config[__CONF_DB_CONN] = db_connector(config, logger)
 # make routes.
 app = web.Application(logger=logger)
 app.router.add_route("GET", "/crest", provide_feeder_handler)
 app.router.add_route("POST", "/beak", receive_feeder_handler)
-app.router.add_route("GET", "/spawn", provide_json_handler)
-app.router.add_route("GET", "/hatch", provide_rdf_handler)
-app.router.add_route("GET", "/image/{name:.*\.png}", get_doc_handler)
-app.router.add_route("GET", "/{name:.*\.(js|css|ico|map)}", get_doc_handler)
+app.router.add_route("GET", "/tummy/{fmt:(json|turtle)}/{cond:.+}", provide_plod_handler)
+app.router.add_route("GET", "/image/{name:.+\.png}", get_doc_handler)
+app.router.add_route("GET", "/{name:.+\.(js|css|ico|map)}", get_doc_handler)
 # /image/draft-penguin.png
 logger.info("Starting Penguin, a PLOD server listening on {}://{}:{}/"
             .format("https" if config.get(CONF_SERVER_CERT) else "http",
@@ -296,7 +371,7 @@ web_handler = app.make_handler()
 server_coro = loop.create_server(web_handler,
                                  host=config.get(CONF_SERVER_ADDR),
                                  port=config.get(CONF_SERVER_PORT),
-                                 ssl=config.get(CONF_SSL_CTX))
+                                 ssl=config.get(__CONF_SSL_CTX))
 event = loop.run_until_complete(server_coro)
 try:
     loop.run_forever()
