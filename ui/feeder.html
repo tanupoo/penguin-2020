@@ -360,7 +360,7 @@ function add_line_patient_location_history()
 
     /* "出発地", patientLocationHistoryDepartureFrom, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都:非公開");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都");
 
     /* "到着時間", patientLocationHistoryArrivalDateTime, date+time */
     cell = row.insertCell(-1);
@@ -751,7 +751,7 @@ function ev_load(e)
 
     add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "covid2019");
 
-    add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都:非公開");
+    add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都");
 
     /* create patient's location history */
     document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_add_line_patient_location_history, false);
