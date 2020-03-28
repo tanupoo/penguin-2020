@@ -131,7 +131,7 @@ class db_connector():
                 serverSelectionTimeoutMS=self.config[CONF_DB_TIMEOUT])
         self.db = self.con[self.config[CONF_DB_NAME]]
         self.col = self.db[self.config[CONF_DB_COLLECTION]]
-        self.logger.info("Connect MongoDB {}.{} on {}:{}".
+        self.logger.info("Connected to MongoDB {}.{} on {}:{}".
                          format(self.config[CONF_DB_NAME],
                                 self.config[CONF_DB_COLLECTION],
                                 self.config[CONF_DB_ADDR],
