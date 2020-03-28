@@ -250,7 +250,6 @@ function add_input_select_freetext_to_obj(parent_obj, target_id, select_list, va
     x2 = document.createElement("div");
     //x2.classList.add(target_id + "FreeTextBlock");
     x2.id = target_id + "FreeTextBlock";
-    //x2.appendChild(document.createTextNode("選択肢にない場合、その他を選んで記述する。"));
     x3 = document.createElement("input");
     x3.type = "text";
     x3.id = target_id + "FreeText";
@@ -476,7 +475,7 @@ function get_one_element_by_regex(parent_obj, target_regex)
     let x, a;
 
     if (parent_obj.id && parent_obj.id.match(target_regex)) {
-        console.log("==> match", parent_obj.id);
+        //console.log("==> match", parent_obj.id);
         return parent_obj;
     }
 
@@ -502,7 +501,7 @@ function get_elements_by_regex(parent_obj, target_regex)
     let x, a;
 
     if (parent_obj.id && parent_obj.id.match(target_regex)) {
-        console.log("==> match", parent_obj.id);
+        //console.log("==> match", parent_obj.id);
         return [parent_obj];
     }
 
@@ -543,13 +542,10 @@ function get_one_value(target_id, a, b)
 
 function get_value_select_freetext_in_obj(parent_obj, target_id)
 {
-    //console.log("xxx in_obj 0:", parent_obj, target_id);
     let ax = get_one_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+Selected$`));
     let a = ax.options[ax.selectedIndex].value;
-    //console.log("xxx a=", a);
     let bx = get_one_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+FreeText$`));
     let b = bx.value;
-    //console.log("xxx b=", b);
     return get_one_value(target_id, a, b);
 }
 
@@ -578,10 +574,10 @@ function make_patient_data()
     let table;
 
     table = document.getElementById("tablePatientLocationHistory");
-    debug_table(table);
+    //debug_table(table);
 
     for (let i = 1; i < table.rows.length; i++) {
-        //console.log("xxx LH table:", i, table.rows[i]);
+        //console.log("xxx PLH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
         kv["patientLocationHistoryDepartureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
@@ -605,10 +601,10 @@ function make_patient_data()
     }
 
     table = document.getElementById("tablePatientConditionHistory");
-    debug_table(table);
+    //debug_table(table);
 
     for (let i = 1; i < table.rows.length; i++) {
-        //console.log("xxx LH table:", i, table.rows[i]);
+        //console.log("xxx PCH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
         kv["patientConditionHistoryDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
@@ -742,8 +738,7 @@ function ev_load(e)
     add_input_select2_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "厚労省");
     add_input_text_to_obj(document.getElementById("divLocalIdentifier"), "localIdentifier", "所轄における本件の識別子等あれば入力する。");
 
-    jQuery("#dateConfirmed").val(get_current_date());
-    jQuery("#dateConfirmed").datetimepicker({ format: "Y-m-d", timepicker: false, });
+    add_input_date_to_obj(document.getElementById("divBlockDateConfirmed"), "dateConfirmed");
 
     add_input_select_to_obj(document.getElementById("divPatientAge"), "patientAge", ageList, "Unspecified");
 
@@ -881,7 +876,7 @@ function ev_load(e)
 
         <div id="divBlockDateConfirmed">
             <label for="dateConfirmed">患者の状態が確認された日付:</label>
-            <input id="dateConfirmed" type="text" />
+            <!--input id="dateConfirmed" type="text" /-->
             <!-- insert dynamically -->
         </div>
     </div>
