@@ -208,7 +208,7 @@ function add_input_select_to_obj(parent_obj, target_id, select_list, value_selec
     parent_obj.appendChild(x);
 }
 
-function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_given, value_selected)
+function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_given, value_selected, placeholder_text)
 {
     let x, x2, x3;
 
@@ -230,7 +230,11 @@ function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_gi
     x3 = document.createElement("input");
     x3.type = "text";
     x3.id = target_id + "FreeText";
-    x3.placeholder = "選択肢にない場合、その他を選んでから記述する。";
+    if (placeholder_text != undefined) {
+        x3.placeholder = "補足情報等があれば入力する。";
+    } else {
+        x3.placeholder = "選択肢にない場合、その他を選んでから記述する。";
+    }
     x2.appendChild(x3);
     x.appendChild(x2);
 
@@ -359,7 +363,7 @@ function add_line_patient_location_history()
 
     /* "出発地", patientLocationHistoryDepartureFrom, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都", "補足情報等があれば入力する。");
 
     /* "到着時間", patientLocationHistoryArrivalDateTime, date+time */
     cell = row.insertCell(-1);
@@ -367,7 +371,7 @@ function add_line_patient_location_history()
 
     /* "到着地", patientLocationHistoryArrivalTo, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalTo" + row_num, locationList, "Others");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalTo" + row_num, locationList, "東京都", "補足情報等があれば入力する。");
 
     /* "移動手段", transportationMethod, select+text */
     cell = row.insertCell(-1);
@@ -533,8 +537,8 @@ function get_one_value(target_id, a, b)
         return a;
     } else {
         if (a != "Others") {
-            window.alert(target_id + `: ${a}を選択され、かつ、その他のフィールドに ${b} が入っています。`);
-            return null;
+            window.alert(target_id + `: ${a} が選択され、かつ、その他のフィールドに ${b} が入っています。${a} が採用されました。`);
+            return a;
         }
         return b;
     }
@@ -565,7 +569,8 @@ function make_patient_data()
         "dateConfirmed": jQuery("#dateConfirmed").val(),
         "patientAge": get_selected_value("patientAgeSelected"),
         "patientGender": get_selected_value("patientGenderSelected"),
-        "patientResidence": get_value_select_freetext("patientResidence"),
+        "patientResidence": jQuery("#patientResidenceSelected").val(),
+        "patientResidenceAnnex": jQuery("#patientResidenceFreeText").val(),
         "patientLocationHistory": [
         ],
         "patientConditionHistory": [
@@ -582,10 +587,12 @@ function make_patient_data()
         let row = table.rows[i];
         kv["patientLocationHistoryDepartureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
         kv["patientLocationHistoryDepartureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
-        kv["patientLocationHistoryDepartureFrom"] = get_value_select_freetext_in_obj(row.cells[1], "patientLocationHistoryDepartureFrom");
+        kv["patientLocationHistoryDepartureFrom"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+Selected$")).value;
+        kv["patientLocationHistoryDepartureFromAnnex"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+FreeText$")).value;
         kv["patientLocationHistoryArrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
         kv["patientLocationHistoryArrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
-        kv["patientLocationHistoryArrivalTo"] = get_value_select_freetext_in_obj(row.cells[3], "patientLocationHistoryArrivalTo");
+        kv["patientLocationHistoryArrivalTo"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalTo\\d+Selected$")).value;
+        kv["patientLocationHistoryArrivalToAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalTo\\d+FreeText$")).value;
         row.cells[4].childNodes.forEach(x => { // transportationMethod
             x.childNodes.forEach(y => {
                 if (y.type == "checkbox") {
@@ -746,7 +753,7 @@ function ev_load(e)
 
     add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "covid2019");
 
-    add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都");
+    add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都", "補足情報等があれば入力する。");
 
     /* create patient's location history */
     document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_add_line_patient_location_history, false);
