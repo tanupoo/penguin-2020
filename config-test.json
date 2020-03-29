@@ -1,9 +1,0 @@
-{
-    "debug_level": 0,
-    "log_file": "penguin.log",
-    "server_addr": "",
-    "server_port": "65481",
-    "server_cert": "/Users/sakane/etc/cert/tanu.org/tanu.org-cert-key.pem",
-    "db_username": "root",
-    "db_password": "example"
-}

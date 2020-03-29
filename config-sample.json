@@ -1,0 +1,16 @@
+{
+    "debug_level": 1,
+    "log_file": "penguin.log",
+    "tz": "Asia/Tokyo",
+    "server_addr": "",
+    "server_port": "65481",
+    "server_cert": "plod.info-cert-key.pem",
+    "db_addr": "127.0.0.1",
+    "db_port": "27017",
+    "db_name": "plod",
+    "db_collction": "draft",
+    "db_username": "root",
+    "db_password": "example",
+    "db_timeout": "2000",
+    "db_max_rows": "200"
+}
