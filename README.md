@@ -10,8 +10,8 @@ a Patient Locational Open Data (PLOD) server.
 - 指定された PLOD を REST API を使って提供する。
   (providing PLODs through REST API.)
 
-PLODについては下記論文を参照のこと。
-(Please refer to the following paper if you want to know the detail about PLOD.)
+PLOD については [plod.info](http://plod.info) と論文を参照して下さい。
+(Please refer to the [plod.info](http://plod.info) and the following paper if you want to know the detail about PLOD.)
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
