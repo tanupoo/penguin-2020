@@ -63,7 +63,7 @@ const genderList = [
 
 /* disease */
 const diseaseList = [
-    { "key":"新型コロナウイルス", "value":"covid2019" },
+    { "key":"新型コロナウイルス", "value":"COVID-2019" },
     { "key":"麻疹", "value":"Measles" },
     { "key":"未確定", "value":"Unconfirmed" },
 ];
@@ -86,9 +86,9 @@ const transportationMethodList = [
     { "key": "タクシー", "name": "Taxi" },
     { "key": "バス", "name": "Bus" },
     { "key": "電車", "name": "Train" },
-    { "key": "飛行機", "name": "Airplane" },
+    { "key": "飛行機", "name": "yAirplane" },
     { "key": "船", "name": "Ship" },
-    { "key": "徒歩", "name": "Walk" },
+    { "key": "徒歩", "name": "yWalk" },
     // any vehicles that you can drive solely are not in case.
     // { "key": "自家用車・自転車・バイク", "name": "Bike" },
 ]
@@ -541,7 +541,8 @@ function make_patient_data()
 {
     let created_data = {
         "publisher": get_value_select_freetext("publisher"),
-        "localIdentifier": jQuery("#localIdentifier").val(),
+        "localId": jQuery("#localId").val(),
+        "localSubId": jQuery("#localSubId").val(),
         "disease": get_value_select_freetext("patientDisease"),
         "dateConfirmed": jQuery("#dateConfirmed").val(),
         "age": get_selected_value("patientAgeSelected"),
@@ -570,13 +571,14 @@ function make_patient_data()
         kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
         kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalIn\\d+Selected$")).value;
         kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalIn\\d+FreeText$")).value;
+        kv["vehicles"] = [];
         row.cells[4].childNodes.forEach(x => { // transportationMethod
             x.childNodes.forEach(y => {
-                if (y.type == "checkbox") {
-                    kv[y.name] = y.checked;
+                if (y.type == "checkbox" && y.checked == true) {
+                    kv["vehicles"].push(y.name);
                 }
-                if (y.type == "textarea") {
-                    kv[y.name] = y.value;
+                if (y.type == "textarea" && y.value.length > 0) {
+                    kv["vehicleOthers"] = y.value;
                 }
             });
         });
@@ -593,13 +595,14 @@ function make_patient_data()
         let row = table.rows[i];
         kv["recordDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
         kv["recordTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
+        kv["conditions"] = [];
         row.cells[1].childNodes.forEach(x => { // patientConditionHistoryStatus
             x.childNodes.forEach(y => {
-                if (y.type == "checkbox") {
-                    kv[y.name] = y.checked;
+                if (y.type == "checkbox" && y.checked == true) {
+                    kv["conditions"].push(y.name);
                 }
-                if (y.type == "textarea") {
-                    kv[y.name] = y.value;
+                if (y.type == "textarea" && y.value.length > 0) {
+                    kv["conditionOthers"] = y.value;
                 }
             });
         });
@@ -621,7 +624,7 @@ async function send_patient_data(patient_data)
         console.log("response:", response);
         return response.json();
     }).then(content => {
-        confirm("EventID " + content["result"]["event_id"] + " で、登録されました。");
+        confirm("EventID " + content["result"]["reportId"] + " で、登録されました。");
         window.location.reload(false);
     }).catch(error => console.error("Error:", error));
     /*
@@ -634,7 +637,7 @@ async function send_patient_data(patient_data)
         console.log("callback=", content);
         if (content) {
             content = JSON.parse(content);
-            confirm("EventID " + content["result"]["event_id"] + " で、登録されました。");
+            confirm("EventID " + content["result"]["reportId"] + " で、登録されました。");
             //put_current_value(content);
         }
     });
@@ -645,7 +648,7 @@ async function send_patient_data(patient_data)
         post_request(SERVER_PATH + '/beak', function(content) {
                 console.log("callback=", content);
                 if (content) {
-                    confirm("EventID " + content["result"]["event_id"] +
+                    confirm("EventID " + content["result"]["reportId"] +
                         " で、登録されました。");
                     //put_current_value(content);
                 }
@@ -720,7 +723,8 @@ function ev_load(e)
 
     /* layout the blocks */
     add_input_select2_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "厚労省");
-    add_input_text_to_obj(document.getElementById("divLocalIdentifier"), "localIdentifier", "所轄における本件の識別子等あれば入力する。");
+    add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "所轄における本件の識別子等あれば入力する。");
+    add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における本件の副識別子等あれば入力する。");
 
     add_input_date_to_obj(document.getElementById("divBlockDateConfirmed"), "dateConfirmed");
 
@@ -728,7 +732,7 @@ function ev_load(e)
 
     add_input_select_to_obj(document.getElementById("divPatientGender"), "patientGender", genderList, "Unspecified");
 
-    add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "covid2019");
+    add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "COVID-2019");
 
     add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都", "補足情報等があれば入力する。");
 
@@ -768,13 +772,14 @@ function ev_load(e)
 
     /* below are for alignment of the blocks. */
     .divBlock { padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
-    #divBlockPublisher, #divBlockLocalIdentifier, #divBlockPatientDisease,
-    #divBlockDateConfirmed, #divBlockPatientAge, #divBlockPatientGender,
-    #divBlockPatientResidence
+    #divBlockPublisher, #divBlockLocalId, #divBlockLocalSubId,
+    #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge,
+    #divBlockPatientGender, #divBlockPatientResidence
     { display: inline-block; padding: 10px; border: 1px dotted #333333; }
 
     #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
-    #divLocalIdentifier, #localIdentifier { display: inline-block; }
+    #divLocalId, #localId{ display: inline-block; }
+    #divLocalSubId, #localSubId{ display: inline-block; }
     #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
     #divDateConfirmed, #dateConfirmed { display: inline-block; }
     #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
@@ -815,6 +820,7 @@ function ev_load(e)
         overflow: auto;
     }
     #confirmMessage {
+        white-space: pre-wrap;
         font-family: monospace;
         font-size: 18px;
     }
@@ -847,9 +853,14 @@ function ev_load(e)
             <div id="divPublisher"></div>
             <!-- insert dynamically -->
         </div>
-        <div id="divBlockLocalIdentifier">
-            <label for="divLocalIdentifier">所轄の管理名:</label>
-            <div id="divLocalIdentifier"></div>
+        <div id="divBlockLocalId">
+            <label for="divLocalId">管理No:</label>
+            <div id="divLocalId"></div>
+            <!-- insert dynamically -->
+        </div>
+        <div id="divBlockLocalSubId">
+            <label for="divLocalSubId">副管理No:</label>
+            <div id="divLocalSubId"></div>
             <!-- insert dynamically -->
         </div>
     </div>

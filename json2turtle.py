@@ -1,4 +1,3 @@
-
 import sys
 import re
 import json
@@ -27,60 +26,6 @@ __content = """\
 http://geonames.jp/resource
 http://geonames.jp
 """
-geoname_db_label = {
-    "東京都": "gnjp:東京都",
-    "大阪府": "gnjp:大阪府",
-    "千葉県": "gnjp:千葉県",
-    "山口県": "gnjp:山口県",
-    "山口県:下関市": "gnjp:山口県下関市",
-    "大分県": "gnjp:大分県",
-    "福岡県": "gnjp:福岡県",
-    "熊本県": "gnjp:熊本県",
-}
-
-geoname_db = {
-"gnjp:東京都": """\
-<http://geonames.jp/resource/東京都> a schema:Place ;
-    rdfs:label "東京都" .
-""",
-
-"gnjp:大阪府": """\
-<http://geonames.jp/resource/大阪府> a schema:Place ;
-    rdfs:label "大阪府" .
-""",
-
-"gnjp:千葉県": """\
-<http://geonames.jp/resource/千葉県> a schema:Place ;
-    rdfs:label "千葉県" .
-""",
-
-"gnjp:福岡県": """\
-<http://geonames.jp/resource/福岡県> a schema:Place ;
-    rdfs:label "福岡県" .
-""",
-
-"gnjp:大分県": """\
-<http://geonames.jp/resource/大分県> a schema:Place ;
-    rdfs:label "大分県" .
-""",
-
-"gnjp:熊本県": """\
-<http://geonames.jp/resource/熊本県> a schema:Place ;
-    rdfs:label "熊本県" .
-""",
-
-"gnjp:山口県": """\
-<http://geonames.jp/resource/山口県> a schema:Place ;
-    rdfs:label "山口県" .
-""",
-
-"gnjp:山口県下関市": """\
-<http://geonames.jp/resource/山口県下関市> a schema:Place ;
-    rdfs:label "山口県下関市" .
-""",
-
-}
-
 postfix = """\
 <https://plod.info/entity/COVID-19> a schema:InfectiousDisease ;
     rdfs:label "COVID-19" ;
@@ -93,10 +38,6 @@ postfix = """\
     schema:codingSystem "ICD-10" .
 """
 
-#
-# main
-#
-re_transportationMethod = re.compile("^transportationMethod(.*)")
 postfix_geoname = {}
 
 def finddb(db, search_key):
@@ -105,42 +46,61 @@ def finddb(db, search_key):
             return v
     return None
 
+def add_turtle_place(base, name):
+    base += f'<http://geonames.jp/resource/{name}> a schema:Place ;\n'
+    base += f'    rdfs:label "{name}" .\n'
+    base += "\n"
+    return base
+
 def cv_publisher(a):
-    # XXX need to add "厚労省"
-    return finddb(geoname_db_label, a)
+    if a == "厚労省":
+        name = a
+    else:
+        name = f"gnjp:{a}"
+    return name
 
 def cv_location(a):
-    rdf_name = finddb(geoname_db_label, a)
-    if rdf_name is None:
-        raise Exception(f"ERROR: geoname_db_label {a} is not defeind.")
-    postfix_geoname.setdefault(rdf_name, True)  # use it later.
-    return rdf_name
+    name = f"gnjp:{a}"
+    postfix_geoname.setdefault(a, True)  # use it later.
+    return name
 
 def cv_healthCondition(a):
     db = {
-        "covid2019": "https://plod.info/entity/COVID-19"
+        "COVID-2019": "https://plod.info/entity/COVID-19"
     }
     return finddb(db, a)
 
+def make_date_time(obj, date_str, time_str):
+    if obj.get(date_str):
+        if obj.get(time_str):
+            return f"{obj[date_str]}T{obj[time_str]}"
+        else:
+            return f"{obj[date_str]}"
+    else:
+        return None
+
+#
+# main
+#
 def plod_json2turtle(jd):
-    event_id = jd["event_id"]
+    reportId = jd["reportId"]
     publisher = cv_location(jd["publisher"])
-    healthCondition = cv_healthCondition(jd["patientDisease"])
+    healthCondition = cv_healthCondition(jd["disease"])
     dateConfirmed = jd["dateConfirmed"]
-    patientAge = jd["patientAge"]
-    patientGender = jd["patientGender"]
-    patientResidence = cv_location(jd["patientResidence"])
-    patient_path = f"{event_id}-P01"
+    age = jd["age"]
+    gender = jd["gender"]
+    residence = cv_location(jd["residence"])
+    patient_path = f"{reportId}-P01"
 
     rdf = __content
     rdf += "\n"
     rdf += f'''\
-<{url_prefix}/{event_id}> a schema:Event ;
-    rdfs:label "{event_id}" .
+<{url_prefix}/{reportId}> a schema:Event ;
+    rdfs:label "{reportId}" .
 
-<{url_prefix}/{event_id}-R01> a schema:Report ;
-    rdfs:label "{event_id}-R01" ;
-    schema:mainEntity <{url_prefix}/{event_id}> ;
+<{url_prefix}/{reportId}-R01> a schema:Report ;
+    rdfs:label "{reportId}-R01" ;
+    schema:mainEntity <{url_prefix}/{reportId}> ;
     plod:numberOfPatients "1"^^schema:Integer ;
     schema:datePublished "{dateConfirmed}"^^schema:DateTime ;
     schema:publisher {publisher} ;
@@ -149,55 +109,49 @@ def plod_json2turtle(jd):
 
 <{url_prefix}/{patient_path}> a schema:Patient ;
     rdfs:label "{patient_path}" ;
-    schema:subjectOf <{url_prefix}/{event_id}> ;
+    schema:subjectOf <{url_prefix}/{reportId}> ;
     schema:healthCondition <{healthCondition}> ;
     plod:dateConfirmed "{dateConfirmed}"^^schema:DateTime ;
-    foaf:age "{patientAge}" ;
-    schema:gender "{patientGender}" ;
-    schema:homeLocation {patientResidence} .
+    foaf:age "{age}" ;
+    schema:gender "{gender}" ;
+    schema:homeLocation {residence} .
 '''
 
     rdf += "\n"
     labelMoveAction = 0;
-    for x in jd["patientLocationHistory"]:
+    for x in jd["locationHistory"]:
         labelMoveAction += 1;
         agent_path = f"{patient_path}-M{labelMoveAction:02d}"
         rdf += f'<{url_prefix}/{agent_path}> a schema:MoveAction ;\n'
         rdf += f'    rdfs:label "{agent_path}" ;\n'
         rdf += f'    schema:agent <{url_prefix}/{patient_path}> ;\n'
 
-        if x["patientLocationHistoryDepartureDate"]:
+        dt_str = make_date_time(x, "departureDate", "departureTime")
+        if dt_str is not None:
             rdf += ('    schema:startTime "{}"^^schema:DateTime ;\n'
-                    .format(x["patientLocationHistoryDepartureDate"]))
+                    .format(dt_str))
 
-        if x["patientLocationHistoryDepartureTime"]:
-            rdf += ('    schema:endTime "{}"^^schema:DateTime ;\n'
-                    .format(x["patientLocationHistoryDepartureTime"]))
-
-        if x["patientLocationHistoryDepartureFrom"]:
+        if x.get("departureFrom"):
             rdf += ('    schema:fromLocation {} ;\n'
-                    .format(cv_location(x["patientLocationHistoryDepartureFrom"])))
+                    .format(cv_location(x["departureFrom"])))
 
-        if x["patientLocationHistoryArrivalTo"]:
+        dt_str = make_date_time(x, "arrivalDate", "arrivalTime")
+        if dt_str is not None:
+            rdf += ('    schema:endTime "{}"^^schema:DateTime ;\n'
+                    .format(dt_str))
+
+        if x.get("arrivalIn"):
             rdf += ('    schema:toLocation {} ;\n'
-                    .format(cv_location(x["patientLocationHistoryArrivalTo"])))
+                    .format(cv_location(x["arrivalIn"])))
 
-        for k,v in x.items():
-            if v == True:
-                r = re_transportationMethod.match(k)
-                if r:
-                    rdf += ('    schema:instrument "{}"@ja .\n'
-                        .format(r.group(1)))
+        if x.get("vehicles"):
+            for v in x["vehicles"]:
+                rdf += (f'    schema:instrument "{v}"@ja .\n')
         rdf += "\n"
 
     # Place
     for k in postfix_geoname.keys():
-        geoname = finddb(geoname_db, k)
-        if geoname is not None:
-            rdf += geoname
-            rdf += "\n"
-        else:
-            raise Exception(f"ERROR: geoname_db {k} is not defined.")
+        rdf = add_turtle_place(rdf, k)
 
     # InfectiousDisease
     rdf += postfix
@@ -212,6 +166,11 @@ if __name__ == "__main__":
         fd = sys.stdin
     jd = json.load(fd)
 
-    rdf = plod_json2rdf(jd)
-    print(rdf)
+    if isinstance(jd, list):
+        for x in jd:
+            turtle = plod_json2turtle(x)
+            print(turtle)
+    else:
+        turtle = plod_json2turtle(jd)
+        print(turtle)
 

@@ -21,6 +21,9 @@ import re
 __CONF_SSL_CTX = "__ssl_ctx"
 __CONF_DB_CONN = "__db_conn"
 
+re_db_objectid = re.compile("^[a-f0-9]+$")
+re_db_reportid = re.compile("^[\-a-f0-9]+$")
+
 LOG_FMT = "%(asctime)s.%(msecs)d %(lineno)d %(message)s"
 LOG_DATE_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -73,14 +76,6 @@ def check_config(config, debug_mode=False):
 #
 # HTTP response
 #
-def common_access_log(request):
-    """
-    logger.info("Access from {} {} {}".format(request.remote,
-                                              request.method,
-                                              request.url))
-    """
-    pass
-
 def dumps_utf8(data):
     return json.dumps(data, ensure_ascii=False)
 
@@ -88,7 +83,7 @@ def http_response_turtle(msg):
     return web.Response(body=msg, content_type="text/turtle")
 
 def http_response(msg, status=200, log_text=None):
-    res_msg = gen_common_response(msg, status=200, log_text=log_text)
+    res_msg = gen_common_response(msg, status=status, log_text=log_text)
     return web.json_response(res_msg, status=status, dumps=dumps_utf8)
 
 def gen_common_response(msg, status=200, log_text=None):
@@ -136,8 +131,6 @@ class db_connector():
                                 self.config[CONF_DB_COLLECTION],
                                 self.config[CONF_DB_ADDR],
                                 self.config[CONF_DB_PORT]))
-        self.re_objectid = re.compile("^[a-f0-9]+$")
-        self.re_eventid = re.compile("^[\-a-f0-9]+$")
 
     def db_submit(self, kv_data, **kwargs):
         try:
@@ -151,23 +144,8 @@ class db_connector():
 
     def find(self, selector):
         """
-        selector: string like
-            "5e7d9ace0810c91d43c60130" => { "_id": ObjectID("...") }
-            "{}" => {}
-            "1ef3c491-a892-4410-b4db-dc755c656cd1" => { "event_id": "..." }
-            '{ "any_key": "any_value" }' => { "any_key": "any_value" }
-            None => error
+        selector: dict
         """
-        #
-        if len(selector) == 0:
-            selector = {}
-        elif self.re_objectid.match(selector):
-            selector = { "_id": ObjectId(selector) }
-        elif self.re_eventid.match(selector):
-            selector = { "event_id": selector }
-        else:
-            selector = json.loads(selector)
-        #
         result = []
         try:
             nb_rows = 1
@@ -187,14 +165,24 @@ class db_connector():
 #
 # REST API
 #
-async def downlink_handler(request):
-    common_access_log(request)
-    if not request.can_read_body:
-        return web.json_response({"result":"failed. no body"})
-    #
-    kx_data = await request.json()
-    logger.debug("accepted downlink request: {}".format(kx_data))
-    await send_downlink(kx_data)
+def common_access_log(request):
+    """
+    logger.info("Access from {} {} {}".format(request.remote,
+                                              request.method,
+                                              request.url))
+    """
+    pass
+
+def debug_http_message(headers, content):
+    if config[CONF_DEBUG_LEVEL] > 1:
+        logger.debug("---BEGIN OF REQUESTED HEADER---")
+        for k,v in headers.items():
+            logger.debug("{}: {}".format(k,v))
+        logger.debug("---END OF REQUESTED HEADER---")
+    if config[CONF_DEBUG_LEVEL] > 1:
+        logger.debug("---BEGIN OF REQUESTED DATA---")
+        logger.debug(content)
+        logger.debug("---END OF REQUESTED DATA---")
 
 async def provide_feeder_handler(request):
     """
@@ -222,80 +210,92 @@ async def get_doc_handler(request):
 
 async def receive_feeder_handler(request):
     common_access_log(request)
-    heaers = request.headers
-    if config[CONF_DEBUG_LEVEL] > 1:
-        logger.debug("---BEGIN OF REQUESTED HEADER---")
-        for k,v in request.headers.items():
-            logger.debug("{}: {}".format(k,v))
-        logger.debug("---END OF REQUESTED HEADER---")
-    # convert the content into JSON.
-    content = await request.read()
-    if config[CONF_DEBUG_LEVEL] > 1:
-        logger.debug("---BEGIN OF REQUESTED DATA---")
-        logger.debug(content)
-        logger.debug("---END OF REQUESTED DATA---")
     try:
-        if isinstance(content, bytes):
-            kv_data = json.loads(content.decode("utf-8"))
-        elif isinstance(content, str):
-            kv_data = json.loads(content)
-        else:
-            return http_response(
-                    "The payload type is neigther bytes nor str. {}"
-                    .format(type(content)),
-                    status=404)
+        if not request.can_read_body:
+            return http_response("the body can not be read.", status=400)
+        content = await request.json()
     except json.decoder.JSONDecodeError as e:
-        return http_response(
-                "The payload format was not likely JSON.",
-                status=404, log_text=str(e))
+        return http_response("The payload format was not likely JSON.",
+                status=502, log_text=str(e))
+    debug_http_message(request.headers, content)
+    ## sanity check.
+    #if check_valid_data(content) is False:
+    #    return http_response("The content was not likely PLOD.", status=502)
+    # assign new reportId.
+    reportId = str(uuid.uuid4())
+    content.update({"reportId": reportId})
+    logger.debug("data: {}".format(json.dumps(content)))
 
-    # XXX
-    # need to add some info such as event_id.
-    event_id = str(uuid.uuid4())
-    kv_data.update({"event_id": event_id})
-    logger.debug("kv_data: {}".format(json.dumps(kv_data)))
-
-    # submit kv_data into database if needed.
+    # submit content into database if needed.
     if config[__CONF_DB_CONN]:
         logger.debug("db_submit() will be called.")
-        if config[__CONF_DB_CONN].db_submit(kv_data):
-            logger.info(f"Submited kv_data for {event_id} successfully.")
-        ## if you use kv_data, you need to care aboout "_id":ObjectID().
-        # if kv_data.get("_id"):
-        #     kv_data.pop("_id")
+        if config[__CONF_DB_CONN].db_submit(content):
+            logger.info(f"Submited data for {reportId} successfully.")
+        ## if you use content, you need to care aboout "_id":ObjectID().
+        # if content.get("_id"):
+        #     content.pop("_id")
     #
-    return http_response({"event_id":event_id})
+    return http_response({"reportId":reportId})
 
 async def provide_plod_handler(request):
-    """
-    e.g. /tummy/json/all
-    cond:
-        all:
-        event_id:
-        _id:
-        mongodb query:
-    """
-    if not config[__CONF_DB_CONN]:
-        return False, "DB hasn't been ready."
+    common_access_log(request)
     #
     output_format = request.match_info["fmt"]
-    condition = request.match_info["cond"]
     if output_format not in ["json", "turtle"]:
-        return False, f"{output_format} is not supported."
-    # XXX should check the condition ?
-    if condition == "all":
-        condition = ""
+        return http_response(f"{output_format} is not supported.", status=415)
+    if request.method == "POST":
+        if not request.can_read_body:
+            return http_response("the body can not be read.", status=400)
+        try:
+            content = await request.json()
+        except json.decoder.JSONDecodeError as e:
+            return http_response("The payload format was not likely JSON.",
+                    status=502, log_text=str(e))
+        debug_http_message(request.headers, content)
+        condition = await request.json()
+    elif request.method == "GET":
+        condition = request.match_info["cond"]
+        """
+        condition: string like
+            "5e7d9ace0810c91d43c60130" => { "_id": ObjectID("...") }
+            "{}" => {}
+            "1ef3c491-a892-4410-b4db-dc755c656cd1" => { "reportId": "..." }
+            '{ "any_key": "any_value" }' => { "any_key": "any_value" }
+            None => {}
+        """
+        if len(condition) == 0:
+            condition = {}
+        elif condition == "all":
+            condition = {}
+        elif re_db_objectid.match(condition):
+            condition = { "_id": ObjectId(condition) }
+        elif re_db_reportid.match(condition):
+            condition = { "reportId": condition }
+        else:
+            try:
+                condition = json.loads(condition)
+            except json.decoder.JSONDecodeError as e:
+                return http_response(f"invalid request", status=400)
+    else:
+        return http_response(f"{request.method} is not supported.", status=405)
+    #
+    if not config[__CONF_DB_CONN]:
+        return http_response("DB hasn't been ready.", status=503)
+    # XXX should check the condition here ?
     logger.debug(f"Try seraching db by [{condition}]")
+    # XXX should be await, but how ?
     result = config[__CONF_DB_CONN].find(condition)
     if result[0] == False:
-        return result
+        return http_response("{}.".format(result[1]), status=503)
     if output_format == "json":
         return http_response(result[1])
     elif output_format == "turtle":
         return http_response_turtle(plod_json2turtle(result[1][0]))
 
-def set_logger(log_file=None, logging_stdout=False,
-               debug_mode=False):
+#
+# logging
+#
+def set_logger(log_file=None, logging_stdout=False, debug_mode=False):
     def get_logging_handler(channel, debug_mode):
         channel.setFormatter(logging.Formatter(fmt=LOG_FMT,
                                                datefmt=LOG_DATE_FMT))
@@ -358,6 +358,7 @@ app = web.Application(logger=logger)
 app.router.add_route("GET", "/crest", provide_feeder_handler)
 app.router.add_route("POST", "/beak", receive_feeder_handler)
 app.router.add_route("GET", "/tummy/{fmt:(json|turtle)}/{cond:.+}", provide_plod_handler)
+app.router.add_route("POST", "/tummy/{fmt:(json|turtle)}", provide_plod_handler)
 app.router.add_route("GET", "/image/{name:.+\.png}", get_doc_handler)
 app.router.add_route("GET", "/{name:.+\.(js|css|ico|map)}", get_doc_handler)
 # /image/draft-penguin.png
