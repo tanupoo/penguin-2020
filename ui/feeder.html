@@ -34,34 +34,10 @@ jQuery.datetimepicker.setLocale("ja");
  */
 
 /* publisher */
-//const publisherList = [];    // produced from lgList.
-let publisherList = [];    // produced from lgList.
-/*
-= [
-    { "key":"厚労省", "value":"MHLW" },
-    { "key":"茨城県", "value":"Ibaraki" },
-    { "key":"神奈川県", "value":"Kanagawa" },
-    { "key":"群馬県", "value":"Gunma" },
-    { "key":"埼玉県", "value":"Saitama" },
-    { "key":"千葉県", "value":"Chiba" },
-    { "key":"東京都", "value":"Tokyo" },
-    { "key":"栃木県", "value":"Tochigi" },
-];
-*/
+let publisherList = []; // produced from lgList.
 
 /* location */
-let locationList;   // copied from lgList at this time.
-/*
-= [
-    { "key":"茨城県", "value":"gnjp:Ibaraki" },
-    { "key":"神奈川県", "value":"gnjp:Kanagawa" },
-    { "key":"群馬県", "value":"gnjp:Gunma" },
-    { "key":"埼玉県", "value":"gnjp:Saitama" },
-    { "key":"千葉県", "value":"gnjp:Chiba" },
-    { "key":"東京都", "value":"gnjp:Tokyo" },
-    { "key":"栃木県", "value":"gnjp:Tochigi" },
-];
-*/
+let locationList = [];  // copied from lgList at this time.
 
 /* age */
 const ageList = [
@@ -92,29 +68,29 @@ const diseaseList = [
     { "key":"未確定", "value":"Unconfirmed" },
 ];
 
-/* patientCondition + postfix */
+/* patientCondition + name */
 const patientConditionList = [
-    { "key": "倦怠感", "postfix": "Malaise" },
-    { "key": "喀痰", "postfix": "Sputum" },
-    { "key": "発熱", "postfix": "Fever" },
-    { "key": "悪寒", "postfix": "Chill" },
-    { "key": "咳", "postfix": "Cough" },
-    { "key": "鼻水", "postfix": "Cough" },
-    { "key": "肺炎", "postfix": "Pneumonia" },
-    { "key": "入院", "postfix": "Hospitalized" },
-    { "key": "陽性", "postfix": "Positive" },
+    { "key": "倦怠感", "name": "Malaise" },
+    { "key": "喀痰", "name": "Sputum" },
+    { "key": "発熱", "name": "Fever" },
+    { "key": "悪寒", "name": "Chill" },
+    { "key": "咳", "name": "Cough" },
+    { "key": "鼻水", "name": "Cough" },
+    { "key": "肺炎", "name": "Pneumonia" },
+    { "key": "入院", "name": "Hospitalized" },
+    { "key": "陽性", "name": "Positive" },
 ];
 
-/* transportationMethod + postfix */
+/* transportationMethod + name */
 const transportationMethodList = [
-    { "key": "タクシー", "postfix": "Taxi" },
-    { "key": "バス", "postfix": "Bus" },
-    { "key": "電車", "postfix": "Train" },
-    { "key": "飛行機", "postfix": "Airplane" },
-    { "key": "船", "postfix": "Ship" },
-    { "key": "徒歩", "postfix": "Walk" },
+    { "key": "タクシー", "name": "Taxi" },
+    { "key": "バス", "name": "Bus" },
+    { "key": "電車", "name": "Train" },
+    { "key": "飛行機", "name": "Airplane" },
+    { "key": "船", "name": "Ship" },
+    { "key": "徒歩", "name": "Walk" },
     // any vehicles that you can drive solely are not in case.
-    // { "key": "自家用車・自転車・バイク", "postfix": "Bike" },
+    // { "key": "自家用車・自転車・バイク", "name": "Bike" },
 ]
 
 window.addEventListener("load", ev_load, false);
@@ -141,7 +117,7 @@ function get_row_num()
 function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, placeholder_text)
 {
     /*
-     * add target_name + postfix as the name of the checkboxes.
+     * add target_name + name as the name of the checkboxes.
      * don't use id to identify a checkbox.
      */
     let div_obj, x;
@@ -152,11 +128,12 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, 
 
         x = document.createElement("input");
         x.type = "checkbox";
-        x.name = target_name+kv["postfix"];
+        //x.name = target_name+kv["name"];
+        x.name = kv["name"];
         div_obj.appendChild(x);
 
         x = document.createElement("label")
-        x.htmlFor = target_name+kv["postfix"]
+        x.htmlFor = target_name+kv["name"]
         x.appendChild(document.createTextNode(kv["key"]));
         div_obj.appendChild(x);
 
@@ -369,9 +346,9 @@ function add_line_patient_location_history()
     cell = row.insertCell(-1);
     add_input_date_time_to_obj(cell, "patientLocationHistoryArrivalDate" + row_num, "patientLocationHistoryArrivalTime" + row_num, true);
 
-    /* "到着地", patientLocationHistoryArrivalTo, select+text */
+    /* "到着地", patientLocationHistoryArrivalIn, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalTo" + row_num, locationList, "東京都", "補足情報等があれば入力する。");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalIn" + row_num, locationList, "東京都", "補足情報等があれば入力する。");
 
     /* "移動手段", transportationMethod, select+text */
     cell = row.insertCell(-1);
@@ -565,15 +542,15 @@ function make_patient_data()
     let created_data = {
         "publisher": get_value_select_freetext("publisher"),
         "localIdentifier": jQuery("#localIdentifier").val(),
-        "patientDisease": get_value_select_freetext("patientDisease"),
+        "disease": get_value_select_freetext("patientDisease"),
         "dateConfirmed": jQuery("#dateConfirmed").val(),
-        "patientAge": get_selected_value("patientAgeSelected"),
-        "patientGender": get_selected_value("patientGenderSelected"),
-        "patientResidence": jQuery("#patientResidenceSelected").val(),
-        "patientResidenceAnnex": jQuery("#patientResidenceFreeText").val(),
-        "patientLocationHistory": [
+        "age": get_selected_value("patientAgeSelected"),
+        "gender": get_selected_value("patientGenderSelected"),
+        "residence": jQuery("#patientResidenceSelected").val(),
+        "residenceAnnex": jQuery("#patientResidenceFreeText").val(),
+        "locationHistory": [
         ],
-        "patientConditionHistory": [
+        "conditionHistory": [
         ]
     };
     let table;
@@ -585,14 +562,14 @@ function make_patient_data()
         //console.log("xxx PLH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
-        kv["patientLocationHistoryDepartureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
-        kv["patientLocationHistoryDepartureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
-        kv["patientLocationHistoryDepartureFrom"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+Selected$")).value;
-        kv["patientLocationHistoryDepartureFromAnnex"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+FreeText$")).value;
-        kv["patientLocationHistoryArrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
-        kv["patientLocationHistoryArrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
-        kv["patientLocationHistoryArrivalTo"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalTo\\d+Selected$")).value;
-        kv["patientLocationHistoryArrivalToAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalTo\\d+FreeText$")).value;
+        kv["departureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
+        kv["departureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
+        kv["departureFrom"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+Selected$")).value;
+        kv["departureFromAnnex"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+FreeText$")).value;
+        kv["arrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
+        kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
+        kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalIn\\d+Selected$")).value;
+        kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalIn\\d+FreeText$")).value;
         row.cells[4].childNodes.forEach(x => { // transportationMethod
             x.childNodes.forEach(y => {
                 if (y.type == "checkbox") {
@@ -603,8 +580,8 @@ function make_patient_data()
                 }
             });
         });
-        kv["patientLocationHistoryDetail"] = get_one_element_by_regex(row.cells[5], new RegExp("patientLocationHistoryDetail\\d+$")).value;
-        created_data["patientLocationHistory"].push(kv);
+        kv["details"] = get_one_element_by_regex(row.cells[5], new RegExp("patientLocationHistoryDetail\\d+$")).value;
+        created_data["locationHistory"].push(kv);
     }
 
     table = document.getElementById("tablePatientConditionHistory");
@@ -614,8 +591,8 @@ function make_patient_data()
         //console.log("xxx PCH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
-        kv["patientConditionHistoryDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
-        kv["patientConditionHistoryTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
+        kv["recordDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
+        kv["recordTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
         row.cells[1].childNodes.forEach(x => { // patientConditionHistoryStatus
             x.childNodes.forEach(y => {
                 if (y.type == "checkbox") {
@@ -626,8 +603,8 @@ function make_patient_data()
                 }
             });
         });
-        kv["patientConditionHistoryDetail"] = get_one_element_by_regex(row.cells[2], new RegExp("patientConditionHistoryDetail\\d+$")).value;
-        created_data["patientConditionHistory"].push(kv);
+        kv["details"] = get_one_element_by_regex(row.cells[2], new RegExp("patientConditionHistoryDetail\\d+$")).value;
+        created_data["conditionHistory"].push(kv);
     }
 
     console.log("created_data=", created_data);
@@ -786,7 +763,7 @@ function ev_load(e)
     .patientConditionHistoryStatusFreeText { width: 500px; }
     /*textarea[id^="patientLocationHistoryDetail"]  { width: 500px; }*/
     input[id^="patientLocationHistoryDepartureFrom"] { width: 180px; }
-    input[id^="patientLocationHistoryArrivalTo"] { width: 180px; }
+    input[id^="patientLocationHistoryArrivalIn"] { width: 180px; }
     /*textarea[id^="patientConditionHistoryDetail2"]  { width: 500px; }*/
 
     /* below are for alignment of the blocks. */
@@ -920,7 +897,7 @@ function ev_load(e)
                     <th class="trPatientLocationHistoryDepartureDateTime">出発時間</th>
                     <th class="trPatientLocationHistoryDepartureFrom">出発地</th>
                     <th class="trPatientLocationHistoryDepartureDateTime">到着時間</th>
-                    <th class="trPatientLocationHistoryArrivalTo">到着地</th>
+                    <th class="trPatientLocationHistoryArrivalIn">到着地</th>
                     <th class="trTransportationMethod">手段</th>
                     <th class="trPatientLocationHistoryDetail">所見や患者の行動、その他</th>
                 </tr>
