@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>PLOD feeder</title>
+    <title>PLOD Entry Form</title>
     <!--<script type="text/javascript" src="template.js"></script>-->
 
     <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script-->
@@ -258,6 +258,8 @@ function add_input_date_to_obj(parent_obj, target_id)
     jQuery(`#${x.id}`).datetimepicker({
         timepicker: false,
         format: "Y-m-d",
+        scrollMonth : false,    // disable scroll in both.
+        //scrollInput : false,    // disable scroll in the text field.
     });
 }
 
@@ -313,6 +315,16 @@ function add_input_textarea_to_obj(parent_obj, target_id, placeholder_text)
     parent_obj.appendChild(x);
 }
 
+function add_input_ins_line_to_obj(parent_obj, row)
+{
+    let x = document.createElement("input");
+    x.class = "inputInsLine"
+    x.type="button";
+    x.value = "追加";
+    x.addEventListener("click", function(){ ev_click_ins_line(row) }, false);
+    parent_obj.appendChild(x);
+}
+
 function add_input_del_line_to_obj(parent_obj, row)
 {
     let x = document.createElement("input");
@@ -323,10 +335,10 @@ function add_input_del_line_to_obj(parent_obj, row)
     parent_obj.appendChild(x);
 }
 
-function add_line_patient_location_history()
+function ins_line_patient_location_history(row_index_ins)
 {
     let table = document.getElementById("tablePatientLocationHistory");
-    let row = table.insertRow(-1);
+    let row = table.insertRow(row_index_ins);
     let row_index = table.rows.length;
     let row_num = get_row_num();
     let x, x2, x3, cell;
@@ -360,13 +372,15 @@ function add_line_patient_location_history()
 
     /* DelLine */
     cell = row.insertCell(-1);
+    add_input_ins_line_to_obj(cell, row);
+    cell.appendChild(document.createElement("br"));
     add_input_del_line_to_obj(cell, row);
 }
 
-function add_line_patient_condition_history()
+function ins_line_patient_condition_history(row_index_ins)
 {
     let table = document.getElementById("tablePatientConditionHistory");
-    let row = table.insertRow(-1);
+    let row = table.insertRow(row_index_ins);
     let row_index = table.rows.length;
     let row_num = get_row_num();
     let x, x2, x3, cell;
@@ -389,6 +403,8 @@ function add_line_patient_condition_history()
 
     /* DelLine */
     cell = row.insertCell(-1);
+    add_input_ins_line_to_obj(cell, row);
+    cell.appendChild(document.createElement("br"));
     add_input_del_line_to_obj(cell, row);
 }
 
@@ -661,14 +677,24 @@ async function send_patient_data(patient_data)
 /*
  * event handlers
  */
-function ev_click_add_line_patient_location_history()
+function ev_click_ins_line_patient_location_history()
 {
-    add_line_patient_location_history();
+    ins_line_patient_location_history(-1);
 }
 
-function ev_click_add_line_patient_condition_history()
+function ev_click_ins_line_patient_condition_history()
 {
-    add_line_patient_condition_history();
+    ins_line_patient_condition_history(-1);
+}
+
+function ev_click_ins_line(row)
+{
+    if (row.parentElement.parentElement.id == "tablePatientLocationHistory") {
+        ins_line_patient_location_history(row.rowIndex + 1);
+    } else
+    if (row.parentElement.parentElement.id == "tablePatientConditionHistory") {
+        ins_line_patient_condition_history(row.rowIndex + 1);
+    }
 }
 
 function ev_click_del_line(row)
@@ -737,13 +763,13 @@ function ev_load(e)
     add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都", "補足情報等があれば入力する。");
 
     /* create patient's location history */
-    document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_add_line_patient_location_history, false);
-    add_line_patient_location_history();
+    document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_ins_line_patient_location_history, false);
+    ins_line_patient_location_history(-1);
 
     /* create patient's condition history */
-    document.getElementById("addLinePatientConditionHistory").addEventListener("click", ev_click_add_line_patient_condition_history, false);
-    //add_line_patient_condition_history();
-    //add_line_patient_condition_history();
+    document.getElementById("addLinePatientConditionHistory").addEventListener("click", ev_click_ins_line_patient_condition_history, false);
+    //ins_line_patient_condition_history(-1);
+    //ins_line_patient_condition_history(-1);
 
     document.getElementById("confirmButton").addEventListener("click", ev_click_confirm, false);
     document.getElementById("submitButton").addEventListener("click", ev_click_submit, false);
@@ -776,6 +802,9 @@ function ev_load(e)
     #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge,
     #divBlockPatientGender, #divBlockPatientResidence
     { display: inline-block; padding: 10px; border: 1px dotted #333333; }
+
+    .inputInsLine { }
+    .inputDelLine { }
 
     #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
     #divLocalId, #localId{ display: inline-block; }
@@ -911,6 +940,7 @@ function ev_load(e)
                     <th class="trPatientLocationHistoryArrivalIn">到着地</th>
                     <th class="trTransportationMethod">手段</th>
                     <th class="trPatientLocationHistoryDetail">所見や患者の行動、その他</th>
+                    <th>行の増減</th>
                 </tr>
                 <!-- insert dynamically -->
             </table>
@@ -927,6 +957,7 @@ function ev_load(e)
                     <th>日付</th>
                     <th>健康状態</th>
                     <th>所見や状況、その他</th>
+                    <th>行の増減</th>
                 </tr>
                 <!-- insert dynamically -->
             </table>
