@@ -3,24 +3,21 @@ penguin, a PLOD server
 
 a Patient Locational Open Data (PLOD) server.
 
-## Reference
+- PLOD を入力するフォームを簡単な提供する。
+- REST API から入力された PLOD を、No-SQL データベースに蓄積する。
+- 指定された PLOD を REST API を使って提供する。
 
-- [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
+- providing a simple entry form so that an operator can input PLOD.
+- storing PLOD into No-SQL database through REST API.
+- providing PLODs through REST API.
 
-## Acknowledgements
-
-- Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
-## links to the useful tools
-
-- RDF to JSON-LD [ttl2jsonld](https://frogcat.github.io/ttl2jsonld/demo/a)
-- JSON-LD to any [jsonld.js](https://github.com/digitalbazaar/jsonld.js)
-- [graph viewer](https://www.kanzaki.com/works/2009/pub/graph-draw).
-- many information and tools about RFD at (https://www.kanzaki.com/docs/sw/)
-- [Japan local goverment list](https://www.soumu.go.jp/denshijiti/code.html)
+Please refer to the following paper if you want to know the detail about PLOD.
+[Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
 ## Requirements
 
-- UTF-8
+- Charactor encoding
+    + UTF-8
 - User-side
     + Chrome
         * Mac: Version 80.0.3987.149
@@ -30,152 +27,159 @@ a Patient Locational Open Data (PLOD) server.
         * Windows10:
         * Windows7:
 - Python3
+    + python 3.7.2.  may not work on other version.
     + pymongo
     + (plan)Tornado
 - MongoDB
 
-## Components
-
-- User-side: Browser (Chrome, Firefox)
-    + entry form
-        * jquery
-        * https://github.com/xdan/datetimepicker
-        * https://github.com/clivezhg/select2-to-tree
-- Server-side: Python3
-    + PLOD Data Collector
-    + RDF publisher
-- Database: MongoDB
-
-## I/F
-
-- /crest: providing a PLOD feeder for your input.
-- /beak: submittion of a PLOD.
-- /tummy: providing a RDF.
-- /flipper: 
-
 ## Data model
+
+beak I/F では、"" や false は省略できる。
 
 e.g.
 
 ```
 {
     "publisher": "千葉県",
-    "localIdentifier": "13例目,千葉県内1例目",
-    "patientDisease": "covid2019",
+    "localId": "13",
+    "localSubId": "1",
+    "disease": "COVID-2019",
     "dateConfirmed": "2020-01-31",
-    "patientAge": "20s",
-    "patientGender": "Female",
-    "patientResidence": "千葉県",
-    "patientLocationHistory": [
+    "age": "20s",
+    "gender": "Female",
+    "residence": "千葉県",
+    "locationHistory": [
         {
-            "patientLocationHistoryDepartureDate": "2020-01-16",
-            "patientLocationHistoryDepartureTime": "",
-            "patientLocationHistoryDepartureFrom": "東京都",
-            "patientLocationHistoryArrivalDate": "2020-01-16",
-            "patientLocationHistoryArrivalTime": "",
-            "patientLocationHistoryArrivalTo": "大阪府",
-            "transportationMethodTaxi": false,
-            "transportationMethodBus": false,
-            "transportationMethodTrain": true,
-            "transportationMethodAirplane": false,
-            "transportationMethodShip": false,
-            "transportationMethodWalk": false,
-            "transportationMethodFreeText": "",
-            "patientLocationHistoryDetail": ""
-        },
-        {
-            "patientLocationHistoryDepartureDate": "2020-01-22",
-            "patientLocationHistoryDepartureTime": "",
-            "patientLocationHistoryDepartureFrom": "大阪府",
-            "patientLocationHistoryArrivalDate": "2020-01-22",
-            "patientLocationHistoryArrivalTime": "",
-            "patientLocationHistoryArrivalTo": "東京都",
-            "transportationMethodTaxi": false,
-            "transportationMethodBus": false,
-            "transportationMethodTrain": true,
-            "transportationMethodAirplane": false,
-            "transportationMethodShip": false,
-            "transportationMethodWalk": false,
-            "transportationMethodFreeText": "",
-            "patientLocationHistoryDetail": ""
+            "departureDate": "2020-01-16",
+            "departureTime": "12:00:00",
+            "departureFrom": "東京都",
+            "arrivalDate": "2020-01-16",
+            "arrivalTime": "15:00:00",
+            "arrivalIn": "大阪府",
+            "byTaxi": false,
+            "byBus": false,
+            "byTrain": false,
+            "byAirplane": true,
+            "byShip": false,
+            "byWalk": false,
+            "byOthers": "",
+            "details": ""
         }
     ],
-    "patientConditionHistory": [
+    "cndHistory": [
         {
-            "patientConditionHistoryDate": "2020-01-16",
-            "patientConditionHistoryTime": "",
-            "patientConditionHistoryStatusMalaise": true,
-            "patientConditionHistoryStatusSputum": false,
-            "patientConditionHistoryStatusFever": false,
-            "patientConditionHistoryStatusChill": false,
-            "patientConditionHistoryStatusCough": false,
-            "patientConditionHistoryStatusHospitalized": false,
-            "patientConditionHistoryStatusPositive": false,
-            "patientConditionHistoryStatusFreeText": "",
-            "patientConditionHistoryDetail": ""
-        },
-        {
-            "patientConditionHistoryDate": "2020-01-22",
-            "patientConditionHistoryTime": "",
-            "patientConditionHistoryStatusMalaise": false,
-            "patientConditionHistoryStatusSputum": false,
-            "patientConditionHistoryStatusFever": false,
-            "patientConditionHistoryStatusChill": true,
-            "patientConditionHistoryStatusCough": false,
-            "patientConditionHistoryStatusHospitalized": false,
-            "patientConditionHistoryStatusPositive": false,
-            "patientConditionHistoryStatusFreeText": "",
-            "patientConditionHistoryDetail": ""
+            "reportDate": "2020-01-16",
+            "reportTime": "",
+            "cndMalaise": false,
+            "cndSputum": false,
+            "cndFever": false,
+            "cndChill": false,
+            "cndCough": false,
+            "cndPneumonia": false,
+            "cndHospitalized": false,
+            "cndPositive": false,
+            "cndOthers": "",
+            "details": ""
         }
-    ],
-    "event_id": "1ef3c491-a892-4410-b4db-dc755c656cd1",
-    "_id": "ObjectId:5e7d9ace0810c91d43c60130"
+    ]
 }
-
 ```
 
-## TODO
+## I/F
 
-- JSON to JSON-LD to RDF, or JSON to RDF ?
-- uri_prefix: 固定値 e.g. https://plod.info/data/
+- GET /crest
 
-- moveAction
-- eventId
-    + event identifier, uuid, rdfs:label
-- eventDate:
-    + 入力した日付
-- numberOfPatients:
-    + 複数人ってある？
-    + 一緒に行動してた場合とか？
-    + 1人じゃないとデータとして意味なくない？
-- publisher:
-    + 自治体名のこと？
-    + 入力する単位で固定か？
-    + 代理入力はあるだろう。
-    + であれば、初期値を定義するか。
-- url:
-    + データ入力時に決まらないのでは？いつ決まる？発表時に決まる？
-- referencedBy
-    + 入力時に決まっている？発表時かも？
-    + ほぼ固定なはず。初期値を定義する。
-    + 初期値は、後から追加もあるはずなので別画面でDBに入れさせて選択させる。
-- healthCondition:
-    + 患者の状態？
-    + 選択肢いる？COVID-2019一択か？
-- dateConfirmed:
-    + 患者がhealthConditionになった日付？
-- patientAge:
-    + numberOfPatients, 複数の場合は？
-- patientHomeLocation
-    + https://www.j-lis.go.jp/spd/code-address/jititai-code.html
-- patientGender
-    + 「答えたくない」という選択肢は？
-    + 医学的な見地からの性別なので入力者の客観でよいか？
-- patientDisease
-    + 発表を決めた時点の病名とする。
-    + 履歴はpatientHealthConditionで表現する。
-- infectiousDisease:
-    + healthConditionで一意に決まるか？であれば、入力する必要なしか？
-- MedicalCode:
-    + infectiousDiseaseど同様か？
+provides a PLOD feeder for your input.
+
+- POST /beak
+
+receives a PLOD in JSON format.
+
+```
+% curl -X POST -d@data.json -k https://plod.server/beak
+{"msg_type": "response", "status": 200, "ts": "2020-03-29T09:23:20.560907", "result": {"event_id": "0731f36c-51fb-41f7-b808-f63d125548a3"}}
+```
+
+- /tummy: providing data in either JSON or Turtle.
+
+provides PLODs matched the condition specified.
+
+    + GET /tummy/json/CONDITION
+    + GET /tummy/turtle/CONDITION
+
+CONDITION
+
+    + "all"
+        * e.g. GET /tummy/json/all
+    + reportId
+        * GET /tummy/json/1ef3c491-a892-4410-b4db-dc755c656cd1
+    + _id
+        * GET /tummy/json/5e7d9ace0810c91d43c60130
+
+a full example.
+
+```
+% curl -k https://plod.server/tummy/json/5e8046d40810c97060607ebe
+{"msg_type": "response", "status": 200, "ts": "2020-03-29T16:04:47.326933", "result": [{"publisher": "千葉県", "localId": "13", "localSubId": "1", "disease": "COVID-2019", "dateConfirmed": "2020-01-31", "age": "20s", "gender": "Female", "residence": "千葉県", "locationHistory": [{"departureDate": "2020-01-16", "departureFrom": "東京都", "arrivalDate": "2020-01-16", "arrivalIn": "大阪府", "byTrain": true}, {"departureDate": "2020-01-22", "departureFrom": "大阪府", "arrivalDate": "2020-01-22", "arrivalIn": "東京都", "byTrain": true}], "cndHistory": [{"reportDate": "2020-01-16", "cndMalaise": true}, {"reportDate": "2020-01-22", "cndChill": true}], "reportId": "96cb3e7f-63c4-4293-affb-6a7b46432a96", "_id": "5e8046d40810c97060607ebe"}]}
+```
+
+- 複雑な問い合わせ
+
+MongoDBのfilterをそのまま bodyにセットして POST する。
+セキュリティホールになるかも？だけど、今はとりあえず提供することを考える。
+
+```
+% curl -k -X POST -H'content-type: application/json; charset=utf-8' -d '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}' https://plod.server/tummy/json
+```
+
+または、
+MongoDBのfilterをそのまま RFC2396でエンコードした文字列をパスに指定する。
+
+例えば、
+
+    '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}'
+
+ならば、
+
+```
+curl -k https://plod.server/tummy/json/`tools/rfc2396encode.py '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}' `
+```
+
+理想的には
+
+    GET /tummyjson/publisher/千葉県
+    GET /tummyjson/departureFrom/大阪府
+
+とかやるとRESTぽくてかっこいいけど、それはユースケースがこなれてきてから。
+
+## Implementations
+
+- User-side: Browser (Chrome, Firefox)
+    + entry form
+        * jquery
+        * https://github.com/xdan/datetimepicker
+        * https://github.com/clivezhg/select2-to-tree
+    + jExcelとか JSON editorなどを使うとかっこいいUIが作れそうだけど、もう少し固まってきてから。
+
+- Server-side: Python3
+    + まずは小回りが効くので aiohttpだけで書く。
+    + そのうち tornado あたりに置き換える。
+
+- Database: MongoDB
+    + 
+
+- Docker
+    + 未着手
+
+## Acknowledgements
+
+- Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
+
+## links to the useful tools
+
+- RDF to JSON-LD [ttl2jsonld](https://frogcat.github.io/ttl2jsonld/demo/a)
+- JSON-LD to any [jsonld.js](https://github.com/digitalbazaar/jsonld.js)
+- [graph viewer](https://www.kanzaki.com/works/2009/pub/graph-draw).
+- many information and tools about RFD at (https://www.kanzaki.com/docs/sw/)
+- [Japan local goverment list](https://www.soumu.go.jp/denshijiti/code.html)
 
