@@ -321,7 +321,7 @@ function add_input_ins_line_to_obj(parent_obj, row)
     let x = document.createElement("input");
     x.class = "inputInsLine"
     x.type="button";
-    x.value = "追加";
+    x.value = "↑追加";
     x.addEventListener("click", function(){ ev_click_ins_line(row) }, false);
     parent_obj.appendChild(x);
 }
@@ -331,7 +331,7 @@ function add_input_del_line_to_obj(parent_obj, row)
     let x = document.createElement("input");
     x.class = "inputDelLine"
     x.type="button";
-    x.value = "削除";
+    x.value = "←削除";
     x.addEventListener("click", function(){ ev_click_del_line(row) }, false);
     parent_obj.appendChild(x);
 }
@@ -691,10 +691,10 @@ function ev_click_ins_line_patient_condition_history()
 function ev_click_ins_line(row)
 {
     if (row.parentElement.parentElement.id == "tablePatientLocationHistory") {
-        ins_line_patient_location_history(row.rowIndex + 1);
+        ins_line_patient_location_history(row.rowIndex);
     } else
     if (row.parentElement.parentElement.id == "tablePatientConditionHistory") {
-        ins_line_patient_condition_history(row.rowIndex + 1);
+        ins_line_patient_condition_history(row.rowIndex);
     }
 }
 
@@ -944,11 +944,11 @@ function ev_load(e)
                     <th class="trPatientLocationHistoryArrivalIn">到着地</th>
                     <th class="trTransportationMethod">手段</th>
                     <th class="trPatientLocationHistoryDetail">所見や患者の行動、その他</th>
-                    <th>行の増減</th>
+                    <th>行増減</th>
                 </tr>
                 <!-- insert dynamically -->
             </table>
-            <input id="addLinePatientLocationHistory" type="button" value="行を増やす">
+            <input id="addLinePatientLocationHistory" type="button" value="行を追加する">
         </div>
     </div>
 
@@ -961,11 +961,11 @@ function ev_load(e)
                     <th>日付</th>
                     <th>健康状態</th>
                     <th>所見や状況、その他</th>
-                    <th>行の増減</th>
+                    <th>行増減</th>
                 </tr>
                 <!-- insert dynamically -->
             </table>
-            <input id="addLinePatientConditionHistory" type="button" value="行を増やす">
+            <input id="addLinePatientConditionHistory" type="button" value="行を追加する">
         </div>
     </div>
 
