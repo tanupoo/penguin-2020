@@ -35,17 +35,15 @@ PLODについては下記論文を参照のこと。
 
 ## Data model
 
-beak I/F では、"" や false は省略できる。
-
 e.g.
 
 ```
 {
-    "publisher": "千葉県",
+    "publisher": "厚労省",
     "localId": "13",
     "localSubId": "1",
     "disease": "COVID-2019",
-    "dateConfirmed": "2020-01-31",
+    "dateConfirmed": "1999-01-31",
     "age": "20s",
     "gender": "Female",
     "residence": "千葉県",
@@ -54,32 +52,38 @@ e.g.
             "departureDate": "2020-01-16",
             "departureTime": "12:00:00",
             "departureFrom": "東京都",
+            "departureFromAnnex": "東京都",
             "arrivalDate": "2020-01-16",
             "arrivalTime": "15:00:00",
             "arrivalIn": "大阪府",
-            "byTaxi": false,
-            "byBus": false,
-            "byTrain": false,
-            "byAirplane": true,
-            "byShip": false,
-            "byWalk": false,
-            "byOthers": "",
+            "arrivalInAnnex": "大阪府",
+            "vehicles": [
+                "Taxi",
+                "Bus",
+                "Train",
+                "Airplane",
+                "Ship",
+                "Walk"
+            ],
+            "vehicleOthers": "",
             "details": ""
         }
     ],
-    "cndHistory": [
+    "conditionHistory": [
         {
             "reportDate": "2020-01-16",
             "reportTime": "",
-            "cndMalaise": false,
-            "cndSputum": false,
-            "cndFever": false,
-            "cndChill": false,
-            "cndCough": false,
-            "cndPneumonia": false,
-            "cndHospitalized": false,
-            "cndPositive": false,
-            "cndOthers": "",
+            "conditions": [
+                "cndMalaise",
+                "cndSputum",
+                "cndFever",
+                "cndChill",
+                "cndCough",
+                "cndPneumonia",
+                "cndHospitalized",
+                "cndPositive"
+            ],
+            "conditionOthers": "",
             "details": ""
         }
     ]
