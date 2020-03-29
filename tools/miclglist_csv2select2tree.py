@@ -55,10 +55,9 @@ with open(sys.argv[1]) as fd:
             parent = { "id": row[1], "text": row[1], "inc": [] }
             continue
         if parent["id"] == row[1]:
-            append_inc(parent["inc"], ":".join([row[1], row[2]]))
+            append_inc(parent["inc"], "".join([row[1], row[2]]))
             continue
         # next prefecture.
-        #append_inc(parent["inc"], ":".join([row[1], "非公開"]))
         mydata.append(parent)
         parent = { "id": row[1], "text": row[1], "inc": [] }
 
