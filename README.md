@@ -3,13 +3,17 @@ penguin, a PLOD server
 
 a Patient Locational Open Data (PLOD) server.
 
-- PLOD を入力するフォームを簡単な提供する。 / providing a simple entry form so that an operator can input PLOD.
-- REST API から入力された PLOD を、No-SQL データベースに蓄積する。 / storing PLOD into No-SQL database through REST API.
-- 指定された PLOD を REST API を使って提供する。 / providing PLODs through REST API.
+- PLOD を入力するフォームを簡単な提供する。
+  (providing a simple entry form so that an operator can input PLOD.)
+- REST API から入力された PLOD を、No-SQL データベースに蓄積する。
+  (storing PLOD into No-SQL database through REST API.)
+- 指定された PLOD を REST API を使って提供する。
+  (providing PLODs through REST API.)
 
-Please refer to the following paper if you want to know the detail about PLOD.
+PLODについては下記論文を参照のこと。
+(Please refer to the following paper if you want to know the detail about PLOD.)
 
-    [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
+- [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
 ## Requirements
 
