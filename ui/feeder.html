@@ -269,6 +269,7 @@ function add_input_time_to_obj(parent_obj, target_id)
     let x = document.createElement("input");
     x.type = "text";
     x.id = target_id;
+    x.placeholder = "可能ならば時刻を入力する。";
     x.classList.add("inputTime");
     parent_obj.appendChild(x);
     jQuery(`#${x.id}`).datetimepicker({
@@ -738,19 +739,20 @@ function ev_load(e)
 {
     let parent_obj;
 
-//    select_list_given.concat({ "id": "Others", "text": "その他" });
 
     /* create other list bsaed from lgList. */
-    lgList.forEach(x => {
-        publisherList.push({ "id": x["id"], "text": x["text"] });
-    });
+    //lgList.forEach(x => {
+    //    publisherList.push({ "id": x["id"], "text": x["text"] });
+    //});
+    publisherList = JSON.parse(JSON.stringify(lgList));
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
     locationList = JSON.parse(JSON.stringify(lgList));
+    //locationList.push({ "id": "Others", "text": "その他" });
 
     /* layout the blocks */
     add_input_select2_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "厚労省");
-    add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "所轄における本件の識別子等あれば入力する。");
-    add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における本件の副識別子等あれば入力する。");
+    add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "国全体で管理している識別子等あれば入力する。");
+    add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における本件の識別子等あれば入力する。");
 
     add_input_date_to_obj(document.getElementById("divBlockDateConfirmed"), "dateConfirmed");
 
