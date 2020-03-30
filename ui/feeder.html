@@ -141,8 +141,8 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, 
         parent_obj.appendChild(div_obj);
     });
 
-    div_obj = document.createElement("div")
-
+    div_obj = document.createElement("div");
+    div_obj.classList.add("FreeTextBoxByCheckbox");
     x = document.createElement("textarea");
     x.name = target_name + "FreeText"
     if (placeholder_text != undefined) {
@@ -186,17 +186,23 @@ function add_input_select_to_obj(parent_obj, target_id, select_list, value_selec
     parent_obj.appendChild(x);
 }
 
-function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_given, value_selected, placeholder_text)
+function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_given, value_selected, placeholder_text, label_name)
 {
     let x, x2, x3;
 
-    let select_list = select_list_given.concat({ "id": "Others", "text": "その他" });
     x = document.createElement("div");
+    x.classList.add("classDivSelectFreeText");
+    if (label_name != undefined) {
+        x2 = document.createElement("label");
+        x2.htmlFor = target_id + "Selected";
+        x2.innerHTML = label_name;
+        x.appendChild(x2);
+    }
     x2 = document.createElement("select");
     x2.id = target_id + "Selected";
     x.appendChild(x2);
     jQuery(x2).select2ToTree({
-        treeData: {dataArr: select_list},
+        treeData: {dataArr: select_list_given.concat({ "id": "Others", "text": "その他" })},
         multiple: false,
         dropdownAutoWidth: "auto",
         width: "auto",
@@ -224,6 +230,10 @@ function add_input_select_freetext_to_obj(parent_obj, target_id, select_list, va
     let x, x2, x3;
 
     x = document.createElement("div");
+    x.classList.add("classDivSelectFreeText");
+    x2 = document.createElement("label");
+    x2.htmlFor = target_id + "Selected";
+    x.appendChild(x2);
     x2 = document.createElement("select");
     x2.id = target_id + "Selected";
     add_input_select_options_to_obj(x2, select_list.concat({ "key":"その他", "value":"Others" }), value_selected);
@@ -751,9 +761,10 @@ function ev_load(e)
     //locationList.push({ "id": "Others", "text": "その他" });
 
     /* layout the blocks */
-    add_input_select2_freetext_to_obj(document.getElementById("divPublisher"), "publisher", publisherList, "厚労省");
-    add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "国全体で管理している識別子等あれば入力する。");
-    add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における本件の識別子等あれば入力する。");
+    add_input_select2_freetext_to_obj(document.getElementById("divBlockPublisher"), "publisher", publisherList, "厚労省", undefined, "所轄の自治体名:");
+    add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "厚労省で管理している識別子等あれば入力する。");
+    add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における識別子等あれば入力する。");
+    add_input_text_to_obj(document.getElementById("divKeywords"), "keywords", "自由記述");
 
     add_input_date_to_obj(document.getElementById("divBlockDateConfirmed"), "dateConfirmed");
 
@@ -761,9 +772,9 @@ function ev_load(e)
 
     add_input_select_to_obj(document.getElementById("divPatientGender"), "patientGender", genderList, "Unspecified");
 
-    add_input_select_freetext_to_obj(document.getElementById("divPatientDisease"), "patientDisease", diseaseList, "COVID-2019");
+    add_input_select_freetext_to_obj(document.getElementById("divBlockPatientDisease"), "patientDisease", diseaseList, "COVID-2019");
 
-    add_input_select2_freetext_to_obj(document.getElementById("divPatientResidence"), "patientResidence", lgList, "東京都", "補足情報等があれば入力する。");
+    add_input_select2_freetext_to_obj(document.getElementById("divBlockPatientResidence"), "patientResidence", lgList, "東京都", "補足情報等があれば入力する。", "患者の居住地域:");
 
     /* create patient's location history */
     document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_ins_line_patient_location_history, false);
@@ -771,8 +782,7 @@ function ev_load(e)
 
     /* create patient's condition history */
     document.getElementById("addLinePatientConditionHistory").addEventListener("click", ev_click_ins_line_patient_condition_history, false);
-    //ins_line_patient_condition_history(-1);
-    //ins_line_patient_condition_history(-1);
+    ins_line_patient_condition_history(-1);
 
     document.getElementById("confirmButton").addEventListener("click", ev_click_confirm, false);
     document.getElementById("submitButton").addEventListener("click", ev_click_submit, false);
@@ -793,30 +803,32 @@ function ev_load(e)
     .transportationMethodCheckbox { display: inline-block; }
     .transportationMethodFreeText { width: 340px; }
     .patientConditionHistoryStatusCheckbox { display: inline-block; margin-right:8px; }
-    .patientConditionHistoryStatusFreeText { width: 500px; }
+    .patientConditionHistoryStatusFreeText { width: 95%; }
     /*textarea[id^="patientLocationHistoryDetail"]  { width: 500px; }*/
     input[id^="patientLocationHistoryDepartureFrom"] { width: 180px; }
     input[id^="patientLocationHistoryArrivalIn"] { width: 180px; }
     /*textarea[id^="patientConditionHistoryDetail2"]  { width: 500px; }*/
 
     /* below are for alignment of the blocks. */
-    .divBlock { padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
-    #divBlockPublisher, #divBlockLocalId, #divBlockLocalSubId,
-    #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge,
-    #divBlockPatientGender, #divBlockPatientResidence
-    { display: inline-block; padding: 10px; border: 1px dotted #333333; }
+    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
 
     .inputInsLine { }
     .inputDelLine { }
+    .classDivSelectFreeText { display: inline-block; }
+    .cellBlock { margin-left: 3px; }
 
-    #divPublisher, #publisherSelected, #publisherFreeTextBlock { display: inline-block; }
-    #divLocalId, #localId{ display: inline-block; }
-    #divLocalSubId, #localSubId{ display: inline-block; }
-    #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock { display: inline-block; }
-    #divDateConfirmed, #dateConfirmed { display: inline-block; }
+    #divBlockPublisher, #divBlockLocalId, #divBlockLocalSubId, #divBlockKeywords, #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence, #divPatientResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
+
+    #divPublisher, #publisherSelected, #publisherFreeTextBlock,
+    #divLocalId,
+    #divLocalSubId,
+    #divKeywords,
+    #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock,
+    #divDateConfirmed, #dateConfirmed,
+    #divPatientAge, #patientAgeSelected,
+    #divPatientGender, #patientGenderSelected,
     #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
-    #divPatientAge, #patientAgeSelected { display: inline-block; }
-    #divPatientGender, #patientGenderSelected { display: inline-block; }
+
     #plodLogo { float:left; margin-right: 10px; }
 
     /* below are for the placeholder */
@@ -883,8 +895,7 @@ function ev_load(e)
 
     <div class="divBlock">
         <div id="divBlockPublisher">
-            <label for="divPublisher">所轄の自治体名:</label>
-            <div id="divPublisher"></div>
+            <!--label for="divPublisher">所轄の自治体名:</label-->
             <!-- insert dynamically -->
         </div>
         <div id="divBlockLocalId">
@@ -897,12 +908,16 @@ function ev_load(e)
             <div id="divLocalSubId"></div>
             <!-- insert dynamically -->
         </div>
+        <div id="divBlockKeywords">
+            <label for="divKeywords">Keywords:</label>
+            <div id="divKeywords"></div>
+            <!-- insert dynamically -->
+        </div>
     </div>
 
     <div class="divBlock">
         <div id="divBlockPatientDisease">
             <label for="divPatientDisease">患者の病名:</label>
-            <div id="divPatientDisease"></div>
             <!-- insert dynamically -->
         </div>
 
@@ -927,8 +942,7 @@ function ev_load(e)
         </div>
 
         <div id="divBlockPatientResidence">
-            <label for="divPatientResidence">患者の居住地域:</label>
-            <div id="divPatientResidence"></div>
+            <!--label for="divPatientResidence">患者の居住地域:</label-->
             <!-- insert dynamically -->
         </div>
     </div>
