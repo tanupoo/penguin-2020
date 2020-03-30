@@ -89,6 +89,7 @@ const transportationMethodList = [
     { "key": "飛行機", "name": "yAirplane" },
     { "key": "船", "name": "Ship" },
     { "key": "徒歩", "name": "yWalk" },
+    { "key": "不明", "name": "Unknown" },
     // any vehicles that you can drive solely are not in case.
     // { "key": "自家用車・自転車・バイク", "name": "Bike" },
 ]
@@ -948,7 +949,7 @@ function ev_load(e)
                 </tr>
                 <!-- insert dynamically -->
             </table>
-            <input id="addLinePatientLocationHistory" type="button" value="行を追加する">
+            <input id="addLinePatientLocationHistory" type="button" value="↑行を追加する">
         </div>
     </div>
 
@@ -965,7 +966,7 @@ function ev_load(e)
                 </tr>
                 <!-- insert dynamically -->
             </table>
-            <input id="addLinePatientConditionHistory" type="button" value="行を追加する">
+            <input id="addLinePatientConditionHistory" type="button" value="↑行を追加する">
         </div>
     </div>
 
