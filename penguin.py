@@ -218,6 +218,9 @@ async def receive_feeder_handler(request):
         return http_response("The payload format was not likely JSON.",
                 status=502, log_text=str(e))
     debug_http_message(request.headers, content)
+    #
+    if not config[__CONF_DB_CONN]:
+        return http_response("DB hasn't been ready.", status=503)
     ## sanity check.
     #if check_valid_data(content) is False:
     #    return http_response("The content was not likely PLOD.", status=502)
@@ -227,13 +230,14 @@ async def receive_feeder_handler(request):
     logger.debug("data: {}".format(json.dumps(content)))
 
     # submit content into database if needed.
-    if config[__CONF_DB_CONN]:
-        logger.debug("db_submit() will be called.")
-        if config[__CONF_DB_CONN].db_submit(content):
-            logger.info(f"Submited data for {reportId} successfully.")
-        ## if you use content, you need to care aboout "_id":ObjectID().
-        # if content.get("_id"):
-        #     content.pop("_id")
+    logger.debug("db_submit() will be called.")
+    if not config[__CONF_DB_CONN].db_submit(content):
+        return http_response("Registration failed.", status=503)
+    #
+    logger.info(f"Submited data for {reportId} successfully.")
+    ## if you use content, you need to care aboout "_id":ObjectID().
+    # if content.get("_id"):
+    #     content.pop("_id")
     #
     return http_response({"reportId":reportId})
 
