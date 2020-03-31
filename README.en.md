@@ -12,7 +12,7 @@ Hence, this software can help a part of #3, #4, and #5 in the picture that depic
 
 ![the overview of the proposed approach](PLOD-overview-proposed-approach.png)
 
-Please visit the [plod.info](http://plod.info) and see the following paper if you want to know the detail about PLOD.
+Please visit the https://www.plod.info/ and see the following paper if you want to know the detail about PLOD.
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 

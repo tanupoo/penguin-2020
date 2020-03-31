@@ -14,7 +14,7 @@ Please see [README](README.en.md) in English.
 
 ![the overview of the proposed approach](PLOD-overview-proposed-approach.png)
 
-PLOD については [plod.info](http://plod.info) と下記論文を参照のこと。
+PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
