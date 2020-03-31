@@ -764,7 +764,6 @@ function ev_load(e)
     add_input_select2_freetext_to_obj(document.getElementById("divBlockPublisher"), "publisher", publisherList, "厚労省", undefined, "所轄の自治体名:");
     add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "厚労省で管理している識別子等あれば入力する。");
     add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における識別子等あれば入力する。");
-    add_input_text_to_obj(document.getElementById("divKeywords"), "keywords", "自由記述");
 
     add_input_date_to_obj(document.getElementById("divBlockDateConfirmed"), "dateConfirmed");
 
@@ -817,12 +816,11 @@ function ev_load(e)
     .classDivSelectFreeText { display: inline-block; }
     .cellBlock { margin-left: 3px; }
 
-    #divBlockPublisher, #divBlockLocalId, #divBlockLocalSubId, #divBlockKeywords, #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence, #divPatientResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
+    #divBlockPublisher, #divBlockLocalId, #divBlockLocalSubId, #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence, #divPatientResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
 
     #divPublisher, #publisherSelected, #publisherFreeTextBlock,
     #divLocalId,
     #divLocalSubId,
-    #divKeywords,
     #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock,
     #divDateConfirmed, #dateConfirmed,
     #divPatientAge, #patientAgeSelected,
@@ -906,11 +904,6 @@ function ev_load(e)
         <div id="divBlockLocalSubId">
             <label for="divLocalSubId">副管理No:</label>
             <div id="divLocalSubId"></div>
-            <!-- insert dynamically -->
-        </div>
-        <div id="divBlockKeywords">
-            <label for="divKeywords">Keywords:</label>
-            <div id="divKeywords"></div>
             <!-- insert dynamically -->
         </div>
     </div>
