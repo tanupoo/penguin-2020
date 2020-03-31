@@ -145,11 +145,7 @@ function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, 
     div_obj.classList.add("FreeTextBoxByCheckbox");
     x = document.createElement("textarea");
     x.name = target_name + "FreeText"
-    if (placeholder_text != undefined) {
-        x.placeholder = placeholder_text;
-    } else {
-        x.placeholder = "備考等自由記述";
-    }
+    x.placeholder = placeholder_text;
     x.classList.add(target_name + "FreeText");
     div_obj.appendChild(x);
 
@@ -214,11 +210,7 @@ function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_gi
     x3 = document.createElement("input");
     x3.type = "text";
     x3.id = target_id + "FreeText";
-    if (placeholder_text != undefined) {
-        x3.placeholder = "補足情報等があれば入力する。";
-    } else {
-        x3.placeholder = "選択肢にない場合、その他を選んでから記述する。";
-    }
+    x3.placeholder = placeholder_text;
     x2.appendChild(x3);
     x.appendChild(x2);
 
@@ -364,7 +356,7 @@ function ins_line_patient_location_history(row_index_ins)
 
     /* "出発地", patientLocationHistoryDepartureFrom, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都", "補足情報等があれば入力する。");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都", "建物名や駅名等、補足情報等があれば入力する。");
 
     /* "到着時間", patientLocationHistoryArrivalDateTime, date+time */
     cell = row.insertCell(-1);
@@ -372,7 +364,7 @@ function ins_line_patient_location_history(row_index_ins)
 
     /* "到着地", patientLocationHistoryArrivalIn, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalIn" + row_num, locationList, "東京都", "補足情報等があれば入力する。");
+    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalIn" + row_num, locationList, "東京都", "建物名や駅名等、補足情報等があれば入力する。");
 
     /* "移動手段", transportationMethod, select+text */
     cell = row.insertCell(-1);
@@ -407,7 +399,7 @@ function ins_line_patient_condition_history(row_index_ins)
 
     /* "健康状態", patientConditionHistoryStatus, checkbox+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList);
+    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList, "備考等自由記述");
 
     /* "所見や患者の行動、その他", patientConditionHistoryDetail, text */
     cell = row.insertCell(-1);
@@ -761,7 +753,7 @@ function ev_load(e)
     //locationList.push({ "id": "Others", "text": "その他" });
 
     /* layout the blocks */
-    add_input_select2_freetext_to_obj(document.getElementById("divBlockPublisher"), "publisher", publisherList, "厚労省", undefined, "所轄の自治体名:");
+    add_input_select2_freetext_to_obj(document.getElementById("divBlockPublisher"), "publisher", publisherList, "厚労省", "選択肢にない場合、その他を選んでから記述する。", "所轄の自治体名:");
     add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "厚労省で管理している識別子等あれば入力する。");
     add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における識別子等あれば入力する。");
 
@@ -954,8 +946,8 @@ function ev_load(e)
                     <th class="trPatientLocationHistoryDepartureFrom">出発地</th>
                     <th class="trPatientLocationHistoryDepartureDateTime">到着時間</th>
                     <th class="trPatientLocationHistoryArrivalIn">到着地</th>
-                    <th class="trTransportationMethod">手段</th>
-                    <th class="trPatientLocationHistoryDetail">所見や患者の行動、その他</th>
+                    <th class="trTransportationMethod">移動方法(複数選択可)</th>
+                    <th class="trPatientLocationHistoryDetail">所見や患者の行動等</th>
                     <th>行増減</th>
                 </tr>
                 <!-- insert dynamically -->
@@ -972,7 +964,7 @@ function ev_load(e)
                 <tr>
                     <th>日付</th>
                     <th>健康状態</th>
-                    <th>所見や状況、その他</th>
+                    <th>所見や患者の状況等</th>
                     <th>行増減</th>
                 </tr>
                 <!-- insert dynamically -->
