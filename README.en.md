@@ -10,7 +10,7 @@ This software has the following features.
 
 Hence, this software can help a part of #3, #4, and #5 in the picture that depicts the overview of the approach.
 
-![the overview of the proposed approach](PLOD-overview-proposed-approach.png)
+![the overview of the proposed approach](PLOD-overview.en.png)
 
 Please visit the https://www.plod.info/ and see the following paper if you want to know the detail about PLOD.
 

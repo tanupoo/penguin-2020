@@ -12,7 +12,7 @@ Please see [README](README.en.md) in English.
 - REST API から入力された PLOD を、No-SQL データベースに蓄積する。
 - 指定された PLOD を REST API を使って提供する。
 
-![the overview of the proposed approach](PLOD-overview-proposed-approach.png)
+![the overview of the proposed approach](PLOD-overview.ja.png)
 
 PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
