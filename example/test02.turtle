@@ -1,0 +1,99 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix gnjp: <http://geonames.jp/resource/> .
+@prefix plod: <https://plod.info/property/> .
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784> a schema:Event ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784" .
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-R01> a schema:Report ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-R01" ;
+    schema:mainEntity <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784> ;
+    plod:numberOfPatients "1"^^schema:Integer ;
+    schema:datePublished "2020-03-23"^^schema:DateTime ;
+    schema:publisher gnjp:福岡県北九州市 ;
+    schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> ;
+    dcterms:isReferencedBy <https://www.pref.chiba.lg.jp/shippei/kansenshou/keihatu-index.html>.
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> a schema:Patient ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01" ;
+    schema:subjectOf <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784> ;
+    schema:healthCondition <https://plod.info/entity/COVID-19> ;
+    plod:dateConfirmed "2020-03-23"^^schema:DateTime ;
+    foaf:age "40s" ;
+    schema:gender "Male" ;
+    schema:homeLocation gnjp:福岡県北九州市 .
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01-M01> a schema:MoveAction ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01-M01" ;
+    schema:agent <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> ;
+    schema:startTime "2020-03-17T18:30"^^schema:DateTime ;
+    schema:fromLocation gnjp:福岡県北九州市 ;
+    schema:endTime "2020-03-17T19:00"^^schema:DateTime ;
+    schema:toLocation gnjp:福岡県北九州市 ;
+    schema:instrument "Bus"@ja .
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01-M02> a schema:MoveAction ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01-M02" ;
+    schema:agent <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> ;
+    schema:startTime "2020-03-17T19:00"^^schema:DateTime ;
+    schema:fromLocation gnjp:福岡県北九州市 ;
+    schema:endTime "2020-03-17"^^schema:DateTime ;
+    schema:toLocation gnjp:福岡県北九州市 ;
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01-M03> a schema:MoveAction ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01-M03" ;
+    schema:agent <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> ;
+    schema:startTime "2020-03-18"^^schema:DateTime ;
+    schema:fromLocation gnjp:福岡県北九州市 ;
+    schema:endTime "2020-03-29"^^schema:DateTime ;
+    schema:toLocation gnjp:福岡県北九州市 ;
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01-M04> a schema:MoveAction ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01-M04" ;
+    schema:agent <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> ;
+    schema:startTime "2020-03-19"^^schema:DateTime ;
+    schema:fromLocation gnjp:福岡県北九州市 ;
+    schema:endTime "2020-03-19"^^schema:DateTime ;
+    schema:toLocation gnjp:福岡県北九州市 ;
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01-M05> a schema:MoveAction ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01-M05" ;
+    schema:agent <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> ;
+    schema:startTime "2020-03-23"^^schema:DateTime ;
+    schema:fromLocation gnjp:福岡県北九州市 ;
+    schema:endTime "2020-03-23"^^schema:DateTime ;
+    schema:toLocation gnjp:福岡県北九州市 ;
+
+<https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01-M06> a schema:MoveAction ;
+    rdfs:label "d938cf03-154c-46e4-9b59-9908fb57c784-P01-M06" ;
+    schema:agent <https://plod.info/data/d938cf03-154c-46e4-9b59-9908fb57c784-P01> ;
+    schema:startTime "2020-03-23"^^schema:DateTime ;
+    schema:fromLocation gnjp:福岡県北九州市 ;
+    schema:endTime "2020-03-23"^^schema:DateTime ;
+    schema:toLocation gnjp:福岡県北九州市 ;
+
+<http://geonames.jp/resource/千葉県> a schema:Place ;
+    rdfs:label "千葉県" .
+
+<http://geonames.jp/resource/東京都> a schema:Place ;
+    rdfs:label "東京都" .
+
+<http://geonames.jp/resource/大阪府> a schema:Place ;
+    rdfs:label "大阪府" .
+
+<http://geonames.jp/resource/福岡県北九州市> a schema:Place ;
+    rdfs:label "福岡県北九州市" .
+
+<https://plod.info/entity/COVID-19> a schema:InfectiousDisease ;
+    rdfs:label "COVID-19" ;
+    schema:name "2019-nCoV acute respiratory disease"@en ;
+    schema:infectiousAgent "2019-nCoV" ;
+    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1> .
+
+<http://purl.bioontology.org/ontology/ICD10/U07.1> a schema:MedicalCode ;
+    schema:codeValue "U07.1" ;
+    schema:codingSystem "ICD-10" .

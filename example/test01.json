@@ -1,74 +1,48 @@
-{
+[
+  {
     "publisher": "千葉県",
-    "localIdentifier": "13例目,千葉県内1例目",
-    "patientDisease": "covid2019",
+    "localId": "13",
+    "localSubId": "1",
+    "disease": "COVID-2019",
     "dateConfirmed": "2020-01-31",
-    "patientAge": "20s",
-    "patientGender": "Female",
-    "patientResidence": "千葉県",
-    "patientLocationHistory": [
-        {
-            "patientLocationHistoryDepartureDate": "2020-01-16",
-            "patientLocationHistoryDepartureTime": "",
-            "patientLocationHistoryDepartureFrom": "東京都",
-            "patientLocationHistoryArrivalDate": "2020-01-16",
-            "patientLocationHistoryArrivalTime": "",
-            "patientLocationHistoryArrivalTo": "大阪府",
-            "transportationMethodTaxi": false,
-            "transportationMethodBus": false,
-            "transportationMethodTrain": true,
-            "transportationMethodAirplane": false,
-            "transportationMethodShip": false,
-            "transportationMethodWalk": false,
-            "transportationMethodFreeText": "",
-            "patientLocationHistoryDetail": ""
-        },
-        {
-            "patientLocationHistoryDepartureDate": "2020-01-22",
-            "patientLocationHistoryDepartureTime": "",
-            "patientLocationHistoryDepartureFrom": "大阪府",
-            "patientLocationHistoryArrivalDate": "2020-01-22",
-            "patientLocationHistoryArrivalTime": "",
-            "patientLocationHistoryArrivalTo": "東京都",
-            "transportationMethodTaxi": false,
-            "transportationMethodBus": false,
-            "transportationMethodTrain": true,
-            "transportationMethodAirplane": false,
-            "transportationMethodShip": false,
-            "transportationMethodWalk": false,
-            "transportationMethodFreeText": "",
-            "patientLocationHistoryDetail": ""
-        }
+    "age": "20s",
+    "gender": "Female",
+    "residence": "千葉県",
+    "locationHistory": [
+      {
+        "departureDate": "2020-01-16",
+        "departureFrom": "東京都",
+        "arrivalDate": "2020-01-16",
+        "arrivalIn": "大阪府",
+        "vehicles": [
+          "Train"
+        ]
+      },
+      {
+        "departureDate": "2020-01-22",
+        "departureFrom": "大阪府",
+        "arrivalDate": "2020-01-22",
+        "arrivalIn": "東京都",
+        "vehicles": [
+          "Train"
+        ]
+      }
     ],
-    "patientConditionHistory": [
-        {
-            "patientConditionHistoryDate": "2020-01-16",
-            "patientConditionHistoryTime": "",
-            "patientConditionHistoryStatusMalaise": true,
-            "patientConditionHistoryStatusSputum": false,
-            "patientConditionHistoryStatusFever": false,
-            "patientConditionHistoryStatusChill": false,
-            "patientConditionHistoryStatusCough": false,
-            "patientConditionHistoryStatusHospitalized": false,
-            "patientConditionHistoryStatusPositive": false,
-            "patientConditionHistoryStatusFreeText": "",
-            "patientConditionHistoryDetail": ""
-        },
-        {
-            "patientConditionHistoryDate": "2020-01-22",
-            "patientConditionHistoryTime": "",
-            "patientConditionHistoryStatusMalaise": false,
-            "patientConditionHistoryStatusSputum": false,
-            "patientConditionHistoryStatusFever": false,
-            "patientConditionHistoryStatusChill": true,
-            "patientConditionHistoryStatusCough": false,
-            "patientConditionHistoryStatusHospitalized": false,
-            "patientConditionHistoryStatusPositive": false,
-            "patientConditionHistoryStatusFreeText": "",
-            "patientConditionHistoryDetail": ""
-        }
+    "conditionHistory": [
+      {
+        "reportDate": "2020-01-16",
+        "conditions": [
+          "Malaise"
+        ]
+      },
+      {
+        "reportDate": "2020-01-22",
+        "conditions": [
+          "Chill"
+        ]
+      }
     ],
-    "event_id": "1ef3c491-a892-4410-b4db-dc755c656cd1",
-    "_id": "ObjectId:5e7d9ace0810c91d43c60130"
-}
-
+    "reportId": "03124ca6-ba1e-4596-8f15-6d96d8acc228",
+    "_id": "5e80bc1ec1d3de19b9c46a07"
+  }
+]
