@@ -8,7 +8,7 @@ This software has the following features.
 - storing PLOD into No-SQL database through REST API.
 - providing PLODs through REST API.
 
-Hence, this software can help #4, #5, and a part of #3 in the picture that depicts the overview of the approach.
+Hence, this software can help a part of #3, #4, and #5 in the picture that depicts the overview of the approach.
 
 ![the overview of the proposed approach](PLOD-overview-proposed-approach.png)
 

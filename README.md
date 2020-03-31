@@ -5,7 +5,7 @@ a Patient Locational Open Data (PLOD) server.
 Please see [README](README.en.md) in English.
 
 このソフトウエアは、
-図の#4, #5, そして #3 の一部をサポートするために、
+図の#3, #4, #5 の作業をサポートするために、
 3つの機能を持つ。
 
 - PLOD を入力する簡単なフォームを提供する。
