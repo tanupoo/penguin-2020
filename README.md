@@ -18,6 +18,13 @@ PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
+## Docker compose
+
+docker compose が使える環境であれば、
+下記を使って簡単に導入することができる。
+
+- https://github.com/tanupoo/penguin-docker
+
 ## データモデル
 
 e.g.
