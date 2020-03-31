@@ -2,38 +2,17 @@ penguin, a PLOD server
 ======================
 
 a Patient Locational Open Data (PLOD) server.
+Please see [README](README.en.md) in English.
 
 - PLOD を入力するフォームを簡単な提供する。
-  (providing a simple entry form so that an operator can input PLOD.)
 - REST API から入力された PLOD を、No-SQL データベースに蓄積する。
-  (storing PLOD into No-SQL database through REST API.)
 - 指定された PLOD を REST API を使って提供する。
-  (providing PLODs through REST API.)
 
-PLOD については [plod.info](http://plod.info) と論文を参照して下さい。
-(Please refer to the [plod.info](http://plod.info) and the following paper if you want to know the detail about PLOD.)
+PLOD については [plod.info](http://plod.info) と下記論文を参照のこと。
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
-## Requirements
-
-- Charactor encoding
-    + UTF-8
-- User-side
-    + Chrome
-        * Mac: Version 80.0.3987.149
-        * Windows10:
-    + Firefox
-        * Mac: 72.0.2
-        * Windows10:
-        * Windows7:
-- Python3
-    + python 3.7.2.  may not work on other version.
-    + pymongo
-    + (plan)Tornado
-- MongoDB
-
-## Data model
+## データモデル
 
 e.g.
 
@@ -90,29 +69,31 @@ e.g.
 }
 ```
 
-## I/F
+## インターフェイス
 
 - GET /crest
 
-provides a PLOD feeder for your input.
+PLODを入力するエントリーフォームを返す。
 
 - POST /beak
 
-receives a PLOD in JSON format.
+JSON形式のPLODを受け取り、データベースに登録する。
+
+curl を使用した例:
 
 ```
 % curl -X POST -d@data.json -k https://plod.server/beak
 {"msg_type": "response", "status": 200, "ts": "2020-03-29T09:23:20.560907", "result": {"event_id": "0731f36c-51fb-41f7-b808-f63d125548a3"}}
 ```
 
-- /tummy: providing data in either JSON or Turtle.
+- GET /tummy
 
-provides PLODs matched the condition specified.
+指定した条件に該当する PLODs を、JSON形式と Turtle形式で返す。
 
     + GET /tummy/json/CONDITION
     + GET /tummy/turtle/CONDITION
 
-CONDITION
+CONDITIONの部分は下記の通り。
 
     + "all"
         * e.g. GET /tummy/json/all
@@ -121,23 +102,38 @@ CONDITION
     + _id
         * GET /tummy/json/5e7d9ace0810c91d43c60130
 
-a full example.
+curl を使用した例:
 
 ```
 % curl -k https://plod.server/tummy/json/5e8046d40810c97060607ebe
 {"msg_type": "response", "status": 200, "ts": "2020-03-29T16:04:47.326933", "result": [{"publisher": "千葉県", "localId": "13", "localSubId": "1", "disease": "COVID-2019", "dateConfirmed": "2020-01-31", "age": "20s", "gender": "Female", "residence": "千葉県", "locationHistory": [{"departureDate": "2020-01-16", "departureFrom": "東京都", "arrivalDate": "2020-01-16", "arrivalIn": "大阪府", "byTrain": true}, {"departureDate": "2020-01-22", "departureFrom": "大阪府", "arrivalDate": "2020-01-22", "arrivalIn": "東京都", "byTrain": true}], "cndHistory": [{"reportDate": "2020-01-16", "cndMalaise": true}, {"reportDate": "2020-01-22", "cndChill": true}], "reportId": "96cb3e7f-63c4-4293-affb-6a7b46432a96", "_id": "5e8046d40810c97060607ebe"}]}
 ```
 
-- 複雑な問い合わせ
+理想的には
+
+    GET /tummyjson/publisher/千葉県
+    GET /tummyjson/departureFrom/大阪府
+
+とかできるとRESTぽいが、それはユースケースがこなれてきてから実装する。
+
+- POST /tummy
+
+指定した条件に該当する PLODs を返す。GET /tummy も参照のこと。
+
+    + POST /tummy/json/CONDITION
+    + POST /tummy/turtle/CONDITION
 
 MongoDBのfilterをそのまま bodyにセットして POST する。
 セキュリティホールになるかも？だけど、今はとりあえず提供することを考える。
+
+curlを使用した例:
 
 ```
 % curl -k -X POST -H'content-type: application/json; charset=utf-8' -d '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}' https://plod.server/tummy/json
 ```
 
-または、
+- GET /tummy の別の使い方()
+
 MongoDBのfilterをそのまま RFC2396でエンコードした文字列をパスに指定する。
 
 例えば、
@@ -150,14 +146,25 @@ MongoDBのfilterをそのまま RFC2396でエンコードした文字列をパ�
 curl -k https://plod.server/tummy/json/`tools/rfc2396encode.py '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}' `
 ```
 
-理想的には
+## 動作要件
 
-    GET /tummyjson/publisher/千葉県
-    GET /tummyjson/departureFrom/大阪府
+- Charactor encoding
+    + UTF-8
+- User-side
+    + Chrome
+        * Mac: Version 80.0.3987.149
+        * Windows10:
+    + Firefox
+        * Mac: 72.0.2
+        * Windows10:
+        * Windows7:
+- Python3
+    + python 3.7.2.  may not work on other version.
+    + pymongo
+    + (plan)Tornado
+- MongoDB
 
-とかやるとRESTぽくてかっこいいけど、それはユースケースがこなれてきてから。
-
-## Implementations
+## 実装
 
 - User-side: Browser (Chrome, Firefox)
     + entry form
@@ -176,7 +183,7 @@ curl -k https://plod.server/tummy/json/`tools/rfc2396encode.py '{ "locationHisto
 - Docker
     + 未着手
 
-## Acknowledgements
+## 謝辞
 
 - Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
 
