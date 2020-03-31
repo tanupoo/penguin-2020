@@ -4,9 +4,15 @@ penguin, a PLOD server
 a Patient Locational Open Data (PLOD) server.
 Please see [README](README.en.md) in English.
 
-- PLOD を入力するフォームを簡単な提供する。
+このソフトウエアは、
+図の#4, #5, そして #3 の一部をサポートするために、
+3つの機能を持つ。
+
+- PLOD を入力する簡単なフォームを提供する。
 - REST API から入力された PLOD を、No-SQL データベースに蓄積する。
 - 指定された PLOD を REST API を使って提供する。
+
+![the overview of the proposed approach](PLOD-overview-proposed-approach.png)
 
 PLOD については [plod.info](http://plod.info) と下記論文を参照のこと。
 
@@ -111,8 +117,8 @@ curl を使用した例:
 
 理想的には
 
-    GET /tummyjson/publisher/千葉県
-    GET /tummyjson/departureFrom/大阪府
+    + GET /tummyjson/publisher/千葉県
+    + GET /tummyjson/departureFrom/大阪府
 
 とかできるとRESTぽいが、それはユースケースがこなれてきてから実装する。
 
@@ -163,25 +169,6 @@ curl -k https://plod.server/tummy/json/`tools/rfc2396encode.py '{ "locationHisto
     + pymongo
     + (plan)Tornado
 - MongoDB
-
-## 実装
-
-- User-side: Browser (Chrome, Firefox)
-    + entry form
-        * jquery
-        * https://github.com/xdan/datetimepicker
-        * https://github.com/clivezhg/select2-to-tree
-    + jExcelとか JSON editorなどを使うとかっこいいUIが作れそうだけど、もう少し固まってきてから。
-
-- Server-side: Python3
-    + まずは小回りが効くので aiohttpだけで書く。
-    + そのうち tornado あたりに置き換える。
-
-- Database: MongoDB
-    + 
-
-- Docker
-    + 未着手
 
 ## 謝辞
 
