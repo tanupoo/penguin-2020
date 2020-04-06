@@ -111,6 +111,14 @@ curl を使用した例:
 {"msg_type": "response", "status": 200, "ts": "2020-03-29T09:23:20.560907", "result": {"event_id": "0731f36c-51fb-41f7-b808-f63d125548a3"}}
 ```
 
+- POST /beak/bulk
+
+JSON形式のPLODのリストを受け取り、データベースに登録する。
+
+return:
+
+    "result": "success"
+
 - DELETE /tail
 
 reportIdを受け取り、PLODを削除する。

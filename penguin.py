@@ -232,6 +232,39 @@ async def get_doc_handler(request):
     else:
         raise web.HTTPNotFound()
 
+async def receive_plod_bulk_handler(request):
+    """
+    Note that it doesn't assign reportId.
+    """
+    common_access_log(request)
+    try:
+        if not request.can_read_body:
+            return http_response("the body can not be read.", status=400)
+        content = await request.json()
+    except json.decoder.JSONDecodeError as e:
+        return http_response("The payload format was not likely JSON.",
+                status=502, log_text=str(e))
+    debug_http_message(request.headers, content)
+    #
+    if not config[__CONF_DB_CONN]:
+        return http_response("DB hasn't been ready.", status=503)
+    # need more sanity check
+    for plod in content:
+        report_id = plod.get("reportId")
+        if report_id is None:
+            return http_response("invalid data.", status=400)
+        # removing _id if exists for sure.
+        if plod.get("_id"):
+            plod.pop("_id")
+    for plod in content:
+        report_id = plod.get("reportId")
+        logger.debug("submit data: {}".format(json.dumps(plod)))
+        if not config[__CONF_DB_CONN].submit(plod):
+            return http_response("Registration failed.", status=503)
+        #
+        logger.info(f"Submited data: {report_id}")
+    return http_response("success")
+
 async def receive_plod_handler(request):
     common_access_log(request)
     try:
@@ -396,6 +429,7 @@ config[__CONF_DB_CONN] = db_connector(config, logger)
 # make routes.
 app = web.Application(logger=logger)
 app.router.add_route("GET", "/crest", provide_feeder_handler)
+app.router.add_route("POST", "/beak/bulk", receive_plod_bulk_handler)
 app.router.add_route("POST", "/beak", receive_plod_handler)
 app.router.add_route("DELETE", "/tail/{cond:.+}", delete_plod_handler)
 app.router.add_route("GET", "/tummy/{fmt:(json|turtle)}/{cond:.+}", provide_plod_handler)
