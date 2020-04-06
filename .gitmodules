@@ -4,3 +4,9 @@
 [submodule "ui/select2-to-tree"]
 	path = ui/select2-to-tree
 	url = http://github.com/tanupoo/select2-to-tree
+[submodule "ui/DataTables"]
+	path = ui/DataTables
+	url = http://github.com/tanupoo/DataTables.git
+[submodule "ui/Modaal"]
+	path = ui/Modaal
+	url = http://github.com/tanupoo/Modaal.git
