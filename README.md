@@ -20,11 +20,11 @@ PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 ## Screenshot
 
-<img alt="sample form" src="doc/PLOD-saample-form.png" width="640">
+<img alt="sample form" src="doc/PLOD-sample-form.png" width="640">
 
-<img alt="sample list" src="doc/PLOD-saample-list.png" width="640">
+<img alt="sample list" src="doc/PLOD-sample-list.png" width="640">
 
-<img alt="sample detail" src="doc/PLOD-saample-list-detail.png" width="640">
+<img alt="sample detail" src="doc/PLOD-sample-list-detail.png" width="640">
 
 ## Docker compose
 
