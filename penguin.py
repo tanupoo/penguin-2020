@@ -13,6 +13,7 @@ from argparse import ArgumentParser
 from datetime import datetime
 from pymongo import MongoClient
 import pymongo.errors
+from pymongo import ReturnDocument
 import uuid
 from json2turtle import plod_json2turtle
 from bson.objectid import ObjectId
@@ -132,19 +133,40 @@ class db_connector():
                                 self.config[CONF_DB_ADDR],
                                 self.config[CONF_DB_PORT]))
 
-    def db_submit(self, kv_data, **kwargs):
+    def submit(self, kv_data, **kwargs):
         try:
-            self.col.insert_one(kv_data)
+            # report_id (UUID4) is the unique key.
+            #ret = self.col.update_one({"_id":kv_data["_id"]}, kv_data,
+            #                          upsert=True)
+            report_id = kv_data["reportId"]
+            ret = self.col.find_one_and_replace({"reportId":report_id},
+                                                kv_data, upsert=True,
+                                        return_document=ReturnDocument.AFTER)
+            print("xxx", ret)
+            self.logger.debug("DB: Inserted: reportId={} _id={}"
+                              .format(ret["reportId"], ret["_id"]))
+            return True
         except pymongo.errors.ServerSelectionTimeoutError as e:
-            self.logger.error("timeout, mongodb looks not ready yet.")
+            self.logger.error("DB: timeout, DB looks not ready yet.")
             return False
-        #
-        self.logger.debug("Succeeded submitting data into MongoDB.")
-        return True
+
+    def delete(self, report_id, **kwargs):
+        try:
+            ret = self.col.delete_one({"reportId":report_id})
+            if ret.deleted_count == 0:
+                self.logger.debug(f"DB: no such a report {report_id}.")
+                return False
+            else:
+                self.logger.debug(f"DB: Deleted: {report_id}")
+                return True
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            self.logger.error("DB: timeout, DB looks not ready yet.")
+            return False
 
     def find(self, selector):
         """
         selector: dict
+           replace ObjectID(_id) into _id.
         """
         result = []
         try:
@@ -189,7 +211,9 @@ async def provide_feeder_handler(request):
     all document must be placed under the ui directory.
     """
     common_access_log(request)
-    path = "./ui/feeder.html"
+    #path = "./ui/feeder.html"
+    #path = "./ui/entryform.html"
+    path = "./ui/listview.html"
     logger.debug("DEBUG: serving {}".format(path))
     if os.path.exists(path):
         return web.FileResponse(path)
@@ -208,7 +232,7 @@ async def get_doc_handler(request):
     else:
         raise web.HTTPNotFound()
 
-async def receive_feeder_handler(request):
+async def receive_plod_handler(request):
     common_access_log(request)
     try:
         if not request.can_read_body:
@@ -225,21 +249,34 @@ async def receive_feeder_handler(request):
     #if check_valid_data(content) is False:
     #    return http_response("The content was not likely PLOD.", status=502)
     # assign new reportId.
-    reportId = str(uuid.uuid4())
-    content.update({"reportId": reportId})
-    logger.debug("data: {}".format(json.dumps(content)))
-
-    # submit content into database if needed.
-    logger.debug("db_submit() will be called.")
-    if not config[__CONF_DB_CONN].db_submit(content):
+    report_id = content.setdefault("reportId", str(uuid.uuid4()))
+    logger.debug("submit data: {}".format(json.dumps(content)))
+    if not config[__CONF_DB_CONN].submit(content):
         return http_response("Registration failed.", status=503)
     #
-    logger.info(f"Submited data for {reportId} successfully.")
+    logger.info(f"Submited data: {report_id}")
     ## if you use content, you need to care aboout "_id":ObjectID().
-    # if content.get("_id"):
-    #     content.pop("_id")
+    if content.get("_id"):
+        _id = str(content.pop("_id"))
+        content.update({"_id": f"{_id}"})
+    return http_response({"data":content})
+
+async def delete_plod_handler(request):
+    common_access_log(request)
     #
-    return http_response({"reportId":reportId})
+    condition = request.match_info["cond"]
+    if re_db_reportid.match(condition):
+        logger.debug("delete data reportId: {condition}")
+        report_id = condition
+    else:
+        return http_response(f"invalid request", status=400)
+    #
+    if not config[__CONF_DB_CONN]:
+        return http_response("DB hasn't been ready.", status=503)
+    if not config[__CONF_DB_CONN].delete(report_id):
+        return http_response("Delete failed.", status=503)
+    logger.info(f"Delete successfully {report_id}.")
+    return http_response("success")
 
 async def provide_plod_handler(request):
     common_access_log(request)
@@ -262,22 +299,21 @@ async def provide_plod_handler(request):
         """
         condition: string like
             "5e7d9ace0810c91d43c60130" => { "_id": ObjectID("...") }
-            "{}" => {}
             "1ef3c491-a892-4410-b4db-dc755c656cd1" => { "reportId": "..." }
             '{ "any_key": "any_value" }' => { "any_key": "any_value" }
-            None => {}
+            "all" => {}
+            # not used: "{}" => {}
+            # not used:  None => {}
         """
-        if len(condition) == 0:
-            condition = {}
-        elif condition == "all":
-            condition = {}
+        if condition == "all":
+            db_filter = {}
         elif re_db_objectid.match(condition):
-            condition = { "_id": ObjectId(condition) }
+            db_filter = { "_id": ObjectId(condition) }
         elif re_db_reportid.match(condition):
-            condition = { "reportId": condition }
+            db_filter = { "reportId": condition }
         else:
             try:
-                condition = json.loads(condition)
+                db_filter = json.loads(condition)
             except json.decoder.JSONDecodeError as e:
                 return http_response(f"invalid request", status=400)
     else:
@@ -286,9 +322,9 @@ async def provide_plod_handler(request):
     if not config[__CONF_DB_CONN]:
         return http_response("DB hasn't been ready.", status=503)
     # XXX should check the condition here ?
-    logger.debug(f"Try seraching db by [{condition}]")
+    logger.debug(f"Try seraching db by [{db_filter}]")
     # XXX should be await, but how ?
-    result = config[__CONF_DB_CONN].find(condition)
+    result = config[__CONF_DB_CONN].find(db_filter)
     if result[0] == False:
         return http_response("{}.".format(result[1]), status=503)
     if output_format == "json":
@@ -360,12 +396,13 @@ config[__CONF_DB_CONN] = db_connector(config, logger)
 # make routes.
 app = web.Application(logger=logger)
 app.router.add_route("GET", "/crest", provide_feeder_handler)
-app.router.add_route("POST", "/beak", receive_feeder_handler)
+app.router.add_route("POST", "/beak", receive_plod_handler)
+app.router.add_route("DELETE", "/tail/{cond:.+}", delete_plod_handler)
 app.router.add_route("GET", "/tummy/{fmt:(json|turtle)}/{cond:.+}", provide_plod_handler)
-app.router.add_route("POST", "/tummy/{fmt:(json|turtle)}", provide_plod_handler)
-app.router.add_route("GET", "/image/{name:.+\.png}", get_doc_handler)
-app.router.add_route("GET", "/{name:.+\.(js|css|ico|map)}", get_doc_handler)
-# /image/draft-penguin.png
+#app.router.add_route("POST", "/tummy/{fmt:(json|turtle)}", provide_plod_handler)
+app.router.add_route("GET", "/images/{name:.+\.(png)}", get_doc_handler)
+app.router.add_route("GET", "/js/{name:.+\.(js|css|map)}", get_doc_handler)
+app.router.add_route("GET", "/favicon.ico", get_doc_handler)
 logger.info("Starting Penguin, a PLOD server listening on {}://{}:{}/"
             .format("https" if config.get(CONF_SERVER_CERT) else "http",
                     config.get(CONF_SERVER_ADDR) if config.get(CONF_SERVER_ADDR) else "*",
