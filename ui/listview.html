@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <title>PLOD viewer</title>
+    <!--link rel="shortcut icon" type="images/ico" href="http://www.datatables.net/favicon.ico"-->
+
+    <!-- DataTables -->
+    <link rel="stylesheet" type="text/css" href="js/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="js/shCore.css">
+    <link rel="stylesheet" type="text/css" href="js/demo.css">
+    <!-- Modaal -->
+    <link rel="stylesheet" type="text/css" href="js/modaal.min.css">
+    <!-- select2 -->
+    <link rel="stylesheet" type="text/css" href="js/select2-4.0.3.min.css">
+    <link rel="stylesheet" type="text/css" href="js/select2totree.css">
+    <!-- datatimepicker -->
+    <link rel="stylesheet" type="text/css" href="js/jquery.datetimepicker.css">
+
+    <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
+    <style type="text/css" class="init">
+
+    * { font-size: 14px; }
+    .inputInsLine { }
+    .inputDelLine { }
+    .inlineBlock { display: inline-block; }
+    .cellBlock { margin-left: 3px; }
+    .inputDate, .inputTime { width: 100px; }
+    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; }
+    .input-label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
+    .input-text, .input-select { margin-left: 3px; }
+
+    .control-button {
+	display: inline-block;
+	padding: 0.5em 1em;
+	text-decoration: none;
+	border-radius: 4px;
+	border-bottom: solid 3px #5e7fca;
+    }
+
+    /* header */
+    #plodLogo { float:left; margin-right: 10px; }
+
+    /* locations */
+    textarea[id^="vehicles"] { width: 95%; }
+    input[id^="PLHDepartureFrom"] { width: 180px; }
+    input[id^="PLHArrivalIn"] { width: 180px; }
+    textarea[id^="PLHDetails"] { width: 95%; }
+
+    /* conditions */
+    textarea[id^="conditions"] { width: 95%; }
+    textarea[id^="PCHDetails"] { width: 95%; }
+
+    /* below are for alignment of the blocks. */
+    #divPublisher, #divLocalId, #divLocalSubId,
+    #divDisease, #divDateConfirmed,
+    #divAge, #divGender, #divResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
+
+    /* data tables */
+    .details-control {
+        background: url('images/details_open.png') no-repeat center center;
+        cursor: pointer;
+    }
+
+    .shown td.details-control {
+        background: url('images/details_close.png') no-repeat center center;
+    }
+
+    .table-form {
+    border-collapse:separate;
+    border-spacing: 0;
+    }
+
+    .table-form th:first-child{
+    border-radius: 5px 0 0 0;
+    }
+
+    .table-form th:last-child{
+    border-radius: 0 5px 0 0;
+    border-right: 1px solid #3c6690;
+    }
+
+    .table-form th{
+    text-align: center;
+    color:white;
+    background: linear-gradient(#94bae3,#3686d6);
+    border-left: 1px solid #3c6690;
+    border-top: 1px solid #3c6690;
+    border-bottom: 1px solid #3c6690;
+    box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
+    padding: 5px 5px;
+    }
+
+    .table-form td{
+    text-align: center;
+    border-left: 1px solid #a8b7c5;
+    border-bottom: 1px solid #a8b7c5;
+    border-top:none;
+    box-shadow: 0px -3px 5px 1px #eee inset;
+    padding: 5px 5px;
+    }
+
+    .table-form td:last-child{
+    border-right: 1px solid #a8b7c5;
+    }
+
+    .table-form tr:last-child td:first-child {
+    border-radius: 0 0 0 5px;
+    }
+
+    .table-form tr:last-child td:last-child {
+    border-radius: 0 0 5px 0;
+    }
+
+    /* below are for the placeholder */
+    input::-webkit-input-placeholder { font-size: 8px; }
+    input:-moz-placeholder { font-size: 8px; }
+    input::-moz-placeholder { font-size: 8px; }
+    input:-ms-input-placeholder { font-size: 8px; }
+    textarea::placeholder { font-size: 8px; }
+
+    .button-delete-plod { margin-left: 20px; color: red; }
+
+    /* modaal */
+    .modaal-wrapper { z-index: 9995; }
+    .modaal-content-container { padding: 0px; }
+
+    #divConfirmEntry {
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 18px;
+    }
+
+    </style>
+
+    <!--script src="https://code.jquery.com/jquery-1.11.1.min.js"></script-->
+    <script language="javascript" src="js/jquery-3.3.1.min.js"></script>
+    <!-- DataTables -->
+    <script language="javascript" src="js/jquery.dataTables.js"></script>
+    <script language="javascript" src="js/shCore.js"></script>
+    <script language="javascript" src="js/demo.js"></script>
+    <!-- Modaal -->
+    <script language="javascript" src="js/modaal.min.js"></script>
+    <!-- select2 -->
+    <script src="js/select2-4.0.3.min.js"></script>
+    <script src="js/select2totree.js"></script>
+    <!-- datatimepicker -->
+    <script src="js/jquery.datetimepicker.full.min.js"></script>
+
+    <!-- lglist -->
+    <script src="js/lglist-select2-20200327.js"></script>
+
+    <script type="text/javascript" language="javascript" class="init">
+
+var SERVER_PATH = '';
+var DEBUG_XHR = false;
+
+jQuery.datetimepicker.setLocale("ja");
+
+let table_listview;
+
+const default_value_PLH = {
+    "departureDate": get_current_date(),
+    "departureTime": "",
+    "departureFrom": "東京都",
+    "departureFromAnnex": "",
+    "arrivalDate": get_current_date(),
+    "arrivalTime": "",
+    "arrivalIn": "東京都",
+    "arrivalInAnnex": "",
+    "vehicles": [],
+    "vehicleOthers": "",
+    "details": "",
+};
+
+const default_value_PCH = {
+    "conditionDate": get_current_date(),
+    "conditionTime": "",
+    "conditions": [],
+    "conditionOthers": "",
+    "detaills": "",
+};
+
+const default_value = {
+    "publisher": "厚労省",
+    "publisherOthers": "",
+    "localId": "",
+    "localSubId": "",
+    "disease": "COVID-2019",
+    "diseaseOthers": "",
+    "dateConfirmed": get_current_date(),
+    "age": "Unspecified",
+    "gender": "Unspecified",
+    "residence": "Unspecified",
+    "residenceAnnex": "",
+    "locationHistory": [
+	default_value_PLH
+    ],
+    "conditionHistory": [
+	// not needed for initial.
+	//default_value_PCH
+    ],
+};
+
+/* header columns of listview */
+const baseHeaderCols = [
+    "publisher",
+    "localId",
+    "localSubId",
+    "disease",
+    "dateConfirmed",
+    "age",
+    "gender",
+    "residence",
+    "reportId"
+];
+
+const locationHeaderCols = [
+    "departureDate",
+    "departureTime",
+    "departureFrom",
+    "departureFromAnnex",
+    "arrivalDate",
+    "arrivalTime",
+    "arrivalIn",
+    "arrivalInAnnex",
+    "vehicles",
+    "vehicleOthers",
+    "details",
+];
+
+const conditionHeaderCols = [
+    "conditionDate",
+    "conditionTime",
+    "conditions",
+    "conditionOthers",
+    "details",
+];
+
+/*
+ * NOTE: if you change the value of the lists.
+ * you have to check value_selected in below functions.
+ */
+
+/* publisher */
+let publisherList = []; // produced from lgList.
+
+/* location */
+let locationList = [];  // copied from lgList at this time.
+
+// key -> text
+// value -> id
+
+/* age */
+const ageList = [
+    { "key":"0-9",  "value":"0s" },
+    { "key":"10代", "value":"10s" },
+    { "key":"20代", "value":"20s" },
+    { "key":"30代", "value":"30s" },
+    { "key":"40代", "value":"40s" },
+    { "key":"50代", "value":"50s" },
+    { "key":"60代", "value":"60s" },
+    { "key":"70代", "value":"70s" },
+    { "key":"80代", "value":"80s" },
+    { "key":"90代", "value":"90s" },
+    { "key":"非公開", "value":"Unspecified" },
+];
+
+/* gender */
+const genderList = [
+    { "key":"男性", "value":"Male" },
+    { "key":"女性", "value":"Female" },
+    { "key":"非公開", "value":"Unspecified" },
+];
+
+/* disease */
+const diseaseList = [
+    { "key":"新型コロナウイルス", "value":"COVID-2019" },
+    { "key":"麻疹", "value":"Measles" },
+    { "key":"その他", "value":"Others" },
+];
+
+/* patientCondition + name */
+const patientConditionList = [
+    { "text": "倦怠感", "id": "Malaise" },
+    { "text": "喀痰", "id": "Sputum" },
+    { "text": "発熱", "id": "Fever" },
+    { "text": "悪寒", "id": "Chill" },
+    { "text": "咳", "id": "Cough" },
+    { "text": "鼻水", "id": "RunnyNose" },
+    { "text": "肺炎", "id": "Pneumonia" },
+    { "text": "入院", "id": "Hospitalized" },
+    { "text": "陽性", "id": "Positive" },
+];
+
+/* vehicles + name */
+const vehiclesList = [
+    { "text": "タクシー", "id": "Taxi" },
+    { "text": "バス", "id": "Bus" },
+    { "text": "電車", "id": "Train" },
+    { "text": "飛行機", "id": "Airplane" },
+    { "text": "船", "id": "Ship" },
+    { "text": "徒歩", "id": "Walk" },
+    { "text": "不明", "id": "Unknown" },
+    // any vehicles that you can drive solely are not in case.
+    // { "key": "自家用車・自転車・バイク", "name": "Bike" },
+]
+
+const m_select_others_and_input = "選択肢にない場合、その他を選んでから記述する。";
+const m_location_annex = "建物名や駅名等、補足情報等があれば入力する。";
+
+window.addEventListener("load", ev_load, false);
+
+let row_num = 0;
+
+function debug_table(table)
+{
+    console.log("xxx === debug_table() ===");
+    for (var r = 0, n = table.rows.length; r < n; r++) {
+        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
+            console.log("xxx cell():", r, c, table.rows[r].cells[c]);
+        }
+    }
+}
+
+function get_xid()
+{
+    // no purpose than making a cell to be unique. 
+    row_num += 1;
+    return row_num;
+}
+
+function add_input_textarea(parent_obj, target_id, args)
+{
+    /*
+     * args must include:
+     *     initial_value
+     *     placeholder_text
+     *
+     * it makes below id:
+     *     target_id + "Textarea"
+     *
+     * the block is gonna be:
+     *   <div>
+     *     <textarea id=`${target_id}Textarea` placeholder=args.placeholder_text>
+     *   </div>
+     */
+    let child, x;
+
+    child = document.createElement("div");
+    x = document.createElement("textarea");
+    x.id = `${target_id}Textarea`;
+    x.placeholder = args.placeholder_text;
+    if (args.initial_value != undefined && args.initial_value != "") {
+        x.innerText = args.initial_value;
+    }
+    child.appendChild(x);
+    parent_obj.appendChild(child);
+}
+
+function add_input_checkbox_and_textarea(parent_obj, target_name, args)
+{
+    /*
+     * args must include:
+     *     item_list
+     *     initial_checked
+     *     need_input_text
+     *     initial_text
+     *     placeholder_text
+     *
+     * it makes below id:
+     *     the name of the checkboxe is taken from "name" in the item_list.
+     *     target_id + "Text"
+     *
+     * don't use id to identify a checkbox.
+     *
+     *   <div class="inlineBlock">
+     *     <div class=`Checkbox-${args.target_name}`>
+     *       <input type="checkbox" name=kv["name"]>
+     *       <label name=${kv.name}>kv.key</label>
+     *     </div>
+     *     <div> ... </div>
+     *     --> add_input_texteat() <--
+     *   </div>
+     */
+    let child, cb, x;
+
+    child = document.createElement("span");
+
+    args.item_list.forEach(kv => {
+        cb = document.createElement("div")
+        //cb.classList.add(`Checkbox-${target_name}`);
+        cb.classList.add("inlineBlock");
+
+        x = document.createElement("input");
+        x.type = "checkbox";
+        x.name = kv["id"];
+        if (args.initial_checked != undefined && args.initial_checked.find(x => x == kv["id"]) != undefined) {
+            x.checked = true;
+        }
+        cb.appendChild(x);
+
+        x = document.createElement("label")
+        //x.htmlFor = kv["id"]
+        x.appendChild(document.createTextNode(kv["text"]));
+        cb.appendChild(x);
+
+        child.appendChild(cb);
+    });
+
+    if (args.need_input_text == true) {
+        add_input_textarea(child, target_name, {
+            initial_value: args.initial_text,
+            placeholder_text: args.placeholder_text,
+        });
+    }
+
+    parent_obj.appendChild(child);
+}
+
+function add_input_select_options_to_obj(parent_obj, opts, value_selected)
+{
+    /*
+     * parent_obj, not parent_id, should be passed here.
+     * because the parent_id is not listed in the document level list.
+     */
+    opts.forEach(x => {
+        let opt = document.createElement("option");
+        opt.text = x["key"];
+        opt.value = x["value"];
+        if (value_selected != null && x["value"] == value_selected) {
+            opt.selected = true;
+        }
+        parent_obj.add(opt, null);
+    });
+}
+
+function add_input_select_and_text(parent_obj, target_id, args)
+{
+    /*
+     * args must include:
+     *     clear_content
+     *     select_list
+     *     value_selected
+     *     label_name
+     *     need_input_text
+     *     initial_text
+     *     placeholder_text
+     *
+     * it makes below id:
+     *     target_id + "Selected"
+     *     target_id + "Text"
+     *
+     * <div class="inlineBlock">
+     *   <label class="input-label" for={target_id}+"Selected">{args.label_name}</label>
+     *   <select class="input-select" id={target_id}+"Selected">
+     *     <option> select2+tree </option>
+     *   </select>
+     *   --> add_input_text() <--
+     * </div>
+     *
+     * if args.need_input_text is true, the input text is gonna be added by add_input_text().
+     *
+     * check if;
+     *     args.select_list has "id", then it's for select2.
+     *     args.select_list has "key", then t's for select.
+     *
+     * note if args.value_selected doesn't apper, you should check if the value exists in the args.select_list.
+     *
+     */
+    let child, x;
+
+    if (args.clear_content == true) {
+        parent_obj.innerHTML = "";
+    }
+    child = document.createElement("div");
+    child.classList.add("inlineBlock");
+    if (args.label_name != undefined) {
+        x = document.createElement("label");
+        x.htmlFor = target_id + "Selected";
+        x.innerHTML = args.label_name;
+        x.classList.add("input-label");
+        child.appendChild(x);
+    }
+    x = document.createElement("select");
+    x.id = target_id + "Selected";
+    child.appendChild(x);
+
+    if (args.select_list[0].id) {
+        jQuery(x).select2ToTree({
+            treeData: {dataArr: args.select_list},
+            multiple: false,
+            dropdownAutoWidth: "auto",
+            width: "auto",
+            //dropdownParent: jQuery(parent_obj).parents("[id^='modaal_']"),
+            dropdownParent: jQuery("#divResidence"),
+        }).val(args.value_selected).trigger("change");
+    } else if (args.select_list[0].key) {
+        add_input_select_options_to_obj(x, args.select_list, args.value_selected);
+    }
+
+    if (args.need_input_text == true) {
+        add_input_text(child, target_id, {
+            clear_content: false,
+            initial_value: args.initial_text,
+            label_name: undefined,
+            placeholder_text: args.placeholder_text,
+        });
+    }
+
+    parent_obj.appendChild(child);
+}
+
+function get_current_date()
+{
+    let local_time = new Date();
+    return local_time.toJSON().slice(0,10);
+}
+
+function add_input_date_to_obj(parent_obj, target_id, initial_value)
+{
+    let x = document.createElement("input");
+    x.type = "text";
+    x.id = target_id;
+    x.classList.add("inputDate");
+    parent_obj.appendChild(x);
+    jQuery(x).val(initial_value);
+    jQuery(x).datetimepicker({
+        timepicker: false,
+        format: "Y-m-d",
+        scrollMonth : false,    // disable scroll in both.
+        //scrollInput : false,    // disable scroll in the text field.
+    });
+}
+
+function add_input_time_to_obj(parent_obj, target_id, initial_value)
+{
+    let local_time = new Date();
+    let x = document.createElement("input");
+    x.type = "text";
+    x.id = target_id;
+    x.placeholder = "可能ならば時刻を入力する。";
+    x.classList.add("inputTime");
+    parent_obj.appendChild(x);
+    jQuery(x).val(initial_value);
+    jQuery(x).datetimepicker({
+        datepicker: false,
+        format: "H:i",
+        step: 30,
+        defaultTime: "12:00",
+    });
+}
+
+function add_input_date_time_to_obj_x(parent_obj, date_target_id, date_initial, time_target_id, time_initial, label_name, line_break)
+{
+    let child, x;
+
+    child = document.createElement("div");
+    child.classList.add("inlineBlock");
+    if (label_name != undefined) {
+        x = document.createElement("label");
+        x.htmlFor = date_target_id;
+        x.innerHTML = label_name;
+        x.classList.add("input-label");
+        child.appendChild(x);
+    }
+    add_input_date_to_obj(child, date_target_id, date_initial);
+    if (time_target_id != null) {
+        if (line_break == true) {
+            child.appendChild(document.createElement("br"));
+        }
+        add_input_time_to_obj(child, time_target_id, time_initial);
+    }
+    parent_obj.appendChild(child);
+}
+
+function add_input_text(parent_obj, target_id, args)
+{
+    /*
+     * args must inlucde:
+     *     clear_content
+     *     initial_value
+     *     label_name
+     *     placeholder_text
+     *
+     * it makes two ids:
+     *     target_id + "Text"
+     *
+     * the block gonna be:
+     *   <div class="inlineBlock">
+     *     <label class="input-label" for= `${target_id}Text` > args.label_name </label>
+     *     <input id= `${target_id}Text` type="text" vlaue=args.initial_value placeholder=args.placeholder_text>
+     *   </div>
+     *
+     */
+    let child, x;
+
+    if (args.clear_content == true) {
+        parent_obj.innerHTML = "";
+    }
+    child = document.createElement("div");
+    child.classList.add("inlineBlock");
+    if (args.label_name != undefined) {
+        x = document.createElement("label");
+        x.htmlFor = target_id + "Text";
+        x.innerHTML = args.label_name;
+        x.classList.add("input-label");
+        child.appendChild(x);
+    }
+    x = document.createElement("input");
+    x.id = target_id + "Text";
+    x.type = "text";
+    x.classList.add("input-text");
+    if (args.initial_value != undefined) {
+        x.value = args.initial_value;
+    }
+    if (args.placeholder_text != undefined) {
+        x.placeholder = args.placeholder_text;
+    }
+    child.appendChild(x);
+
+    parent_obj.appendChild(child);
+}
+
+function add_input_button_ins_line(parent_obj, row)
+{
+    let x = document.createElement("input");
+    x.class = "inputInsLine"
+    x.type = "button";
+    x.value = "↑追加";
+    x.addEventListener("click", function(){ ev_click_ins_line(row) }, false);
+    parent_obj.appendChild(x);
+}
+
+function add_input_button_del_line(parent_obj, row)
+{
+    let x = document.createElement("input");
+    x.class = "inputDelLine"
+    x.type = "button";
+    x.value = "←削除";
+    x.addEventListener("click", function(){ ev_click_del_line(row) }, false);
+    parent_obj.appendChild(x);
+}
+
+function ins_line_PLHTable(row_index_ins, initial_value)
+{
+    let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
+    let row = tbody.insertRow(row_index_ins);
+    let row_index = tbody.rows.length;
+    let row_num = get_xid();
+    let x, x2, x3, cell;
+
+    /* "出発時間",
+        PLHDepartureDate, date
+        PLHDepartureTime, time
+     */
+    cell = row.insertCell(-1);
+    add_input_date_time_to_obj_x(cell, "PLHDepartureDate"+row_num, initial_value.departureDate, "PLHDepartureTime" + row_num, initial_value.departureTime, undefined, true);
+
+    /* "出発地", PLHDepartureFrom, select+text */
+    cell = row.insertCell(-1);
+    add_input_select_and_text(cell, "PLHDepartureFrom"+row_num, {
+        clear_content: true,
+        select_list: locationList,
+        value_selected: initial_value.departureFrom,
+        label_name: undefined,
+        need_input_text: true,
+        initial_text: initial_value.departureFromAnnex,
+        placeholder_text: m_location_annex,
+    });
+
+    /* "到着時間", PLHArrivalDateTime, date+time */
+    cell = row.insertCell(-1);
+    add_input_date_time_to_obj_x(cell, "PLHArrivalDate"+row_num, initial_value.departureDate, "PLHArrivalTime" + row_num, initial_value.departureTime, undefined, true);
+
+    /* "到着地", PLHArrivalIn, select+text */
+    cell = row.insertCell(-1);
+    add_input_select_and_text(cell, "PLHArrivalIn"+row_num, {
+        clear_content: true,
+        select_list: locationList,
+        value_selected: initial_value.arrivalIn,
+        label_name: undefined,
+        need_input_text: true,
+        initial_text: initial_value.arrivalInAnnex,
+        placeholder_text: m_location_annex,
+    });
+
+    /* "移動手段", vehicles, select+text */
+    cell = row.insertCell(-1);
+    add_input_checkbox_and_textarea(cell, "vehicles"+row_num, {
+        item_list: vehiclesList,
+        initial_checked: initial_value.vehicles,
+        need_input_text: true,
+        initial_text: initial_value.vehicleOthers,
+        placeholder_text: "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)",
+    });
+
+    /* "所見や患者の行動等", PLHDetails, text */
+    cell = row.insertCell(-1);
+    add_input_textarea(cell, "PLHDetails"+row_num, {
+        initial_value: initial_value.details,
+        label_name: false,
+        placeholder_text: "備考等自由記述",
+    });
+
+    /* DelLine */
+    cell = row.insertCell(-1);
+    add_input_button_ins_line(cell, row);
+    cell.appendChild(document.createElement("br"));
+    add_input_button_del_line(cell, row);
+}
+
+function ins_line_PCHTable(row_index_ins, initial_value)
+{
+    let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
+    let row = tbody.insertRow(row_index_ins);
+    let row_index = tbody.rows.length;
+    let row_num = get_xid();
+    let x, x2, x3, cell;
+
+    /*
+     "日付", cellPCHDateTime, date+time
+        PCHDate, date
+        PCHTime, time
+    */
+    cell = row.insertCell(-1);
+    add_input_date_time_to_obj_x(cell, "PCHDate"+row_num, initial_value.conditionDate, "PCHTime" + row_num, initial_value.conditionTime, undefined, true);
+
+    /* "健康状態", PCHConditios, checkbox+text */
+    cell = row.insertCell(-1);
+    add_input_checkbox_and_textarea(cell, "conditions"+row_num, {
+        item_list: patientConditionList,
+        initial_checked: initial_value.conditions,
+        need_input_text: true,
+        initial_text: initial_value.conditionOthers,
+        placeholder_text: "備考等自由記述",
+    });
+
+    /* "所見や患者の行動等", PCHDetails, text */
+    cell = row.insertCell(-1);
+    add_input_textarea(cell, "PCHDetails"+row_num, {
+        initial_value: initial_value.details,
+        label_name: false,
+        placeholder_text: "備考等自由記述",
+    });
+
+    /* DelLine */
+    cell = row.insertCell(-1);
+    add_input_button_ins_line(cell, row);
+    cell.appendChild(document.createElement("br"));
+    add_input_button_del_line(cell, row);
+}
+
+/*
+ * functions for submission
+ */
+function get_selected_value(target_id)
+{
+    /*
+     * return value or undefined.
+     * if the value is "", it returns undefined.
+     */
+    let x = document.getElementById(target_id);
+    let selected_value = x.options[x.selectedIndex].value;
+    if (selected_value != "") {
+        return selected_value;
+    } else {
+        return undefined;
+    }
+}
+
+/*
+ * XXX should be replaced into jQuery().
+ */
+function get_one_element_by_regex(parent_obj, target_regex)
+{
+    /*
+     * comparing id under parent_obj with target_regex recursively.
+     */
+    let x, a;
+
+    if (parent_obj.id && parent_obj.id.match(target_regex)) {
+//console.log("==> match", parent_obj.id);
+        return parent_obj;
+    }
+
+    if (parent_obj.children == undefined) {
+        return undefined;
+    }
+
+    /* first, walk this level. */
+    for (let i = 0; i < parent_obj.childNodes.length; i++) {
+        x = parent_obj.childNodes[i];
+//console.log("==> xxx by_regex:", i, x.id, target_regex, x);
+        a = get_one_element_by_regex(x, target_regex);
+        if (a != undefined) {
+            return a;
+        }
+    }
+
+    return undefined;
+}
+
+function check_value_and_other(main_value, other_value)
+{
+    if (other_value == "" || other_value == undefined) {
+        return true;
+    }
+    /* other_value has something. */
+    if (main_value != "Others") {
+        return false;
+    }
+    return true;
+}
+
+function make_data_entried()
+{
+    let data_entered = {
+        "publisher": get_selected_value("publisherSelected"),
+        "publisherOthers": document.getElementById("publisherText").value,
+        "localId": document.getElementById("localIdText").value,
+        "localSubId": document.getElementById("localSubIdText").value,
+        "disease": get_selected_value("diseaseSelected"),
+        "diseaseOthers": document.getElementById("diseaseText").value,
+        "dateConfirmed": document.getElementById("dateConfirmed").value,
+        "age": get_selected_value("ageSelected"),
+        "gender": get_selected_value("genderSelected"),
+        "residence": document.getElementById("residenceSelected").value,
+        "residenceAnnex": document.getElementById("residenceText").value,
+        "locationHistory": [
+        ],
+        "conditionHistory": [
+        ]
+    };
+
+    /* put _id and/or reportId if exists. */
+    if (g_form_value.reportId != undefined) {
+        data_entered.reportId = g_form_value.reportId;
+    }
+
+    /* check the field of publisher and disease */
+    if (check_value_and_other(data_entered["publisher"], data_entered["publisherOthers"]) == false) {
+        window.alert("publisher のその他のフィールドに値を入れる場合は、選択肢からその他を選択してください。");
+        return false;
+    }
+    if (check_value_and_other(data_entered["disease"], data_entered["diseaseOthers"]) == false) {
+        window.alert("disease のその他のフィールドに値を入れる場合は、選択肢からその他を選択してください。");
+        return false;
+    }
+
+    let table;
+
+    table = document.getElementById("tablePLH");
+    //debug_table(table);
+
+    for (let i = 1; i < table.rows.length; i++) {
+        //console.log("xxx PLH table:", i, table.rows[i]);
+        let kv = {};
+        let row = table.rows[i];
+        kv["departureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("PLHDepartureDate\\d+$")).value;
+        kv["departureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("PLHDepartureTime\\d+$")).value;
+        kv["departureFrom"] = get_one_element_by_regex(row.cells[1], new RegExp("PLHDepartureFrom\\d+Selected$")).value;
+        kv["departureFromAnnex"] = get_one_element_by_regex(row.cells[1], new RegExp("PLHDepartureFrom\\d+Text$")).value;
+        kv["arrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("PLHArrivalDate\\d+$")).value;
+        kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("PLHArrivalTime\\d+$")).value;
+        kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], new RegExp("PLHArrivalIn\\d+Selected$")).value;
+        kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("PLHArrivalIn\\d+Text$")).value;
+        kv["vehicles"] = [];
+        row.cells[4].childNodes.forEach(x => { // vehicles
+            x.childNodes.forEach(y => {
+                if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
+                    kv["vehicles"].push(y.firstChild.name);
+                }
+                if (y.firstChild.type == "textarea") {
+                    kv["vehicleOthers"] = y.firstChild.value;
+                }
+            });
+        });
+        /* add vehicleOthers if not exists. */
+        if (kv.vehicleOthers == undefined) {
+            kv["vehicleOthers"] = "";
+        }
+        kv["details"] = get_one_element_by_regex(row.cells[5], new RegExp("PLHDetails\\d+Textarea$")).value;
+        data_entered["locationHistory"].push(kv);
+    }
+
+    table = document.getElementById("tablePCH");
+    //debug_table(table);
+
+    for (let i = 1; i < table.rows.length; i++) {
+        //console.log("xxx PCH table:", i, table.rows[i]);
+        let kv = {};
+        let row = table.rows[i];
+        kv["conditionDate"] = get_one_element_by_regex(row.cells[0], new RegExp("PCHDate\\d+$")).value;
+        kv["conditionTime"] = get_one_element_by_regex(row.cells[0], new RegExp("PCHTime\\d+$")).value;
+        kv["conditions"] = [];
+        row.cells[1].childNodes.forEach(x => { // PCHStatus
+            x.childNodes.forEach(y => {
+                if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
+                    kv["conditions"].push(y.firstChild.name);
+                }
+                if (y.firstChild.type == "textarea") {
+                    kv["conditionOthers"] = y.firstChild.value;
+                }
+            });
+        });
+        /* add conditionOthers if not exists. */
+        if (kv.conditionOthers == undefined) {
+            kv["conditionOthers"] = "";
+        }
+        kv["details"] = get_one_element_by_regex(row.cells[2], new RegExp("PCHDetails\\d+Textarea$")).value;
+        data_entered["conditionHistory"].push(kv);
+    }
+
+    return data_entered;
+}
+
+async function send_plod(patient_data)
+{
+    fetch(SERVER_PATH + "/beak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(patient_data),
+    }).then(response => {
+        return response.json();
+    }).then(content => {
+//console.log("content:", content);
+        let status = content["status"];
+        if (status == "200") {
+            let data = content["result"]["data"];
+            confirm("reportId " + data["reportId"] + " が登録されました。");
+            // XXX needs to decide whehter new record is added to local table or just reload.
+            //table_listview.row.add(data).draw();
+            window.location.reload(false);
+        } else {
+            confirm("reportId " + data["reportId"] + " の登録に失敗しました。status=" + status);
+        }
+    }).catch(error => {
+console.log("xxx error=", error);
+        console.error("Error:", error);
+    });
+}
+
+async function delete_plod(reportId)
+{
+    fetch(SERVER_PATH + "/tail/" + reportId, {
+        method: "DELETE",
+    }).then(response => {
+        return response.json();
+    }).then(content => {
+//console.log("content:", content);
+        let status = content["status"];
+        if (status == "200") {
+            confirm("reportId " + reportId + " が削除されました。");
+            // XXX needs to decide whehter new record is deleted from local table or just reload.
+            window.location.reload(false);
+        } else {
+            confirm("reportId " + reportId + " の削除に失敗しました。status=" + status);
+        }
+    }).catch(error => {
+        console.error("Error:", error);
+    });
+}
+
+/*
+ * event handlers
+ */
+function ev_click_add_line_PLHTable()
+{
+    ins_line_PLHTable(-1, default_value_PLH);
+}
+
+function ev_click_add_line_PCHTable()
+{
+    ins_line_PCHTable(-1, default_value_PCH);
+}
+
+function ev_click_ins_line(row)
+{
+    if (row.parentElement.parentElement.id == "tablePLH") {
+        ins_line_PLHTable(row.rowIndex-1, default_value_PLH);
+    } else
+    if (row.parentElement.parentElement.id == "tablePCH") {
+        ins_line_PCHTable(row.rowIndex-1, default_value_PCH);
+    }
+}
+
+function plod_form_table_del_line(row)
+{
+    jQuery(row).find(".inputDate").datetimepicker("destroy");
+    jQuery(row).find(".inputTime").datetimepicker("destroy");
+    jQuery(row).remove();
+}
+
+function plod_form_table_destroy(target_id)
+{
+    let t = document.getElementById(target_id).getElementsByTagName('tbody')[0];
+    /* it's tricky.  n must be preserved. */
+    for (let i = 0, n = t.childNodes.length; i < n; i++) {
+        plod_form_table_del_line(t.childNodes[0]);
+    }
+}
+
+function plod_form_reset()
+{
+    $('#modal-control-form').modaal('close');
+    jQuery("#dateConfirmed").datetimepicker("destroy");
+    plod_form_table_destroy("tablePLH");
+    plod_form_table_destroy("tablePCH");
+}
+
+function ev_click_del_line(row)
+{
+    if (true == confirm("削除しますか？")) {
+        plod_form_table_del_line(row);
+    }
+}
+
+function plod_form_submit()
+{
+    let data_entered = make_data_entried();
+    if (data_entered == false) {
+        return false;
+    }
+    send_plod(data_entered);
+    $('#modal-control-confirm-entry').modaal('close');
+    g_form_value = null;
+    plod_form_reset();
+}
+
+function plod_form_create()
+{
+    let x;
+
+//console.log(g_form_value);
+
+    /* layout the edit blocks */
+    add_input_select_and_text(document.getElementById("divPublisher"), "publisher", {
+        clear_content: true,
+        select_list: publisherList,
+        value_selected: g_form_value.publisher,
+        label_name: "所轄の自治体名:",
+        need_input_text: true,
+        initial_text: g_form_value.publisherOthers,
+        placeholder_text: m_select_others_and_input,
+    });
+
+    add_input_text(document.getElementById("divLocalId"), "localId", {
+        clear_content: true,
+        label_name: "管理No:",
+        initial_value: g_form_value.localId,
+        placeholder_text: "厚労省で管理している識別子等あれば入力する。",
+    });
+
+    add_input_text(document.getElementById("divLocalSubId"), "localSubId", {
+        clear_content: true,
+        label_name: "副管理No:",
+        initial_value: g_form_value.localSubId,
+        placeholder_text: "所轄における識別子等あれば入力する。",
+    });
+
+    add_input_select_and_text(document.getElementById("divDisease"), "disease", {
+        clear_content: true,
+        select_list: diseaseList,
+        value_selected: g_form_value.disease,
+        label_name: "患者の病名:",
+        need_input_text: true,
+        initial_text: g_form_value.diseaseOthers,
+        placeholder_text: m_select_others_and_input,
+    });
+
+    x = document.getElementById("divDateConfirmed");
+    x.innerHTML = "";
+    add_input_date_time_to_obj_x(x, "dateConfirmed", g_form_value.dateConfirmed, undefined, undefined, "患者の状態が確認された日付:");
+
+    add_input_select_and_text(document.getElementById("divAge"), "age", {
+        clear_content: true,
+        select_list: ageList,
+        value_selected: g_form_value.age,
+        label_name: "患者の年代:",
+        need_input_text: false,
+    });
+
+    add_input_select_and_text(document.getElementById("divGender"), "gender", {
+        clear_content: true,
+        select_list: genderList,
+        value_selected: g_form_value.gender,
+        label_name: "患者の性別:",
+        need_input_text: false,
+    });
+
+    add_input_select_and_text(document.getElementById("divResidence"), "residence", {
+        select_list: residenceList,
+        value_selected: g_form_value.residence,
+        label_name: "患者の居住地域:",
+        need_input_text: true,
+        initial_text: g_form_value.residenceAnnex,
+        placeholder_text: "補足情報等があれば入力する。",
+        clear_content: true,
+    });
+
+    /* lines for location history */
+    document.getElementById("tablePLH").getElementsByTagName('tbody')[0].innerHTML = "";
+    if (g_form_value.locationHistory.length > 0) {
+g_form_value.locationHistory.forEach(x => {
+console.log("xxx", x);
+ins_line_PLHTable(-1, x);
+});
+        //g_form_value.locationHistory.forEach(x => ins_line_PLHTable(-1, x));
+    }
+
+    /* lines for condition history */
+    document.getElementById("tablePCH").getElementsByTagName('tbody')[0].innerHTML = "";
+    if (g_form_value.conditionHistory.length > 0) {
+        g_form_value.conditionHistory.forEach(x => ins_line_PCHTable(-1, x));
+    }
+}
+
+function make_table_from_dict(d, headerList)
+{
+    let details = "";
+    if (d.length > 0) {
+        details += "<table><thead>";
+        details += "<tr>";
+        headerList.forEach(a => details +=`<th>${a}</th>`);
+        details += "</tr><tbody>";
+        d.forEach(r => {
+            details += "<tr>";
+            headerList.forEach(x => {
+                var y = Object.entries(r).find(a => a[0] == x);
+                if (y != undefined) {
+                    details += "<td>" + y[1] + "</td>";
+                } else {
+                    details += "<td></td>";
+                }
+            });
+            details += "</tr>";
+        });
+        details  += "</tbody></table>";
+    }
+    return details;
+}
+
+function ev_load(e)
+{
+    /* create select-lists from lgList. */
+    lgList.push({ "id": "Others", "text": "その他" });
+    publisherList = JSON.parse(JSON.stringify(lgList))
+    publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
+    locationList = JSON.parse(JSON.stringify(lgList));
+    residenceList = JSON.parse(JSON.stringify(lgList));
+    residenceList.push({ "id": "Unspecified", "text": "非公開" });
+
+    /* create table of list view */
+    let tr = document.createElement("tr");
+    tr.appendChild(document.createElement("th"));   // for show_row_details()
+    baseHeaderCols.forEach(x => {
+        var th = document.createElement("th");
+        th.innerHTML = x;
+        tr.appendChild(th);
+    });
+    let thead = document.createElement("thead");
+    thead.appendChild(tr);
+    document.getElementById("table-listview").appendChild(thead);
+
+    let columns = baseHeaderCols.map(a => {return {"data":a}});
+    columns.unshift({
+        "className": "details-control",
+        "orderable": false,
+        "data": null,
+        "defaultContent": "",
+    });
+    table_listview = $('#table-listview').DataTable( {
+        "ajax": {
+            //"url": "sample.json",
+            "url": "/tummy/json/all",
+            "dataSrc": "result"
+        },
+        "columns": columns,
+        "order": [[1, 'asc']],
+    } );
+
+    $('#table-listview tbody').on('click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            table_listview.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    } );
+
+    $('#table-listview tbody').on('click', 'td.details-control', function () {
+        let tr = $(this).closest('tr');
+        let row = table_listview.row( tr );
+        if ( row.child.isShown() ) {
+            // This row is already open.
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            let button_id = "button-delete-plod-" + get_xid();
+            row.child( function() {
+                let row_data = row.data();
+                let details = "";
+                details += make_table_from_dict(row_data.locationHistory, locationHeaderCols);
+                details += make_table_from_dict(row_data.conditionHistory, conditionHeaderCols);
+                details += `<hr><span style="margin-left:20px;">_id = ${row_data._id}</span>`;
+                details += `<span><input class="button-delete-plod" id="${button_id}" type="button" value="削除"></span>`;
+                return details;
+            } ).show();
+            tr.addClass('shown');
+            // add event.
+            jQuery(`#${button_id}`).on("click", function() {
+                if (true == confirm("削除しますか？")) {
+                    let result = delete_plod(row.data()["reportId"]);
+                    //console.log("delete result:", result);
+                }
+                row.child.hide();
+                tr.removeClass('shown');
+                // XXX why it doesn't work ?
+                // XXX referring to https://datatables.net/examples/api/select_single_row.html
+                // row.remove().draw( false );
+                $(this).removeClass('selected');
+            });
+        }
+    } );
+
+    /* modal */
+    $('#modal-control-form').modaal({
+        content_source: '#divEntryForm',
+        fullscreen: 'true',
+        hide_close: true,
+    });
+
+    $('#modal-control-confirm-entry').modaal({
+        content_source: '#divConfirmSubmit',
+    });
+
+    $('#button-confirm-entry').on("click", function() {
+        let data_entered = make_data_entried();
+        if (data_entered == false) {
+            return false;
+        }
+        let x = document.getElementById("divConfirmEntry");
+        x.innerText = JSON.stringify(data_entered, undefined, 2);
+        $('#modal-control-confirm-entry').modaal('open');
+    });
+
+    jQuery("#button-no-confirm-entry").on("click", function() {
+        $('#modal-control-confirm-entry').modaal('close');
+    });
+
+    jQuery("#button-yes-confirm-entry").on("click", function() {
+        plod_form_submit();
+    });
+
+    $('#button-plod-edit').click( function () {
+        if (table_listview.row('.selected').length != 0) {
+            g_form_value = table_listview.row('.selected').data();
+            plod_form_create();
+            $('#modal-control-form').modaal('open');
+        }
+    });
+
+    document.getElementById("button-plod-new").addEventListener("click", function() {
+        g_form_value = default_value;
+        plod_form_create();
+        $('#modal-control-form').modaal('open');
+    }, false);
+
+    document.getElementById("button-submit-entry").addEventListener("click", function() {
+        if (true == confirm("登録しますか？")) {
+            plod_form_submit();
+        }
+    }, false);
+
+    document.getElementById("button-cancel-entry").addEventListener("click", function () {
+        if (true == confirm("取り消しますか？")) {
+	    plod_form_reset();
+	}
+    });
+
+    document.getElementById("addLinePLH").addEventListener("click", ev_click_add_line_PLHTable, false);
+    document.getElementById("addLinePCH").addEventListener("click", ev_click_add_line_PCHTable, false);
+
+}
+
+    </script>
+
+</head>
+<body>
+
+    <!-- window for list view -->
+    <div id="divListView">
+        <div id="divEntryFormTitle">
+            <div style="display:inline-block; vertical-align:top;">
+                <a href="images/PLOD-v0.1.png">
+                    <img id="plodLogo" src="images/PLOD-v0.1-48x48.png" alt="PLOD logo">
+                </a>
+            </div>
+            <div style="display:inline-block; width:90%;">
+                <span>Patient Locational Open Data (PLOD) List View</span>
+                <br>
+                <span>
+                    　
+                </span>
+            </div>
+        </div>
+        <hr>
+
+        <div class="divBlock" style="width:100%; margin-right:3px;">
+            <span>
+                <input id="button-plod-edit" class="control-button" type="button" value="選択したPLODを編集する">
+                <!--input id="button-plod-delete" type="button" value="選択したPLODを削除する"-->
+            </span>
+            <span style="float:right">
+                <input id="button-plod-new" class="control-button" type="button" value="新しいPLODを入力する">
+            </span>
+        </div>
+
+        <hr>
+
+        <table id="table-listview" class="display" style="width:98%"></table>
+    </div>
+
+    <!-- window for entry form -->
+    <div id="modal-control-form"></div>
+    <div id="divEntryForm" style="display:none;">
+        <div id="divEntryFormTitle">
+            <div style="display:inline-block; vertical-align:top;">
+                <a href="images/PLOD-v0.1.png">
+                    <img id="plodLogo" src="images/PLOD-v0.1-48x48.png" alt="PLOD logo">
+                </a>
+            </div>
+            <div style="display:inline-block; width:90%;">
+                <span>Patient Locational Open Data (PLOD) Entry Form</span>
+                <br>
+                <span>
+                    位置情報の入力に関するガイド:
+                    患者のプライバシーを考慮しつつ、かつ、
+                    移動した場所がある程度特定できるように入力してください。
+                </span>
+            </div>
+        </div>
+        <hr>
+
+        <div class="divBlock">
+            <div id="divPublisher"> <!-- insert dynamically --> </div>
+            <div id="divLocalId"> <!-- insert dynamically --> </div>
+            <div id="divLocalSubId"> <!-- insert dynamically --> </div>
+        </div>
+
+        <div class="divBlock">
+            <div id="divDisease"> <!-- insert dynamically --> </div>
+            <div id="divDateConfirmed"> <!-- insert dynamically --> </div>
+        </div>
+
+        <div class="divBlock">
+            <div id="divAge"> <!-- insert dynamically --> </div> 
+            <div id="divGender"> <!-- insert dynamically --> </div> 
+            <div id="divResidence"> <!-- insert dynamically --> </div>
+        </div>
+
+        <hr>
+        <div class="divBlock">
+            <label for="divPLH">患者の移動の履歴:</label>
+            <div id="divPLH">
+                <table id="tablePLH" class="table-form">
+                    <thead>
+                        <tr>
+                            <th>出発時間</th>
+                            <th>出発地</th>
+                            <th>到着時間</th>
+                            <th>到着地</th>
+                            <th>移動方法(複数選択可)</th>
+                            <th>所見や患者の行動等</th>
+                            <th>行増減</th>
+                        </tr>
+                    </thead>
+                    <tbody> <!-- insert dynamically --> </tbody>
+                </table>
+                <input id="addLinePLH" type="button" value="↑行を追加する">
+            </div>
+        </div>
+
+        <hr>
+        <div class="divBlock">
+            <label for="divPCH">患者の状態の履歴:</label>
+            <div id="divPCH">
+                <table id="tablePCH" class="table-form">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>健康状態</th>
+                            <th>所見や患者の状況等</th>
+                            <th>行増減</th>
+                        </tr>
+                    </thead>
+                    <tbody> <!-- insert dynamically --> </tbody>
+                </table>
+                <input id="addLinePCH" type="button" value="↑行を追加する">
+            </div>
+        </div>
+
+        <hr>
+        <div class="divBlock" style="width:100%; margin-right:3px;">
+            <span>
+                <input id="button-confirm-entry" class="control-button" type="button" value="確認する">
+                <input id="button-submit-entry" class="control-button" type="button" value="登録する">
+            </span>
+            <span style="float:right">
+                <input id="button-cancel-entry" class="control-button" type="button" value="取り消す">
+            </span>
+        </div>
+
+        <hr>
+    </div>
+
+    <!-- window for confirmation of submit -->
+    <div id="modal-control-confirm-entry"></div>
+    <div id="divConfirmSubmit" style="display:none">
+        <div style="padding: 20px">
+            <span>
+                登録しますか？
+                <input id="button-no-confirm-entry" type="button" value="いいえ">
+                <input id="button-yes-confirm-entry" type="button" value="はい">
+            </span>
+            <hr>
+            <div id="divConfirmEntry"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+
