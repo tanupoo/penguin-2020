@@ -12,11 +12,19 @@ Please see [README](README.en.md) in English.
 - REST API から入力された PLOD を、No-SQL データベースに蓄積する。
 - 指定された PLOD を REST API を使って提供する。
 
-![the overview of the proposed approach](PLOD-overview.ja.png)
+![the overview of the proposed approach](doc/PLOD-overview.ja.png)
 
 PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
+
+## Screenshot
+
+<img alt="sample form" src="doc/PLOD-saample-form.png" width="640">
+
+<img alt="sample list" src="doc/PLOD-saample-list.png" width="640">
+
+<img alt="sample detail" src="doc/PLOD-saample-list-detail.png" width="640">
 
 ## Docker compose
 
