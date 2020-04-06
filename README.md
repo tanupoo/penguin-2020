@@ -20,9 +20,15 @@ PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 ## Screenshot
 
+- PLODの入力フォームの例
+
 <img alt="sample form" src="doc/PLOD-sample-form.png" width="640">
 
+- PLODリストの例
+
 <img alt="sample list" src="doc/PLOD-sample-list.png" width="640">
+
+- PLODリストから指定したPLODの詳細を表示した例
 
 <img alt="sample detail" src="doc/PLOD-sample-list-detail.png" width="640">
 
