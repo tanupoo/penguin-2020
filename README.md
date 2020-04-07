@@ -65,5 +65,5 @@ docker compose が使える環境であれば、
 
 ## 謝辞
 
-- Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
+- Thanks to a.ym (@yachts111xenon) for providing a funcy logo of the PLOD penguin !
 

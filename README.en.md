@@ -66,13 +66,4 @@ Docker is available.  See and try below.
 
 ## Acknowledgements
 
-- Thanks to a Ms./Mr. unknown author for providing a funcy logo of PLOD penguin !
-
-## Links to the useful tools
-
-- [Japan local goverment list](https://www.soumu.go.jp/denshijiti/code.html)
-- RDF to JSON-LD [ttl2jsonld](https://frogcat.github.io/ttl2jsonld/demo/a)
-- JSON-LD to any [jsonld.js](https://github.com/digitalbazaar/jsonld.js)
-- [graph viewer](https://www.kanzaki.com/works/2009/pub/graph-draw).
-- Many information and tools about RFD at (https://www.kanzaki.com/docs/sw/)
-
+- Thanks to a.ym (@yachts111xenon) for providing a funcy logo of the PLOD penguin !
