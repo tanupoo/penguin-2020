@@ -16,11 +16,13 @@ PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 - PLOD を入力する簡単なフォームを提供する。
 - REST API から入力された PLOD を、No-SQL データベースに蓄積する。
-- 指定された PLOD を REST API を使って提供する。
+- 指定された PLOD を REST API を使って JSON形式あるいは Turtle形式で提供する。
 
 このソフトウエアのアーキテクチャと利用形態の概要を下図に示す。
 
 <img alt="overview of the software architecture and use case" src="doc/penguin-overview.png" width="640">
+
+データモデルとAPIなどは [IMPLEMENTATION NOTE](IMPLEMENTATION.md) を参照のこと。
 
 ## Screenshot
 

@@ -1,5 +1,7 @@
-Implementations
-===============
+IMPLEMENTATION NOTE
+====================
+
+Japanese/English are mixed.
 
 ## User-side: Browser (Chrome, Firefox)
 

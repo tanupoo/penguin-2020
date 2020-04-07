@@ -1,7 +1,14 @@
 penguin, a PLOD server
 ======================
 
-PLOD is short for Patient Locational Open Data.
+This is an implementation of Patient Locational Open Data (PLOD) service.
+
+Please visit the https://www.plod.info/ and see the following paper if you want to know the detail about PLOD.
+
+- [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
+
+<img alt="the overview of the proposed approach" src="doc/PLOD-overview.ja.png" width="640">
+
 This software has the following features.
 
 - providing a simple entry form so that an operator can input PLOD.
@@ -10,29 +17,29 @@ This software has the following features.
 
 Hence, this software can help a part of #3, #4, and #5 in the picture that depicts the overview of the approach.
 
-![the overview of the proposed approach](PLOD-overview.en.png)
+Here is the overview of the software architecture and use case.
 
-Please visit the https://www.plod.info/ and see the following paper if you want to know the detail about PLOD.
+<img alt="overview of the software architecture and use case" src="doc/penguin-overview.png" width="640">
 
-- [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
+You can refer to the [implementation note](IMPLEMENTATION.md) about Data model, API, and others.
 
 ## Screenshot
 
 - view of the entry form for PLD.
 
-<img alt="sample form" src="doc/PLOD-sample-form.png" width="640">
+<img alt="sample form" src="doc/sample-form.png" width="640">
 
 - view of the PLOD list.
 
-<img alt="sample list" src="doc/PLOD-sample-list.png" width="640">
+<img alt="sample list" src="doc/sample-list.png" width="640">
 
 - view of the detail of a PLOD.
 
-<img alt="sample detail" src="doc/PLOD-sample-list-detail.png" width="640">
+<img alt="sample detail" src="doc/sample-list-detail.png" width="640">
 
 ## Docker compose
 
-docker is available.  see and try below.
+Docker is available.  See and try below.
 
 - https://github.com/tanupoo/penguin-docker
 
