@@ -8,7 +8,7 @@ PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
-<img alt="the overview of the proposed approach" src="doc/PLOD-overview.png" width="640">
+<img alt="the overview of the proposed approach" src="doc/PLOD-overview.ja.png" width="640">
 
 このソフトウエアは、
 上記論文で提案されたアプローチを示す図の#3, #4, #5 の作業をサポートするために、
