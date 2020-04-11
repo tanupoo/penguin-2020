@@ -7,7 +7,7 @@ Please visit the https://www.plod.info/ and see the following paper if you want 
 
 - [Tracing patients' PLOD with mobile phones: Mitigation of epidemic risks through patients' locational open data](https://arxiv.org/abs/2003.06199)
 
-<img alt="the overview of the proposed approach" src="doc/PLOD-overview.ja.png" width="640">
+<img alt="the overview of the proposed approach" src="doc/PLOD-overview.en.png" width="640">
 
 This software has the following features.
 
