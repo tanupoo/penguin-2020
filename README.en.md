@@ -19,7 +19,7 @@ Hence, this software can help a part of #3, #4, and #5 in the picture that depic
 
 Here is the overview of the software architecture and use case.
 
-<img alt="overview of the software architecture and use case" src="doc/penguin-overview.png" width="640">
+<img alt="overview of the software architecture and use case" src="doc/penguin-overview.en.png" width="640">
 
 You can refer to the [implementation note](IMPLEMENTATION.md) about Data model, API, and others.
 

@@ -20,7 +20,7 @@ PLOD については https://www.plod.info/ と下記論文を参照のこと。
 
 このソフトウエアのアーキテクチャと利用形態の概要を下図に示す。
 
-<img alt="overview of the software architecture and use case" src="doc/penguin-overview.png" width="640">
+<img alt="overview of the software architecture and use case" src="doc/penguin-overview.ja.png" width="640">
 
 データモデルとAPIなどは [IMPLEMENTATION NOTE](IMPLEMENTATION.md) を参照のこと。
 
