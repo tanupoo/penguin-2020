@@ -1,0 +1,120 @@
+{
+    "msg_type": "response",
+    "result": [
+        {
+            "_id": "5e8b5e53d0126b2bb98dc120",
+            "age": "20s",
+            "conditionHistory": [
+                {
+                    "conditionDate": "2020-01-20",
+                    "conditionOthers": "",
+                    "conditionTime": "",
+                    "conditions": [
+                        "Cough",
+                        "RunnyNose"
+                    ],
+                    "details": ""
+                },
+                {
+                    "conditionDate": "2020-04-29",
+                    "conditionOthers": "",
+                    "conditionTime": "",
+                    "conditions": [
+                        "RunnyNose"
+                    ],
+                    "details": ""
+                }
+            ],
+            "dateConfirmed": "2020-01-31",
+            "disease": "COVID-2019",
+            "diseaseOthers": "",
+            "gender": "Female",
+            "localId": "13",
+            "localSubId": "1",
+            "locationHistory": [
+                {
+                    "arrivalDate": "2020-01-16",
+                    "arrivalIn": "大阪府",
+                    "arrivalInAnnex": "",
+                    "arrivalTime": "",
+                    "departureDate": "2020-01-16",
+                    "departureFrom": "千葉県",
+                    "departureFromAnnex": "",
+                    "departureTime": "",
+                    "details": "",
+                    "vehicleOthers": "",
+                    "vehicles": [
+                        "Airplane"
+                    ]
+                },
+                {
+                    "arrivalDate": "2020-01-22",
+                    "arrivalIn": "Others",
+                    "arrivalInAnnex": "ツアー",
+                    "arrivalTime": "",
+                    "departureDate": "2020-01-17",
+                    "departureFrom": "大阪府",
+                    "departureFromAnnex": "",
+                    "departureTime": "",
+                    "details": "",
+                    "vehicleOthers": "",
+                    "vehicles": [
+                        "Bus"
+                    ]
+                },
+                {
+                    "arrivalDate": "2020-01-22",
+                    "arrivalIn": "千葉県",
+                    "arrivalInAnnex": "",
+                    "arrivalTime": "",
+                    "departureDate": "2020-01-22",
+                    "departureFrom": "大阪府",
+                    "departureFromAnnex": "",
+                    "departureTime": "",
+                    "details": "",
+                    "vehicleOthers": "",
+                    "vehicles": [
+                        "Bus"
+                    ]
+                },
+                {
+                    "arrivalDate": "2020-01-29",
+                    "arrivalIn": "千葉県",
+                    "arrivalInAnnex": "医療機関",
+                    "arrivalTime": "",
+                    "departureDate": "2020-01-29",
+                    "departureFrom": "千葉県",
+                    "departureFromAnnex": "",
+                    "departureTime": "",
+                    "details": "",
+                    "vehicleOthers": "",
+                    "vehicles": [
+                        "Unknown"
+                    ]
+                },
+                {
+                    "arrivalDate": "2020-01-30",
+                    "arrivalIn": "千葉県",
+                    "arrivalInAnnex": "医療機関",
+                    "arrivalTime": "",
+                    "departureDate": "2020-01-30",
+                    "departureFrom": "千葉県",
+                    "departureFromAnnex": "",
+                    "departureTime": "",
+                    "details": "",
+                    "vehicleOthers": "",
+                    "vehicles": [
+                        "Unknown"
+                    ]
+                }
+            ],
+            "publisher": "千葉県",
+            "publisherOthers": "",
+            "reportId": "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9",
+            "residence": "千葉県",
+            "residenceAnnex": ""
+        }
+    ],
+    "status": 200,
+    "ts": "2020-04-20T09:55:29.612319"
+}
