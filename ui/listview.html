@@ -260,14 +260,14 @@ const ageList = [
     { "key":"70代", "value":"70s" },
     { "key":"80代", "value":"80s" },
     { "key":"90代", "value":"90s" },
-    { "key":"非公開", "value":"Unspecified" },
+    { "key":"不明", "value":"Unspecified" },
 ];
 
 /* gender */
 const genderList = [
     { "key":"男性", "value":"Male" },
     { "key":"女性", "value":"Female" },
-    { "key":"非公開", "value":"Unspecified" },
+    { "key":"不明", "value":"Unspecified" },
 ];
 
 /* disease */
@@ -810,7 +810,7 @@ function check_value_and_other(main_value, other_value)
     return true;
 }
 
-function make_data_entried()
+function make_data_entries()
 {
     let data_entered = {
         "publisher": get_selected_value("publisherSelected"),
@@ -1015,7 +1015,7 @@ function ev_click_del_line(row)
 
 function plod_form_submit()
 {
-    let data_entered = make_data_entried();
+    let data_entered = make_data_entries();
     if (data_entered == false) {
         return false;
     }
@@ -1146,7 +1146,7 @@ function ev_load(e)
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
     locationList = JSON.parse(JSON.stringify(lgList));
     residenceList = JSON.parse(JSON.stringify(lgList));
-    residenceList.push({ "id": "Unspecified", "text": "非公開" });
+    residenceList.push({ "id": "Unspecified", "text": "不明" });
 
     /* create table of list view */
     let tr = document.createElement("tr");
@@ -1236,7 +1236,7 @@ function ev_load(e)
     });
 
     $('#button-confirm-entry').on("click", function() {
-        let data_entered = make_data_entried();
+        let data_entered = make_data_entries();
         if (data_entered == false) {
             return false;
         }
