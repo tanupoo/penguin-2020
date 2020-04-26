@@ -156,50 +156,6 @@ jQuery.datetimepicker.setLocale("ja");
 
 let table_listview;
 
-const default_value_PLH = {
-    "departureDate": get_current_date(),
-    "departureTime": "",
-    "departureFrom": "東京都",
-    "departureFromAnnex": "",
-    "arrivalDate": get_current_date(),
-    "arrivalTime": "",
-    "arrivalIn": "東京都",
-    "arrivalInAnnex": "",
-    "vehicles": [],
-    "vehicleOthers": "",
-    "details": "",
-};
-
-const default_value_PCH = {
-    "conditionDate": get_current_date(),
-    "conditionTime": "",
-    "conditions": [],
-    "conditionOthers": "",
-    "detaills": "",
-};
-
-const default_value_PLOD = {
-    "publisher": "厚労省",
-    "publisherOthers": "",
-    "localId": "",
-    "localSubId": "",
-    "disease": "COVID-2019",
-    "diseaseOthers": "",
-    "dateConfirmed": get_current_date(),
-    "age": "Unspecified",
-    "gender": "Unspecified",
-    "residence": "Unspecified",
-    "residenceAnnex": "",
-    "locationHistory": [
-	// not needed for initial.
-	//default_value_PLH
-    ],
-    "conditionHistory": [
-	// not needed for initial.
-	//default_value_PCH
-    ],
-};
-
 /* header columns of listview */
 const baseHeaderCols = [
     "publisher",
@@ -307,6 +263,19 @@ const vehiclesList = [
 
 const m_select_others_and_input = "選択肢にない場合、その他を選んでから記述する。";
 const m_location_annex = "建物名や駅名等、補足情報等があれば入力する。";
+
+const re_PLHDepartureDate = new RegExp("PLHDepartureDate\\d+$");
+const re_PLHDepartureTime = new RegExp("PLHDepartureTime\\d+$");
+const re_PLHDepartureFromSelected = new RegExp("PLHDepartureFrom\\d+Selected$");
+const re_PLHDepartureFromText = new RegExp("PLHDepartureFrom\\d+Text$");
+const re_PLHArrivalDate = new RegExp("PLHArrivalDate\\d+$");
+const re_PLHArrivalTime = new RegExp("PLHArrivalTime\\d+$");
+const re_PLHArrivalInSelected = new RegExp("PLHArrivalIn\\d+Selected$");
+const re_PLHArrivalInText = new RegExp("PLHArrivalIn\\d+Text$");
+const re_PLHDetailsTextarea = new RegExp("PLHDetails\\d+Textarea$");
+const re_PCHDate = new RegExp("PCHDate\\d+$");
+const re_PCHTime = new RegExp("PCHTime\\d+$");
+const re_PCHDetailsTextarea = new RegExp("PCHDetails\\d+Textarea$");
 
 window.addEventListener("load", ev_load, false);
 
@@ -621,6 +590,110 @@ function add_input_text(parent_obj, target_id, args)
     parent_obj.appendChild(child);
 }
 
+function get_default_PLOD()
+{
+    return {
+        "publisher": "厚労省",
+        "publisherOthers": "",
+        "localId": "",
+        "localSubId": "",
+        "disease": "COVID-2019",
+        "diseaseOthers": "",
+        "dateConfirmed": get_current_date(),
+        "age": "Unspecified",
+        "gender": "Unspecified",
+        "residence": "Unspecified",
+        "residenceAnnex": "",
+        "locationHistory": [
+            // not needed for initial.
+            //get_default_PLH(),
+        ],
+        "conditionHistory": [
+            // not needed for initial.
+            //default_value_PCH
+        ],
+    };
+}
+
+function get_default_PLH(base_row)
+{
+    let default_PLH = {
+        "departureDate": "",
+        "departureTime": "",
+        "departureFrom": "",
+        "departureFromAnnex": "",
+        "arrivalDate": "",
+        "arrivalTime": "",
+        "arrivalIn": "",
+        "arrivalInAnnex": "",
+        "vehicles": [],
+        "vehicleOthers": "",
+        "details": "",
+    };
+    let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
+    /* set ref_row if possible */
+    let ref_row;
+    if (base_row == undefined || base_row == null) {
+        if (tbody.rows.length > 0) {
+            ref_row = tbody.rows[tbody.rows.length-1];
+        }
+    } else if (base_row.rowIndex >= 2) {
+        ref_row = tbody.rows[base_row.rowIndex-2];
+    }
+    if (ref_row == undefined) {
+        /* inserting a row with default */
+        let default_location = document.getElementById("residenceSelected").value;
+        if (default_location == "Unspecified") {
+            default_location = "Others";
+        }
+        default_PLH.departureFrom = default_location;
+        default_PLH.departureDate = get_current_date();
+        default_PLH.arrivalIn = default_location;
+        default_PLH.arrivalDate = get_current_date();
+        return default_PLH;
+    }
+    /* inserting a row with the referring row. */
+    default_PLH.departureDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
+    default_PLH.departureTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
+    default_PLH.departureFrom = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInSelected).value;
+    default_PLH.departureFromAnnex = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInText).value;
+    default_PLH.arrivalDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
+    default_PLH.arrivalTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
+    default_PLH.arrivalIn = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromSelected).value;
+    default_PLH.arrivalInAnnex = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromText).value;
+    return default_PLH;
+}
+
+function get_default_PCH(base_row)
+{
+    let default_PCH = {
+        "conditionDate": "",
+        "conditionTime": "",
+        "conditions": [],
+        "conditionOthers": "",
+        "details": "",
+    };
+    let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
+    /* set ref_row if possible */
+    let ref_row;
+    if (base_row == undefined || base_row == null) {
+        if (tbody.rows.length > 0) {
+            ref_row = tbody.rows[tbody.rows.length-1];
+        }
+    } else if (base_row.rowIndex >= 2) {
+        ref_row = tbody.rows[base_row.rowIndex-2];
+    }
+    if (ref_row == undefined) {
+        /* inserting a row with default */
+        default_PCH.conditionDate = get_current_date();
+        return default_PCH;
+    }
+    /* inserting a row with the referring row. */
+    default_PCH.conditionDate = get_one_element_by_regex(ref_row.cells[0], re_PCHDate).value;
+    default_PCH.conditionTime = get_one_element_by_regex(ref_row.cells[0], re_PCHTime).value;
+    return default_PCH;
+}
+
 function add_input_button_ins_line(parent_obj, row)
 {
     let x = document.createElement("input");
@@ -856,14 +929,14 @@ function make_data_entries()
         //console.log("xxx PLH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
-        kv["departureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("PLHDepartureDate\\d+$")).value;
-        kv["departureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("PLHDepartureTime\\d+$")).value;
-        kv["departureFrom"] = get_one_element_by_regex(row.cells[1], new RegExp("PLHDepartureFrom\\d+Selected$")).value;
-        kv["departureFromAnnex"] = get_one_element_by_regex(row.cells[1], new RegExp("PLHDepartureFrom\\d+Text$")).value;
-        kv["arrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("PLHArrivalDate\\d+$")).value;
-        kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("PLHArrivalTime\\d+$")).value;
-        kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], new RegExp("PLHArrivalIn\\d+Selected$")).value;
-        kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("PLHArrivalIn\\d+Text$")).value;
+        kv["departureDate"] = get_one_element_by_regex(row.cells[0], re_PLHDepartureDate).value;
+        kv["departureTime"] = get_one_element_by_regex(row.cells[0], re_PLHDepartureTime).value;
+        kv["departureFrom"] = get_one_element_by_regex(row.cells[1], re_PLHDepartureFromSelected).value;
+        kv["departureFromAnnex"] = get_one_element_by_regex(row.cells[1], re_PLHDepartureFromText).value;
+        kv["arrivalDate"] = get_one_element_by_regex(row.cells[2], re_PLHArrivalDate).value;
+        kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], re_PLHArrivalTime).value;
+        kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], re_PLHArrivalInSelected).value;
+        kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], re_PLHArrivalInText).value;
         kv["vehicles"] = [];
         row.cells[4].childNodes.forEach(x => { // vehicles
             x.childNodes.forEach(y => {
@@ -879,7 +952,7 @@ function make_data_entries()
         if (kv.vehicleOthers == undefined) {
             kv["vehicleOthers"] = "";
         }
-        kv["details"] = get_one_element_by_regex(row.cells[5], new RegExp("PLHDetails\\d+Textarea$")).value;
+        kv["details"] = get_one_element_by_regex(row.cells[5], re_PLHDetailsTextarea).value;
         data_entered["locationHistory"].push(kv);
     }
 
@@ -890,8 +963,8 @@ function make_data_entries()
         //console.log("xxx PCH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
-        kv["conditionDate"] = get_one_element_by_regex(row.cells[0], new RegExp("PCHDate\\d+$")).value;
-        kv["conditionTime"] = get_one_element_by_regex(row.cells[0], new RegExp("PCHTime\\d+$")).value;
+        kv["conditionDate"] = get_one_element_by_regex(row.cells[0], re_PCHDate).value;
+        kv["conditionTime"] = get_one_element_by_regex(row.cells[0], re_PCHTime).value;
         kv["conditions"] = [];
         row.cells[1].childNodes.forEach(x => { // PCHStatus
             x.childNodes.forEach(y => {
@@ -907,7 +980,7 @@ function make_data_entries()
         if (kv.conditionOthers == undefined) {
             kv["conditionOthers"] = "";
         }
-        kv["details"] = get_one_element_by_regex(row.cells[2], new RegExp("PCHDetails\\d+Textarea$")).value;
+        kv["details"] = get_one_element_by_regex(row.cells[2], re_PCHDetailsTextarea).value;
         data_entered["conditionHistory"].push(kv);
     }
 
@@ -935,7 +1008,6 @@ async function send_plod(patient_data)
             confirm("reportId " + data["reportId"] + " の登録に失敗しました。status=" + status);
         }
     }).catch(error => {
-console.log("xxx error=", error);
         console.error("Error:", error);
     });
 }
@@ -966,21 +1038,21 @@ async function delete_plod(reportId)
  */
 function ev_click_add_line_PLHTable()
 {
-    ins_line_PLHTable(-1, default_value_PLH);
+    ins_line_PLHTable(-1, get_default_PLH());
 }
 
 function ev_click_add_line_PCHTable()
 {
-    ins_line_PCHTable(-1, default_value_PCH);
+    ins_line_PCHTable(-1, get_default_PCH());
 }
 
 function ev_click_ins_line(row)
 {
     if (row.parentElement.parentElement.id == "tablePLH") {
-        ins_line_PLHTable(row.rowIndex-1, default_value_PLH);
+        ins_line_PLHTable(row.rowIndex-1, get_default_PLH(row));
     } else
     if (row.parentElement.parentElement.id == "tablePCH") {
-        ins_line_PCHTable(row.rowIndex-1, default_value_PCH);
+        ins_line_PCHTable(row.rowIndex-1, get_default_PCH(row));
     }
 }
 
@@ -1102,7 +1174,6 @@ function plod_form_create()
     document.getElementById("tablePLH").getElementsByTagName('tbody')[0].innerHTML = "";
     if (g_form_value.locationHistory.length > 0) {
         g_form_value.locationHistory.forEach(x => ins_line_PLHTable(-1, x));
-        //g_form_value.locationHistory.forEach(x => ins_line_PLHTable(-1, x));
     }
 
     /* lines for condition history */
@@ -1139,7 +1210,12 @@ function make_table_from_dict(d, headerList)
 
 function ev_load(e)
 {
-    /* create select-lists from lgList. */
+    /*
+     * create select-lists from lgList.
+     *   publisherList: Others, 厚労省
+     *   locationList: Others, Abroad
+     *   residenceList: Others, Abroad, Unspecified
+     */
     lgList.push({ "id": "Others", "text": "その他" });
     publisherList = JSON.parse(JSON.stringify(lgList))
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
@@ -1263,7 +1339,7 @@ function ev_load(e)
     });
 
     document.getElementById("button-plod-new").addEventListener("click", function() {
-        g_form_value = default_value_PLOD;
+        g_form_value = get_default_PLOD();
         plod_form_create();
         $('#modal-control-form').modaal('open');
     }, false);
