@@ -647,7 +647,7 @@ function ins_line_PLHTable(row_index_ins, initial_value)
     let row_num = get_xid();
     let x, x2, x3, cell;
 
-    /* "出発時間",
+    /* "出発日時",
         PLHDepartureDate, date
         PLHDepartureTime, time
      */
@@ -666,7 +666,7 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         placeholder_text: m_location_annex,
     });
 
-    /* "到着時間", PLHArrivalDateTime, date+time */
+    /* "到着日時", PLHArrivalDateTime, date+time */
     cell = row.insertCell(-1);
     add_input_date_time_to_obj_x(cell, "PLHArrivalDate"+row_num, initial_value.departureDate, "PLHArrivalTime" + row_num, initial_value.departureTime, undefined, true);
 
@@ -1367,9 +1367,9 @@ function ev_load(e)
                 <table id="tablePLH" class="table-form">
                     <thead>
                         <tr>
-                            <th>出発時間</th>
+                            <th>出発日時</th>
                             <th>出発地</th>
-                            <th>到着時間</th>
+                            <th>到着日時</th>
                             <th>到着地</th>
                             <th>移動方法(複数選択可)</th>
                             <th>所見や患者の行動等</th>
