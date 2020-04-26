@@ -1144,6 +1144,7 @@ function ev_load(e)
     publisherList = JSON.parse(JSON.stringify(lgList))
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
     locationList = JSON.parse(JSON.stringify(lgList));
+    locationList.push({ "id": "Abroad", "text": "海外" });
     residenceList = JSON.parse(JSON.stringify(lgList));
     residenceList.push({ "id": "Abroad", "text": "海外" });
     residenceList.push({ "id": "Unspecified", "text": "不明" });
