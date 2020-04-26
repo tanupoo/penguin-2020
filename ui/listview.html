@@ -803,17 +803,19 @@ function ins_line_PCHTable(row_index_ins, initial_value)
     add_input_checkbox_and_textarea(cell, "conditions"+row_num, {
         item_list: patientConditionList,
         initial_checked: initial_value.conditions,
-        need_input_text: true,
-        initial_text: initial_value.conditionOthers,
-        placeholder_text: "備考等自由記述",
+        need_input_text: false,
+        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+        //need_input_text: true,
+        //initial_text: initial_value.conditionOthers,
+        //placeholder_text: "備考等自由記述",
     });
 
-    /* "所見や患者の行動等", PCHDetails, text */
+    /* "自由記述欄", PCHDetails, text */
     cell = row.insertCell(-1);
     add_input_textarea(cell, "PCHDetails"+row_num, {
         initial_value: initial_value.details,
         label_name: false,
-        placeholder_text: "備考等自由記述",
+        placeholder_text: "所見、患者の健康状態、検査機関、その他",
     });
 
     /* DelLine */
@@ -971,9 +973,10 @@ function make_data_entries()
                 if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
                     kv["conditions"].push(y.firstChild.name);
                 }
-                if (y.firstChild.type == "textarea") {
-                    kv["conditionOthers"] = y.firstChild.value;
-                }
+                // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+                //if (y.firstChild.type == "textarea") {
+                //    kv["conditionOthers"] = y.firstChild.value;
+                //}
             });
         });
         /* add conditionOthers if not exists. */
@@ -1468,7 +1471,7 @@ function ev_load(e)
                         <tr>
                             <th>日付</th>
                             <th>健康状態</th>
-                            <th>所見や患者の状況等</th>
+                            <th>自由記述欄</th>
                             <th>行増減</th>
                         </tr>
                     </thead>
