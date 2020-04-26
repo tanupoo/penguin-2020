@@ -178,7 +178,7 @@ const default_value_PCH = {
     "detaills": "",
 };
 
-const default_value = {
+const default_value_PLOD = {
     "publisher": "厚労省",
     "publisherOthers": "",
     "localId": "",
@@ -191,7 +191,8 @@ const default_value = {
     "residence": "Unspecified",
     "residenceAnnex": "",
     "locationHistory": [
-	default_value_PLH
+	// not needed for initial.
+	//default_value_PLH
     ],
     "conditionHistory": [
 	// not needed for initial.
@@ -1100,10 +1101,7 @@ function plod_form_create()
     /* lines for location history */
     document.getElementById("tablePLH").getElementsByTagName('tbody')[0].innerHTML = "";
     if (g_form_value.locationHistory.length > 0) {
-g_form_value.locationHistory.forEach(x => {
-console.log("xxx", x);
-ins_line_PLHTable(-1, x);
-});
+        g_form_value.locationHistory.forEach(x => ins_line_PLHTable(-1, x));
         //g_form_value.locationHistory.forEach(x => ins_line_PLHTable(-1, x));
     }
 
@@ -1264,7 +1262,7 @@ function ev_load(e)
     });
 
     document.getElementById("button-plod-new").addEventListener("click", function() {
-        g_form_value = default_value;
+        g_form_value = default_value_PLOD;
         plod_form_create();
         $('#modal-control-form').modaal('open');
     }, false);
