@@ -1251,7 +1251,7 @@ function ev_load(e)
         "ajax": {
             //"url": "sample.json",
             "url": "/tummy/json/all",
-            "dataSrc": "result"
+            "dataSrc": function (json) { return json; },
         },
         "columns": columns,
         "order": [[1, 'asc']],
@@ -1292,7 +1292,6 @@ function ev_load(e)
             jQuery(`#${button_id}`).on("click", function() {
                 if (true == confirm("削除しますか？")) {
                     let result = delete_plod(row.data()["reportId"]);
-                    //console.log("delete result:", result);
                 }
                 row.child.hide();
                 tr.removeClass('shown');
