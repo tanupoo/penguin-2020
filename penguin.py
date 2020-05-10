@@ -81,23 +81,18 @@ def dumps_utf8(data):
     return json.dumps(data, ensure_ascii=False)
 
 def http_response_turtle(msg):
+    http_response_logging(msg)
     return web.Response(body=msg, content_type="text/turtle")
 
-def http_response(msg, status=200, log_text=None):
-    res_msg = gen_common_response(msg, status=status, log_text=log_text)
-    return web.json_response(res_msg, status=status, dumps=dumps_utf8)
+def http_response_json(msg):
+    http_response_logging(msg)
+    return web.json_response(msg, dumps=dumps_utf8)
 
-def gen_common_response(msg, status=200, log_text=None):
-    """
-    msg: json object such string or dict.
-    send below json string.
-        {
-            "msg_type": "response", # required.
-            "status": status,       # required.
-            "ts": "...",     # required.
-            "result": msg           # required.
-        }
-    """
+def http_response(msg, status=200, log_text=None):
+    http_response_logging(msg, status=status, log_text=log_text)
+    return web.json_response({"result":msg}, status=status, dumps=dumps_utf8)
+
+def http_response_logging(msg, status=200, log_text=None):
     if status != 200:
         logger.error("{} status={} error={}".format(msg, status, log_text))
     else:
@@ -105,12 +100,6 @@ def gen_common_response(msg, status=200, log_text=None):
             logger.debug("result {} status={}".format(msg, status))
         else:
             logger.debug("result {} bytes status={}".format(len(msg), status))
-    #
-    return {
-            "msg_type": "response",
-            "status": status,
-            "ts": datetime.now().isoformat(),
-            "result": msg }
 
 #
 # MongoDB
@@ -361,9 +350,9 @@ async def provide_plod_handler(request):
     if result[0] == False:
         return http_response("{}.".format(result[1]), status=503)
     if output_format == "json":
-        return http_response(result[1])
+        return http_response_json(result[1])
     elif output_format == "turtle":
-        return http_response_turtle(plod_json2turtle(result[1][0]))
+        return http_response_turtle(plod_json2turtle(result[1]))
 
 #
 # logging

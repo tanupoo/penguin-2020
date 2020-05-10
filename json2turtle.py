@@ -12,7 +12,7 @@ url_prefix = "https://plod.info/data"
 #
 # by definition
 #
-__content = """\
+__prefix = """\
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -82,79 +82,86 @@ def make_date_time(obj, date_str, time_str):
 #
 # main
 #
-def plod_json2turtle(jd):
-    reportId = jd["reportId"]
-    publisher = cv_location(jd["publisher"])
-    healthCondition = cv_healthCondition(jd["disease"])
-    dateConfirmed = jd["dateConfirmed"]
-    age = jd["age"]
-    gender = jd["gender"]
-    residence = cv_location(jd["residence"])
-    patient_path = f"{reportId}-P01"
+def plod_json2turtle(plod_list):
+    """
+    plod_list: json-like list of one or more dict.
+    """
+    rdf = __prefix
+    # adding one or more PLOD in turtle.
+    for jd in plod_list:
+        reportId = jd["reportId"]
+        publisher = cv_location(jd["publisher"])
+        healthCondition = cv_healthCondition(jd["disease"])
+        dateConfirmed = jd["dateConfirmed"]
+        age = jd["age"]
+        gender = jd["gender"]
+        residence = cv_location(jd["residence"])
+        patient_path = f"{reportId}-P01"
 
-    rdf = __content
-    rdf += "\n"
-    rdf += f'''\
-<{url_prefix}/{reportId}> a schema:Event ;
-    rdfs:label "{reportId}" .
+        rdf += "\n"
+        rdf += f'''\
+    <{url_prefix}/{reportId}> a schema:Event ;
+        rdfs:label "{reportId}" .
 
-<{url_prefix}/{reportId}-R01> a schema:Report ;
-    rdfs:label "{reportId}-R01" ;
-    schema:mainEntity <{url_prefix}/{reportId}> ;
-    plod:numberOfPatients "1"^^schema:Integer ;
-    schema:datePublished "{dateConfirmed}"^^schema:DateTime ;
-    schema:publisher {publisher} ;
-    schema:url <{report_url}> ;
-    dcterms:isReferencedBy <{referencedBy}>.
+    <{url_prefix}/{reportId}-R01> a schema:Report ;
+        rdfs:label "{reportId}-R01" ;
+        schema:mainEntity <{url_prefix}/{reportId}> ;
+        plod:numberOfPatients "1"^^schema:Integer ;
+        schema:datePublished "{dateConfirmed}"^^schema:DateTime ;
+        schema:publisher {publisher} ;
+        schema:url <{report_url}> ;
+        dcterms:isReferencedBy <{referencedBy}>.
 
-<{url_prefix}/{patient_path}> a schema:Patient ;
-    rdfs:label "{patient_path}" ;
-    schema:subjectOf <{url_prefix}/{reportId}> ;
-    schema:healthCondition <{healthCondition}> ;
-    plod:dateConfirmed "{dateConfirmed}"^^schema:DateTime ;
-    foaf:age "{age}" ;
-    schema:gender "{gender}" ;
-    schema:homeLocation {residence} .
-'''
+    <{url_prefix}/{patient_path}> a schema:Patient ;
+        rdfs:label "{patient_path}" ;
+        schema:subjectOf <{url_prefix}/{reportId}> ;
+        schema:healthCondition <{healthCondition}> ;
+        plod:dateConfirmed "{dateConfirmed}"^^schema:DateTime ;
+        foaf:age "{age}" ;
+        schema:gender "{gender}" ;
+        schema:homeLocation {residence} .
+    '''
 
-    rdf += "\n"
-    labelMoveAction = 0;
-    for x in jd["locationHistory"]:
-        labelMoveAction += 1;
-        agent_path = f"{patient_path}-M{labelMoveAction:02d}"
-        rdf += f'<{url_prefix}/{agent_path}> a schema:MoveAction ;\n'
-        rdf += f'    rdfs:label "{agent_path}" ;\n'
-        rdf += f'    schema:agent <{url_prefix}/{patient_path}> ;\n'
+        rdf += "\n"
+        labelMoveAction = 0;
+        for x in jd["locationHistory"]:
+            labelMoveAction += 1;
+            agent_path = f"{patient_path}-M{labelMoveAction:02d}"
+            rdf += f'<{url_prefix}/{agent_path}> a schema:MoveAction ;\n'
+            rdf += f'    rdfs:label "{agent_path}" ;\n'
+            rdf += f'    schema:agent <{url_prefix}/{patient_path}> ;\n'
 
-        dt_str = make_date_time(x, "departureDate", "departureTime")
-        if dt_str is not None:
-            rdf += ('    schema:startTime "{}"^^schema:DateTime ;\n'
-                    .format(dt_str))
+            dt_str = make_date_time(x, "departureDate", "departureTime")
+            if dt_str is not None:
+                rdf += ('    schema:startTime "{}"^^schema:DateTime ;\n'
+                        .format(dt_str))
 
-        if x.get("departureFrom"):
-            rdf += ('    schema:fromLocation {} ;\n'
-                    .format(cv_location(x["departureFrom"])))
+            if x.get("departureFrom"):
+                rdf += ('    schema:fromLocation {} ;\n'
+                        .format(cv_location(x["departureFrom"])))
 
-        dt_str = make_date_time(x, "arrivalDate", "arrivalTime")
-        if dt_str is not None:
-            rdf += ('    schema:endTime "{}"^^schema:DateTime ;\n'
-                    .format(dt_str))
+            dt_str = make_date_time(x, "arrivalDate", "arrivalTime")
+            if dt_str is not None:
+                rdf += ('    schema:endTime "{}"^^schema:DateTime ;\n'
+                        .format(dt_str))
 
-        if x.get("arrivalIn"):
-            rdf += ('    schema:toLocation {} ;\n'
-                    .format(cv_location(x["arrivalIn"])))
+            if x.get("arrivalIn"):
+                rdf += ('    schema:toLocation {} ;\n'
+                        .format(cv_location(x["arrivalIn"])))
 
-        if x.get("vehicles"):
-            for v in x["vehicles"]:
-                rdf += (f'    schema:instrument "{v}"@ja .\n')
+            if x.get("vehicles"):
+                for v in x["vehicles"]:
+                    rdf += (f'    schema:instrument "{v}"@ja .\n')
+            rdf += "\n"
+
+        # Place
+        for k in postfix_geoname.keys():
+            rdf = add_turtle_place(rdf, k)
+
+        # InfectiousDisease
+        rdf += postfix
         rdf += "\n"
 
-    # Place
-    for k in postfix_geoname.keys():
-        rdf = add_turtle_place(rdf, k)
-
-    # InfectiousDisease
-    rdf += postfix
     return rdf
 #
 #
