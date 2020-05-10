@@ -195,14 +195,24 @@ def debug_http_message(headers, content):
         logger.debug(content)
         logger.debug("---END OF REQUESTED DATA---")
 
+async def provide_listview_handler(request):
+    """
+    all document must be placed under the ui directory.
+    """
+    common_access_log(request)
+    path = "./ui/listview.html"
+    logger.debug("DEBUG: serving {}".format(path))
+    if os.path.exists(path):
+        return web.FileResponse(path)
+    else:
+        raise web.HTTPNotFound()
+
 async def provide_feeder_handler(request):
     """
     all document must be placed under the ui directory.
     """
     common_access_log(request)
-    #path = "./ui/feeder.html"
-    #path = "./ui/entryform.html"
-    path = "./ui/listview.html"
+    path = "./ui/feeder.html"
     logger.debug("DEBUG: serving {}".format(path))
     if os.path.exists(path):
         return web.FileResponse(path)
