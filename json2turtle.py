@@ -100,26 +100,26 @@ def plod_json2turtle(plod_list):
 
         rdf += "\n"
         rdf += f'''\
-    <{url_prefix}/{reportId}> a schema:Event ;
-        rdfs:label "{reportId}" .
+<{url_prefix}/{reportId}> a schema:Event ;
+    rdfs:label "{reportId}" .
 
-    <{url_prefix}/{reportId}-R01> a schema:Report ;
-        rdfs:label "{reportId}-R01" ;
-        schema:mainEntity <{url_prefix}/{reportId}> ;
-        plod:numberOfPatients "1"^^schema:Integer ;
-        schema:datePublished "{dateConfirmed}"^^schema:DateTime ;
-        schema:publisher {publisher} ;
-        schema:url <{report_url}> ;
-        dcterms:isReferencedBy <{referencedBy}>.
+<{url_prefix}/{reportId}-R01> a schema:Report ;
+    rdfs:label "{reportId}-R01" ;
+    schema:mainEntity <{url_prefix}/{reportId}> ;
+    plod:numberOfPatients "1"^^schema:Integer ;
+    schema:datePublished "{dateConfirmed}"^^schema:DateTime ;
+    schema:publisher {publisher} ;
+    schema:url <{report_url}> ;
+    dcterms:isReferencedBy <{referencedBy}>.
 
-    <{url_prefix}/{patient_path}> a schema:Patient ;
-        rdfs:label "{patient_path}" ;
-        schema:subjectOf <{url_prefix}/{reportId}> ;
-        schema:healthCondition <{healthCondition}> ;
-        plod:dateConfirmed "{dateConfirmed}"^^schema:DateTime ;
-        foaf:age "{age}" ;
-        schema:gender "{gender}" ;
-        schema:homeLocation {residence} .
+<{url_prefix}/{patient_path}> a schema:Patient ;
+    rdfs:label "{patient_path}" ;
+    schema:subjectOf <{url_prefix}/{reportId}> ;
+    schema:healthCondition <{healthCondition}> ;
+    plod:dateConfirmed "{dateConfirmed}"^^schema:DateTime ;
+    foaf:age "{age}" ;
+    schema:gender "{gender}" ;
+    schema:homeLocation {residence} .
     '''
 
         rdf += "\n"
