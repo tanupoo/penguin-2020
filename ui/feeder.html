@@ -2,35 +2,198 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>PLOD Entry Form</title>
-    <!--<script type="text/javascript" src="template.js"></script>-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <title>PLOD viewer</title>
+    <!--link rel="shortcut icon" type="images/ico" href="http://www.datatables.net/favicon.ico"-->
 
-    <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script-->
+    <!-- DataTables -->
+    <link rel="stylesheet" type="text/css" href="js/jquery.dataTables.css">
+    <!-- Modaal -->
+    <link rel="stylesheet" type="text/css" href="js/modaal.min.css">
+    <!-- select2 -->
+    <link rel="stylesheet" type="text/css" href="js/select2-4.0.3.min.css">
+    <link rel="stylesheet" type="text/css" href="js/select2totree.css">
+    <!-- datatimepicker -->
+    <link rel="stylesheet" type="text/css" href="js/jquery.datetimepicker.css">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet">
-    <link href="select2-to-tree/src/select2totree.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-    <script src="select2-to-tree/src/select2totree.js"></script>
-    <script src="lglist-select2-20200327.js"></script>
+    <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
+    <style type="text/css" class="init">
 
-    <link rel="stylesheet" href="datetimepicker/jquery.datetimepicker.css">
-    <!--script type="text/javascript" src="datetimepicker/jquery-1.10.2.min.js"></script-->
-    <script type="text/javascript" src="datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+    * { font-size: 14px; }
+    .inputInsLine { }
+    .inputDelLine { }
+    .inlineBlock { display: inline-block; }
+    .cellBlock { margin-left: 3px; }
+    .inputDate, .inputTime { width: 100px; }
+    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; }
+    .input-label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
+    .input-text, .input-select { margin-left: 3px; }
 
-    <script type="text/javascript">
+    .control-button {
+	display: inline-block;
+	padding: 0.5em 1em;
+	text-decoration: none;
+	border-radius: 4px;
+	border-bottom: solid 3px #5e7fca;
+    }
+
+    /* header */
+    #plodLogo { float:left; margin-right: 10px; }
+
+    /* locations */
+    textarea[id^="vehicles"] { width: 95%; }
+    input[id^="PLHDepartureFrom"] { width: 180px; }
+    input[id^="PLHArrivalIn"] { width: 180px; }
+    textarea[id^="PLHDetails"] { width: 95%; }
+
+    /* conditions */
+    textarea[id^="conditions"] { width: 95%; }
+    textarea[id^="PCHDetails"] { width: 95%; }
+
+    /* below are for alignment of the blocks. */
+    #divPublisher, #divLocalId, #divLocalSubId,
+    #divDisease, #divDateConfirmed,
+    #divAge, #divGender, #divResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
+
+    /* data tables */
+    .details-control {
+        background: url('images/details_open.png') no-repeat center center;
+        cursor: pointer;
+    }
+
+    .shown td.details-control {
+        background: url('images/details_close.png') no-repeat center center;
+    }
+
+    .table-form {
+    border-collapse:separate;
+    border-spacing: 0;
+    }
+
+    .table-form th:first-child{
+    border-radius: 5px 0 0 0;
+    }
+
+    .table-form th:last-child{
+    border-radius: 0 5px 0 0;
+    border-right: 1px solid #3c6690;
+    }
+
+    .table-form th{
+    text-align: center;
+    color:white;
+    background: linear-gradient(#94bae3,#3686d6);
+    border-left: 1px solid #3c6690;
+    border-top: 1px solid #3c6690;
+    border-bottom: 1px solid #3c6690;
+    box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
+    padding: 5px 5px;
+    }
+
+    .table-form td{
+    text-align: center;
+    border-left: 1px solid #a8b7c5;
+    border-bottom: 1px solid #a8b7c5;
+    border-top:none;
+    box-shadow: 0px -3px 5px 1px #eee inset;
+    padding: 5px 5px;
+    }
+
+    .table-form td:last-child{
+    border-right: 1px solid #a8b7c5;
+    }
+
+    .table-form tr:last-child td:first-child {
+    border-radius: 0 0 0 5px;
+    }
+
+    .table-form tr:last-child td:last-child {
+    border-radius: 0 0 5px 0;
+    }
+
+    /* below are for the placeholder */
+    input::-webkit-input-placeholder { font-size: 8px; }
+    input:-moz-placeholder { font-size: 8px; }
+    input::-moz-placeholder { font-size: 8px; }
+    input:-ms-input-placeholder { font-size: 8px; }
+    textarea::placeholder { font-size: 8px; }
+
+    .button-delete-plod { margin-left: 20px; color: red; }
+
+    /* modaal */
+    .modaal-wrapper { z-index: 9995; }
+    .modaal-content-container { padding: 0px; }
+
+    #divConfirmEntry {
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 18px;
+    }
+
+    </style>
+
+    <!--script src="https://code.jquery.com/jquery-1.11.1.min.js"></script-->
+    <script language="javascript" src="js/jquery-3.3.1.min.js"></script>
+    <!-- DataTables -->
+    <script language="javascript" src="js/jquery.dataTables.js"></script>
+    <!-- Modaal -->
+    <script language="javascript" src="js/modaal.min.js"></script>
+    <!-- select2 -->
+    <script src="js/select2-4.0.3.min.js"></script>
+    <script src="js/select2totree.js"></script>
+    <!-- datatimepicker -->
+    <script src="js/jquery.datetimepicker.full.min.js"></script>
+
+    <!-- lglist -->
+    <script src="js/lglist-select2-20200327.js"></script>
+
+    <script type="text/javascript" language="javascript" class="init">
 
 var SERVER_PATH = '';
 var DEBUG_XHR = false;
 
 jQuery.datetimepicker.setLocale("ja");
 
+let table_listview;
+
+/* header columns of listview */
+const baseHeaderCols = [
+    "publisher",
+    "localId",
+    "localSubId",
+    "disease",
+    "dateConfirmed",
+    "age",
+    "gender",
+    "residence",
+    "reportId"
+];
+
+const locationHeaderCols = [
+    "departureDate",
+    "departureTime",
+    "departureFrom",
+    "departureFromAnnex",
+    "arrivalDate",
+    "arrivalTime",
+    "arrivalIn",
+    "arrivalInAnnex",
+    "vehicles",
+    "vehicleOthers",
+    "details",
+];
+
+const conditionHeaderCols = [
+    "conditionDate",
+    "conditionTime",
+    "conditions",
+    "conditionOthers",
+    "details",
+];
+
 /*
  * NOTE: if you change the value of the lists.
  * you have to check value_selected in below functions.
- *     add_input_select_to_obj()
- *     add_input_select_freetext_to_obj()
- *     add_input_select_options_to_obj()
  */
 
 /* publisher */
@@ -38,6 +201,9 @@ let publisherList = []; // produced from lgList.
 
 /* location */
 let locationList = [];  // copied from lgList at this time.
+
+// key -> text
+// value -> id
 
 /* age */
 const ageList = [
@@ -51,48 +217,65 @@ const ageList = [
     { "key":"70代", "value":"70s" },
     { "key":"80代", "value":"80s" },
     { "key":"90代", "value":"90s" },
-    { "key":"非公開", "value":"Unspecified" },
+    { "key":"不明", "value":"Unspecified" },
 ];
 
 /* gender */
 const genderList = [
     { "key":"男性", "value":"Male" },
     { "key":"女性", "value":"Female" },
-    { "key":"非公開", "value":"Unspecified" },
+    { "key":"不明", "value":"Unspecified" },
 ];
 
 /* disease */
 const diseaseList = [
     { "key":"新型コロナウイルス", "value":"COVID-2019" },
     { "key":"麻疹", "value":"Measles" },
-    { "key":"未確定", "value":"Unconfirmed" },
+    { "key":"その他", "value":"Others" },
 ];
 
 /* patientCondition + name */
 const patientConditionList = [
-    { "key": "倦怠感", "name": "Malaise" },
-    { "key": "喀痰", "name": "Sputum" },
-    { "key": "発熱", "name": "Fever" },
-    { "key": "悪寒", "name": "Chill" },
-    { "key": "咳", "name": "Cough" },
-    { "key": "鼻水", "name": "Cough" },
-    { "key": "肺炎", "name": "Pneumonia" },
-    { "key": "入院", "name": "Hospitalized" },
-    { "key": "陽性", "name": "Positive" },
+    { "text": "倦怠感", "id": "Malaise" },
+    { "text": "喀痰", "id": "Sputum" },
+    { "text": "発熱", "id": "Fever" },
+    { "text": "悪寒", "id": "Chill" },
+    { "text": "咳", "id": "Cough" },
+    { "text": "鼻水", "id": "RunnyNose" },
+    { "text": "肺炎", "id": "Pneumonia" },
+    { "text": "入院", "id": "Hospitalized" },
+    { "text": "陽性", "id": "Positive" },
+    { "text": "陰性", "id": "Negative" },
 ];
 
-/* transportationMethod + name */
-const transportationMethodList = [
-    { "key": "タクシー", "name": "Taxi" },
-    { "key": "バス", "name": "Bus" },
-    { "key": "電車", "name": "Train" },
-    { "key": "飛行機", "name": "yAirplane" },
-    { "key": "船", "name": "Ship" },
-    { "key": "徒歩", "name": "yWalk" },
-    { "key": "不明", "name": "Unknown" },
+/* vehicles + name */
+const vehiclesList = [
+    { "text": "タクシー", "id": "Taxi" },
+    { "text": "バス", "id": "Bus" },
+    { "text": "電車", "id": "Train" },
+    { "text": "飛行機", "id": "Airplane" },
+    { "text": "船", "id": "Ship" },
+    { "text": "徒歩", "id": "Walk" },
+    { "text": "不明", "id": "Unknown" },
     // any vehicles that you can drive solely are not in case.
     // { "key": "自家用車・自転車・バイク", "name": "Bike" },
 ]
+
+const m_select_others_and_input = "選択肢にない場合、その他を選んでから記述する。";
+const m_location_annex = "建物名や駅名等、補足情報等があれば入力する。";
+
+const re_PLHDepartureDate = new RegExp("PLHDepartureDate\\d+$");
+const re_PLHDepartureTime = new RegExp("PLHDepartureTime\\d+$");
+const re_PLHDepartureFromSelected = new RegExp("PLHDepartureFrom\\d+Selected$");
+const re_PLHDepartureFromText = new RegExp("PLHDepartureFrom\\d+Text$");
+const re_PLHArrivalDate = new RegExp("PLHArrivalDate\\d+$");
+const re_PLHArrivalTime = new RegExp("PLHArrivalTime\\d+$");
+const re_PLHArrivalInSelected = new RegExp("PLHArrivalIn\\d+Selected$");
+const re_PLHArrivalInText = new RegExp("PLHArrivalIn\\d+Text$");
+const re_PLHDetailsTextarea = new RegExp("PLHDetails\\d+Textarea$");
+const re_PCHDate = new RegExp("PCHDate\\d+$");
+const re_PCHTime = new RegExp("PCHTime\\d+$");
+const re_PCHDetailsTextarea = new RegExp("PCHDetails\\d+Textarea$");
 
 window.addEventListener("load", ev_load, false);
 
@@ -108,48 +291,99 @@ function debug_table(table)
     }
 }
 
-function get_row_num()
+function get_xid()
 {
     // no purpose than making a cell to be unique. 
     row_num += 1;
     return row_num;
 }
 
-function add_input_checkbox_freetext_to_obj(parent_obj, target_name, item_list, placeholder_text)
+function add_input_textarea(parent_obj, target_id, args)
 {
     /*
-     * add target_name + name as the name of the checkboxes.
-     * don't use id to identify a checkbox.
+     * args must include:
+     *     initial_value
+     *     placeholder_text
+     *
+     * it makes below id:
+     *     target_id + "Textarea"
+     *
+     * the block is gonna be:
+     *   <div>
+     *     <textarea id=`${target_id}Textarea` placeholder=args.placeholder_text>
+     *   </div>
      */
-    let div_obj, x;
+    let child, x;
 
-    item_list.forEach(kv => {
-        div_obj = document.createElement("div")
-        div_obj.classList.add(target_name + "Checkbox");
+    child = document.createElement("div");
+    x = document.createElement("textarea");
+    x.id = `${target_id}Textarea`;
+    x.placeholder = args.placeholder_text;
+    if (args.initial_value != undefined && args.initial_value != "") {
+        x.innerText = args.initial_value;
+    }
+    child.appendChild(x);
+    parent_obj.appendChild(child);
+}
+
+function add_input_checkbox_and_textarea(parent_obj, target_name, args)
+{
+    /*
+     * args must include:
+     *     item_list
+     *     initial_checked
+     *     need_input_text
+     *     initial_text
+     *     placeholder_text
+     *
+     * it makes below id:
+     *     the name of the checkboxe is taken from "name" in the item_list.
+     *     target_id + "Text"
+     *
+     * don't use id to identify a checkbox.
+     *
+     *   <div class="inlineBlock">
+     *     <div class=`Checkbox-${args.target_name}`>
+     *       <input type="checkbox" name=kv["name"]>
+     *       <label name=${kv.name}>kv.key</label>
+     *     </div>
+     *     <div> ... </div>
+     *     --> add_input_texteat() <--
+     *   </div>
+     */
+    let child, cb, x;
+
+    child = document.createElement("span");
+
+    args.item_list.forEach(kv => {
+        cb = document.createElement("div")
+        //cb.classList.add(`Checkbox-${target_name}`);
+        cb.classList.add("inlineBlock");
 
         x = document.createElement("input");
         x.type = "checkbox";
-        //x.name = target_name+kv["name"];
-        x.name = kv["name"];
-        div_obj.appendChild(x);
+        x.name = kv["id"];
+        if (args.initial_checked != undefined && args.initial_checked.find(x => x == kv["id"]) != undefined) {
+            x.checked = true;
+        }
+        cb.appendChild(x);
 
         x = document.createElement("label")
-        x.htmlFor = target_name+kv["name"]
-        x.appendChild(document.createTextNode(kv["key"]));
-        div_obj.appendChild(x);
+        //x.htmlFor = kv["id"]
+        x.appendChild(document.createTextNode(kv["text"]));
+        cb.appendChild(x);
 
-        parent_obj.appendChild(div_obj);
+        child.appendChild(cb);
     });
 
-    div_obj = document.createElement("div");
-    div_obj.classList.add("FreeTextBoxByCheckbox");
-    x = document.createElement("textarea");
-    x.name = target_name + "FreeText"
-    x.placeholder = placeholder_text;
-    x.classList.add(target_name + "FreeText");
-    div_obj.appendChild(x);
+    if (args.need_input_text == true) {
+        add_input_textarea(child, target_name, {
+            initial_value: args.initial_text,
+            placeholder_text: args.placeholder_text,
+        });
+    }
 
-    parent_obj.appendChild(div_obj);
+    parent_obj.appendChild(child);
 }
 
 function add_input_select_options_to_obj(parent_obj, opts, value_selected)
@@ -169,79 +403,80 @@ function add_input_select_options_to_obj(parent_obj, opts, value_selected)
     });
 }
 
-function add_input_select_to_obj(parent_obj, target_id, select_list, value_selected)
+function add_input_select_and_text(parent_obj, target_id, args)
 {
-    let x, x2;
+    /*
+     * args must include:
+     *     clear_content
+     *     select_list
+     *     value_selected
+     *     label_name
+     *     need_input_text
+     *     initial_text
+     *     placeholder_text
+     *
+     * it makes below id:
+     *     target_id + "Selected"
+     *     target_id + "Text"
+     *
+     * <div class="inlineBlock">
+     *   <label class="input-label" for={target_id}+"Selected">{args.label_name}</label>
+     *   <select class="input-select" id={target_id}+"Selected">
+     *     <option> select2+tree </option>
+     *   </select>
+     *   --> add_input_text() <--
+     * </div>
+     *
+     * if args.need_input_text is true, the input text is gonna be added by add_input_text().
+     *
+     * check if;
+     *     args.select_list has "id", then it's for select2.
+     *     args.select_list has "key", then t's for select.
+     *
+     * note if args.value_selected doesn't apper, you should check if the value exists in the args.select_list.
+     *
+     */
+    let child, x;
 
-    x = document.createElement("div");
-    x2 = document.createElement("select");
-    x2.id = target_id + "Selected";
-    add_input_select_options_to_obj(x2, select_list, value_selected);
-    x.appendChild(x2);
-
-    parent_obj.appendChild(x);
-}
-
-function add_input_select2_freetext_to_obj(parent_obj, target_id, select_list_given, value_selected, placeholder_text, label_name)
-{
-    let x, x2, x3;
-
-    x = document.createElement("div");
-    x.classList.add("classDivSelectFreeText");
-    if (label_name != undefined) {
-        x2 = document.createElement("label");
-        x2.htmlFor = target_id + "Selected";
-        x2.innerHTML = label_name;
-        x.appendChild(x2);
+    if (args.clear_content == true) {
+        parent_obj.innerHTML = "";
     }
-    x2 = document.createElement("select");
-    x2.id = target_id + "Selected";
-    x.appendChild(x2);
-    jQuery(x2).select2ToTree({
-        treeData: {dataArr: select_list_given.concat({ "id": "Others", "text": "その他" })},
-        multiple: false,
-        dropdownAutoWidth: "auto",
-        width: "auto",
-    }).val(value_selected).trigger("change");
-    /* if value_selected doesn't apper, you should check if the value exists in the select_list_given. */
+    child = document.createElement("div");
+    child.classList.add("inlineBlock");
+    if (args.label_name != undefined) {
+        x = document.createElement("label");
+        x.htmlFor = target_id + "Selected";
+        x.innerHTML = args.label_name;
+        x.classList.add("input-label");
+        child.appendChild(x);
+    }
+    x = document.createElement("select");
+    x.id = target_id + "Selected";
+    child.appendChild(x);
 
-    x2 = document.createElement("div");
-    x2.id = target_id + "FreeTextBlock";
-    x3 = document.createElement("input");
-    x3.type = "text";
-    x3.id = target_id + "FreeText";
-    x3.placeholder = placeholder_text;
-    x2.appendChild(x3);
-    x.appendChild(x2);
+    if (args.select_list[0].id) {
+        jQuery(x).select2ToTree({
+            treeData: {dataArr: args.select_list},
+            multiple: false,
+            dropdownAutoWidth: "auto",
+            width: "auto",
+            //dropdownParent: jQuery(parent_obj).parents("[id^='modaal_']"),
+            dropdownParent: jQuery("#divResidence"),
+        }).val(args.value_selected).trigger("change");
+    } else if (args.select_list[0].key) {
+        add_input_select_options_to_obj(x, args.select_list, args.value_selected);
+    }
 
-    parent_obj.appendChild(x);
-}
+    if (args.need_input_text == true) {
+        add_input_text(child, target_id, {
+            clear_content: false,
+            initial_value: args.initial_text,
+            label_name: undefined,
+            placeholder_text: args.placeholder_text,
+        });
+    }
 
-function add_input_select_freetext_to_obj(parent_obj, target_id, select_list, value_selected)
-{
-    let x, x2, x3;
-
-    x = document.createElement("div");
-    x.classList.add("classDivSelectFreeText");
-    x2 = document.createElement("label");
-    x2.htmlFor = target_id + "Selected";
-    x.appendChild(x2);
-    x2 = document.createElement("select");
-    x2.id = target_id + "Selected";
-    add_input_select_options_to_obj(x2, select_list.concat({ "key":"その他", "value":"Others" }), value_selected);
-    x.appendChild(x2);
-
-    x2 = document.createElement("div");
-    //x2.classList.add(target_id + "FreeTextBlock");
-    x2.id = target_id + "FreeTextBlock";
-    x3 = document.createElement("input");
-    x3.type = "text";
-    x3.id = target_id + "FreeText";
-    x3.placeholder = "選択肢にない場合、その他を選んでから記述する。";
-    x2.appendChild(x3);
-    x.appendChild(x2);
-
-    parent_obj.appendChild(x);
+    parent_obj.appendChild(child);
 }
 
 function get_current_date()
@@ -250,15 +485,15 @@ function get_current_date()
     return local_time.toJSON().slice(0,10);
 }
 
-function add_input_date_to_obj(parent_obj, target_id)
+function add_input_date_to_obj(parent_obj, target_id, initial_value)
 {
     let x = document.createElement("input");
     x.type = "text";
     x.id = target_id;
     x.classList.add("inputDate");
     parent_obj.appendChild(x);
-    jQuery(`#${x.id}`).val(get_current_date());
-    jQuery(`#${x.id}`).datetimepicker({
+    jQuery(x).val(initial_value);
+    jQuery(x).datetimepicker({
         timepicker: false,
         format: "Y-m-d",
         scrollMonth : false,    // disable scroll in both.
@@ -266,7 +501,7 @@ function add_input_date_to_obj(parent_obj, target_id)
     });
 }
 
-function add_input_time_to_obj(parent_obj, target_id)
+function add_input_time_to_obj(parent_obj, target_id, initial_value)
 {
     let local_time = new Date();
     let x = document.createElement("input");
@@ -275,7 +510,8 @@ function add_input_time_to_obj(parent_obj, target_id)
     x.placeholder = "可能ならば時刻を入力する。";
     x.classList.add("inputTime");
     parent_obj.appendChild(x);
-    jQuery(`#${x.id}`).datetimepicker({
+    jQuery(x).val(initial_value);
+    jQuery(x).datetimepicker({
         datepicker: false,
         format: "H:i",
         step: 30,
@@ -283,185 +519,321 @@ function add_input_time_to_obj(parent_obj, target_id)
     });
 }
 
-function add_input_date_time_to_obj(parent_obj, target_date_id, target_time_id, line_break)
+function add_input_date_time_to_obj_x(parent_obj, date_target_id, date_initial, time_target_id, time_initial, label_name, line_break)
 {
-    add_input_date_to_obj(parent_obj, target_date_id);
-    if (target_time_id != null) {
+    let child, x;
+
+    child = document.createElement("div");
+    child.classList.add("inlineBlock");
+    if (label_name != undefined) {
+        x = document.createElement("label");
+        x.htmlFor = date_target_id;
+        x.innerHTML = label_name;
+        x.classList.add("input-label");
+        child.appendChild(x);
+    }
+    add_input_date_to_obj(child, date_target_id, date_initial);
+    if (time_target_id != null) {
         if (line_break == true) {
-            parent_obj.appendChild(document.createElement("br"));
+            child.appendChild(document.createElement("br"));
         }
-        add_input_time_to_obj(parent_obj, target_time_id);
+        add_input_time_to_obj(child, time_target_id, time_initial);
     }
+    parent_obj.appendChild(child);
 }
 
-function add_input_text_to_obj(parent_obj, target_id, placeholder_text)
+function add_input_text(parent_obj, target_id, args)
 {
-    let x = document.createElement("input");
-    x.id = target_id;
+    /*
+     * args must inlucde:
+     *     clear_content
+     *     initial_value
+     *     label_name
+     *     placeholder_text
+     *
+     * it makes two ids:
+     *     target_id + "Text"
+     *
+     * the block gonna be:
+     *   <div class="inlineBlock">
+     *     <label class="input-label" for= `${target_id}Text` > args.label_name </label>
+     *     <input id= `${target_id}Text` type="text" vlaue=args.initial_value placeholder=args.placeholder_text>
+     *   </div>
+     *
+     */
+    let child, x;
+
+    if (args.clear_content == true) {
+        parent_obj.innerHTML = "";
+    }
+    child = document.createElement("div");
+    child.classList.add("inlineBlock");
+    if (args.label_name != undefined) {
+        x = document.createElement("label");
+        x.htmlFor = target_id + "Text";
+        x.innerHTML = args.label_name;
+        x.classList.add("input-label");
+        child.appendChild(x);
+    }
+    x = document.createElement("input");
+    x.id = target_id + "Text";
     x.type = "text";
-    if (placeholder_text != undefined) {
-        x.placeholder = placeholder_text;
-    } else {
-        x.placeholder = "備考等自由記述";
+    x.classList.add("input-text");
+    if (args.initial_value != undefined) {
+        x.value = args.initial_value;
     }
-    parent_obj.appendChild(x);
+    if (args.placeholder_text != undefined) {
+        x.placeholder = args.placeholder_text;
+    }
+    child.appendChild(x);
+
+    parent_obj.appendChild(child);
 }
 
-function add_input_textarea_to_obj(parent_obj, target_id, placeholder_text)
+function get_default_PLOD()
 {
-    let x = document.createElement("textarea");
-    x.id = target_id;
-    if (placeholder_text != undefined) {
-        x.placeholder = placeholder_text;
-    } else {
-        x.placeholder = "備考等自由記述";
-    }
-    parent_obj.appendChild(x);
+    return {
+        "publisher": "厚労省",
+        "publisherOthers": "",
+        "localId": "",
+        "localSubId": "",
+        "disease": "COVID-2019",
+        "diseaseOthers": "",
+        "dateConfirmed": get_current_date(),
+        "age": "Unspecified",
+        "gender": "Unspecified",
+        "residence": "Unspecified",
+        "residenceAnnex": "",
+        "locationHistory": [
+            // not needed for initial.
+            //get_default_PLH(),
+        ],
+        "conditionHistory": [
+            // not needed for initial.
+            //default_value_PCH
+        ],
+    };
 }
 
-function add_input_ins_line_to_obj(parent_obj, row)
+function get_default_PLH(base_row)
+{
+    let default_PLH = {
+        "departureDate": "",
+        "departureTime": "",
+        "departureFrom": "",
+        "departureFromAnnex": "",
+        "arrivalDate": "",
+        "arrivalTime": "",
+        "arrivalIn": "",
+        "arrivalInAnnex": "",
+        "vehicles": [],
+        "vehicleOthers": "",
+        "details": "",
+    };
+    let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
+    /* set ref_row if possible */
+    let ref_row;
+    if (base_row == undefined || base_row == null) {
+        if (tbody.rows.length > 0) {
+            ref_row = tbody.rows[tbody.rows.length-1];
+        }
+    } else if (base_row.rowIndex >= 2) {
+        ref_row = tbody.rows[base_row.rowIndex-2];
+    }
+    if (ref_row == undefined) {
+        /* inserting a row with default */
+        let default_location = document.getElementById("residenceSelected").value;
+        if (default_location == "Unspecified") {
+            default_location = "Others";
+        }
+        default_PLH.departureFrom = default_location;
+        default_PLH.departureDate = get_current_date();
+        default_PLH.arrivalIn = default_location;
+        default_PLH.arrivalDate = get_current_date();
+        return default_PLH;
+    }
+    /* inserting a row with the referring row. */
+    default_PLH.departureDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
+    default_PLH.departureTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
+    default_PLH.departureFrom = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInSelected).value;
+    default_PLH.departureFromAnnex = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInText).value;
+    default_PLH.arrivalDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
+    default_PLH.arrivalTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
+    default_PLH.arrivalIn = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromSelected).value;
+    default_PLH.arrivalInAnnex = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromText).value;
+    return default_PLH;
+}
+
+function get_default_PCH(base_row)
+{
+    let default_PCH = {
+        "conditionDate": "",
+        "conditionTime": "",
+        "conditions": [],
+        "conditionOthers": "",
+        "details": "",
+    };
+    let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
+    /* set ref_row if possible */
+    let ref_row;
+    if (base_row == undefined || base_row == null) {
+        if (tbody.rows.length > 0) {
+            ref_row = tbody.rows[tbody.rows.length-1];
+        }
+    } else if (base_row.rowIndex >= 2) {
+        ref_row = tbody.rows[base_row.rowIndex-2];
+    }
+    if (ref_row == undefined) {
+        /* inserting a row with default */
+        default_PCH.conditionDate = get_current_date();
+        return default_PCH;
+    }
+    /* inserting a row with the referring row. */
+    default_PCH.conditionDate = get_one_element_by_regex(ref_row.cells[0], re_PCHDate).value;
+    default_PCH.conditionTime = get_one_element_by_regex(ref_row.cells[0], re_PCHTime).value;
+    return default_PCH;
+}
+
+function add_input_button_ins_line(parent_obj, row)
 {
     let x = document.createElement("input");
     x.class = "inputInsLine"
-    x.type="button";
+    x.type = "button";
     x.value = "↑追加";
     x.addEventListener("click", function(){ ev_click_ins_line(row) }, false);
     parent_obj.appendChild(x);
 }
 
-function add_input_del_line_to_obj(parent_obj, row)
+function add_input_button_del_line(parent_obj, row)
 {
     let x = document.createElement("input");
     x.class = "inputDelLine"
-    x.type="button";
+    x.type = "button";
     x.value = "←削除";
     x.addEventListener("click", function(){ ev_click_del_line(row) }, false);
     parent_obj.appendChild(x);
 }
 
-function ins_line_patient_location_history(row_index_ins)
+function ins_line_PLHTable(row_index_ins, initial_value)
 {
-    let table = document.getElementById("tablePatientLocationHistory");
-    let row = table.insertRow(row_index_ins);
-    let row_index = table.rows.length;
-    let row_num = get_row_num();
+    let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
+    let row = tbody.insertRow(row_index_ins);
+    let row_index = tbody.rows.length;
+    let row_num = get_xid();
     let x, x2, x3, cell;
 
-    /* "出発時間",
-        patientLocationHistoryDepartureDate, date
-        patientLocationHistoryDepartureTime, time
+    /* "出発日時",
+        PLHDepartureDate, date
+        PLHDepartureTime, time
      */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj(cell, "patientLocationHistoryDepartureDate" + row_num, "patientLocationHistoryDepartureTime" + row_num, true);
+    add_input_date_time_to_obj_x(cell, "PLHDepartureDate"+row_num, initial_value.departureDate, "PLHDepartureTime" + row_num, initial_value.departureTime, undefined, true);
 
-    /* "出発地", patientLocationHistoryDepartureFrom, select+text */
+    /* "出発地", PLHDepartureFrom, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryDepartureFrom" + row_num, locationList, "東京都", "建物名や駅名等、補足情報等があれば入力する。");
+    add_input_select_and_text(cell, "PLHDepartureFrom"+row_num, {
+        clear_content: true,
+        select_list: locationList,
+        value_selected: initial_value.departureFrom,
+        label_name: undefined,
+        need_input_text: true,
+        initial_text: initial_value.departureFromAnnex,
+        placeholder_text: m_location_annex,
+    });
 
-    /* "到着時間", patientLocationHistoryArrivalDateTime, date+time */
+    /* "到着日時", PLHArrivalDateTime, date+time */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj(cell, "patientLocationHistoryArrivalDate" + row_num, "patientLocationHistoryArrivalTime" + row_num, true);
+    add_input_date_time_to_obj_x(cell, "PLHArrivalDate"+row_num, initial_value.departureDate, "PLHArrivalTime" + row_num, initial_value.departureTime, undefined, true);
 
-    /* "到着地", patientLocationHistoryArrivalIn, select+text */
+    /* "到着地", PLHArrivalIn, select+text */
     cell = row.insertCell(-1);
-    add_input_select2_freetext_to_obj(cell, "patientLocationHistoryArrivalIn" + row_num, locationList, "東京都", "建物名や駅名等、補足情報等があれば入力する。");
+    add_input_select_and_text(cell, "PLHArrivalIn"+row_num, {
+        clear_content: true,
+        select_list: locationList,
+        value_selected: initial_value.arrivalIn,
+        label_name: undefined,
+        need_input_text: true,
+        initial_text: initial_value.arrivalInAnnex,
+        placeholder_text: m_location_annex,
+    });
 
-    /* "移動手段", transportationMethod, select+text */
+    /* "移動手段", vehicles, select+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "transportationMethod", transportationMethodList, "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)");
+    add_input_checkbox_and_textarea(cell, "vehicles"+row_num, {
+        item_list: vehiclesList,
+        initial_checked: initial_value.vehicles,
+        need_input_text: true,
+        initial_text: initial_value.vehicleOthers,
+        placeholder_text: "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)",
+    });
 
-    /* "所見や患者の行動、その他", patientLocationHistoryDetail, text */
+    /* "所見や患者の行動等", PLHDetails, text */
     cell = row.insertCell(-1);
-    add_input_textarea_to_obj(cell, "patientLocationHistoryDetail" + row_num);
+    add_input_textarea(cell, "PLHDetails"+row_num, {
+        initial_value: initial_value.details,
+        label_name: false,
+        placeholder_text: "備考等自由記述",
+    });
 
     /* DelLine */
     cell = row.insertCell(-1);
-    add_input_ins_line_to_obj(cell, row);
+    add_input_button_ins_line(cell, row);
     cell.appendChild(document.createElement("br"));
-    add_input_del_line_to_obj(cell, row);
+    add_input_button_del_line(cell, row);
 }
 
-function ins_line_patient_condition_history(row_index_ins)
+function ins_line_PCHTable(row_index_ins, initial_value)
 {
-    let table = document.getElementById("tablePatientConditionHistory");
-    let row = table.insertRow(row_index_ins);
-    let row_index = table.rows.length;
-    let row_num = get_row_num();
+    let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
+    let row = tbody.insertRow(row_index_ins);
+    let row_index = tbody.rows.length;
+    let row_num = get_xid();
     let x, x2, x3, cell;
 
     /*
-     "日付", cellPatientConditionHistoryDateTime, date+time
-        patientConditionHistoryDate, date
-        patientConditionHistoryTime, time
+     "日付", cellPCHDateTime, date+time
+        PCHDate, date
+        PCHTime, time
     */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj(cell, "patientConditionHistoryDate" + row_num, "patientConditionHistoryTime" + row_num, true);
+    add_input_date_time_to_obj_x(cell, "PCHDate"+row_num, initial_value.conditionDate, "PCHTime" + row_num, initial_value.conditionTime, undefined, true);
 
-    /* "健康状態", patientConditionHistoryStatus, checkbox+text */
+    /* "健康状態", PCHConditios, checkbox+text */
     cell = row.insertCell(-1);
-    add_input_checkbox_freetext_to_obj(cell, "patientConditionHistoryStatus", patientConditionList, "備考等自由記述");
+    add_input_checkbox_and_textarea(cell, "conditions"+row_num, {
+        item_list: patientConditionList,
+        initial_checked: initial_value.conditions,
+        need_input_text: false,
+        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+        //need_input_text: true,
+        //initial_text: initial_value.conditionOthers,
+        //placeholder_text: "備考等自由記述",
+    });
 
-    /* "所見や患者の行動、その他", patientConditionHistoryDetail, text */
+    /* "自由記述欄", PCHDetails, text */
     cell = row.insertCell(-1);
-    add_input_textarea_to_obj(cell, "patientConditionHistoryDetail" + row_num);
+    add_input_textarea(cell, "PCHDetails"+row_num, {
+        initial_value: initial_value.details,
+        label_name: false,
+        placeholder_text: "所見、患者の健康状態、検査機関、その他",
+    });
 
     /* DelLine */
     cell = row.insertCell(-1);
-    add_input_ins_line_to_obj(cell, row);
+    add_input_button_ins_line(cell, row);
     cell.appendChild(document.createElement("br"));
-    add_input_del_line_to_obj(cell, row);
+    add_input_button_del_line(cell, row);
 }
 
 /*
  * functions for submission
  */
-/* XXX delete post_request() when you confirm whether this program can work on a cell phone */
-/*
-function post_request(url, callback, request)
-{
-    let xhr = new XMLHttpRequest();
-
-    if (DEBUG_XHR === false) {
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    } else {
-        m = 'UNSENT:' + xhr.readyState; // readyState will be 0
-        console.log(m);
-
-        xhr.open('POST', url, true);
-
-        m = 'OPENED:' + xhr.readyState; // readyState will be 1
-        console.log(m);
-
-        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-
-        xhr.onprogress = function () {
-            m = 'LOADING:' + xhr.readyState; // readyState will be 3
-            console.log(m);
-        }
-
-        xhr.onload = function () {
-            m = 'DONE' + xhr.readyState; // readyState will be 4
-            console.log(m);
-            console.log('this=', this);
-            console.log('load:', JSON.parse(xhr.responseText));
-        }
-    }
-
-    xhr.onreadystatechange = function() {
-        console.log('xhr state:', xhr.readyState);
-        if (xhr.readyState === 4) {
-            callback(xhr.status == 200 ? JSON.parse(xhr.responseText) : null);
-        }
-    }
-
-    xhr.send(JSON.stringify(request));
-}
-*/
-
 function get_selected_value(target_id)
 {
-    //console.log("get_selected_value=", target_id);
+    /*
+     * return value or undefined.
+     * if the value is "", it returns undefined.
+     */
     let x = document.getElementById(target_id);
     let selected_value = x.options[x.selectedIndex].value;
     if (selected_value != "") {
@@ -471,12 +843,18 @@ function get_selected_value(target_id)
     }
 }
 
+/*
+ * XXX should be replaced into jQuery().
+ */
 function get_one_element_by_regex(parent_obj, target_regex)
 {
+    /*
+     * comparing id under parent_obj with target_regex recursively.
+     */
     let x, a;
 
     if (parent_obj.id && parent_obj.id.match(target_regex)) {
-        //console.log("==> match", parent_obj.id);
+//console.log("==> match", parent_obj.id);
         return parent_obj;
     }
 
@@ -487,7 +865,7 @@ function get_one_element_by_regex(parent_obj, target_regex)
     /* first, walk this level. */
     for (let i = 0; i < parent_obj.childNodes.length; i++) {
         x = parent_obj.childNodes[i];
-        //console.log("==> xxx by_regex:", i, x.id, target_regex, x);
+//console.log("==> xxx by_regex:", i, x.id, target_regex, x);
         a = get_one_element_by_regex(x, target_regex);
         if (a != undefined) {
             return a;
@@ -497,503 +875,641 @@ function get_one_element_by_regex(parent_obj, target_regex)
     return undefined;
 }
 
-function get_elements_by_regex(parent_obj, target_regex)
+function check_value_and_other(main_value, other_value)
 {
-    let x, a;
-
-    if (parent_obj.id && parent_obj.id.match(target_regex)) {
-        //console.log("==> match", parent_obj.id);
-        return [parent_obj];
+    if (other_value == "" || other_value == undefined) {
+        return true;
     }
-
-    if (parent_obj.children == undefined) {
-        return undefined;
+    /* other_value has something. */
+    if (main_value != "Others") {
+        return false;
     }
-
-    /* first, walk this level. */
-    let result = [];
-    for (let i = 0; i < parent_obj.childNodes.length; i++) {
-        x = parent_obj.childNodes[i];
-        //console.log("==> xxx by_regex:", i, x.id, target_regex, x);
-        a = get_elements_by_regex(x, target_regex);
-        if (a != undefined) {
-            result = result.concat(a);
-        }
-    }
-
-    if (result.length == 0) {
-        return undefined;
-    } else {
-        return result;
-    }
+    return true;
 }
 
-function get_one_value(target_id, a, b)
+function make_data_entries()
 {
-    if (b == "" || b == undefined) {
-        return a;
-    } else {
-        if (a != "Others") {
-            window.alert(target_id + `: ${a} が選択され、かつ、その他のフィールドに ${b} が入っています。${a} が採用されました。`);
-            return a;
-        }
-        return b;
-    }
-}
-
-function get_value_select_freetext_in_obj(parent_obj, target_id)
-{
-    let ax = get_one_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+Selected$`));
-    let a = ax.options[ax.selectedIndex].value;
-    let bx = get_one_element_by_regex(parent_obj, new RegExp(`${target_id}\\d+FreeText$`));
-    let b = bx.value;
-    return get_one_value(target_id, a, b);
-}
-
-function get_value_select_freetext(target_id)
-{
-    let a = get_selected_value(target_id + "Selected");
-    let b = document.getElementById(target_id + "FreeText").value;
-    return get_one_value(target_id, a, b);
-}
-
-function make_patient_data()
-{
-    let created_data = {
-        "publisher": get_value_select_freetext("publisher"),
-        "localId": jQuery("#localId").val(),
-        "localSubId": jQuery("#localSubId").val(),
-        "disease": get_value_select_freetext("patientDisease"),
-        "dateConfirmed": jQuery("#dateConfirmed").val(),
-        "age": get_selected_value("patientAgeSelected"),
-        "gender": get_selected_value("patientGenderSelected"),
-        "residence": jQuery("#patientResidenceSelected").val(),
-        "residenceAnnex": jQuery("#patientResidenceFreeText").val(),
+    let data_entered = {
+        "publisher": get_selected_value("publisherSelected"),
+        "publisherOthers": document.getElementById("publisherText").value,
+        "localId": document.getElementById("localIdText").value,
+        "localSubId": document.getElementById("localSubIdText").value,
+        "disease": get_selected_value("diseaseSelected"),
+        "diseaseOthers": document.getElementById("diseaseText").value,
+        "dateConfirmed": document.getElementById("dateConfirmed").value,
+        "age": get_selected_value("ageSelected"),
+        "gender": get_selected_value("genderSelected"),
+        "residence": document.getElementById("residenceSelected").value,
+        "residenceAnnex": document.getElementById("residenceText").value,
         "locationHistory": [
         ],
         "conditionHistory": [
         ]
     };
+
+    /* put _id and/or reportId if exists. */
+    if (g_form_value.reportId != undefined) {
+        data_entered.reportId = g_form_value.reportId;
+    }
+
+    /* check the field of publisher and disease */
+    if (check_value_and_other(data_entered["publisher"], data_entered["publisherOthers"]) == false) {
+        window.alert("publisher のその他のフィールドに値を入れる場合は、選択肢からその他を選択してください。");
+        return false;
+    }
+    if (check_value_and_other(data_entered["disease"], data_entered["diseaseOthers"]) == false) {
+        window.alert("disease のその他のフィールドに値を入れる場合は、選択肢からその他を選択してください。");
+        return false;
+    }
+
     let table;
 
-    table = document.getElementById("tablePatientLocationHistory");
+    table = document.getElementById("tablePLH");
     //debug_table(table);
 
     for (let i = 1; i < table.rows.length; i++) {
         //console.log("xxx PLH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
-        kv["departureDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureDate\\d+$")).value;
-        kv["departureTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientLocationHistoryDepartureTime\\d+$")).value;
-        kv["departureFrom"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+Selected$")).value;
-        kv["departureFromAnnex"] = get_one_element_by_regex(row.cells[1], new RegExp("patientLocationHistoryDepartureFrom\\d+FreeText$")).value;
-        kv["arrivalDate"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalDate\\d+$")).value;
-        kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], new RegExp("patientLocationHistoryArrivalTime\\d+$")).value;
-        kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalIn\\d+Selected$")).value;
-        kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], new RegExp("patientLocationHistoryArrivalIn\\d+FreeText$")).value;
+        kv["departureDate"] = get_one_element_by_regex(row.cells[0], re_PLHDepartureDate).value;
+        kv["departureTime"] = get_one_element_by_regex(row.cells[0], re_PLHDepartureTime).value;
+        kv["departureFrom"] = get_one_element_by_regex(row.cells[1], re_PLHDepartureFromSelected).value;
+        kv["departureFromAnnex"] = get_one_element_by_regex(row.cells[1], re_PLHDepartureFromText).value;
+        kv["arrivalDate"] = get_one_element_by_regex(row.cells[2], re_PLHArrivalDate).value;
+        kv["arrivalTime"] = get_one_element_by_regex(row.cells[2], re_PLHArrivalTime).value;
+        kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], re_PLHArrivalInSelected).value;
+        kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], re_PLHArrivalInText).value;
         kv["vehicles"] = [];
-        row.cells[4].childNodes.forEach(x => { // transportationMethod
+        row.cells[4].childNodes.forEach(x => { // vehicles
             x.childNodes.forEach(y => {
-                if (y.type == "checkbox" && y.checked == true) {
-                    kv["vehicles"].push(y.name);
+                if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
+                    kv["vehicles"].push(y.firstChild.name);
                 }
-                if (y.type == "textarea" && y.value.length > 0) {
-                    kv["vehicleOthers"] = y.value;
+                if (y.firstChild.type == "textarea") {
+                    kv["vehicleOthers"] = y.firstChild.value;
                 }
             });
         });
-        kv["details"] = get_one_element_by_regex(row.cells[5], new RegExp("patientLocationHistoryDetail\\d+$")).value;
-        created_data["locationHistory"].push(kv);
+        /* add vehicleOthers if not exists. */
+        if (kv.vehicleOthers == undefined) {
+            kv["vehicleOthers"] = "";
+        }
+        kv["details"] = get_one_element_by_regex(row.cells[5], re_PLHDetailsTextarea).value;
+        data_entered["locationHistory"].push(kv);
     }
 
-    table = document.getElementById("tablePatientConditionHistory");
+    table = document.getElementById("tablePCH");
     //debug_table(table);
 
     for (let i = 1; i < table.rows.length; i++) {
         //console.log("xxx PCH table:", i, table.rows[i]);
         let kv = {};
         let row = table.rows[i];
-        kv["recordDate"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryDate\\d+$")).value;
-        kv["recordTime"] = get_one_element_by_regex(row.cells[0], new RegExp("patientConditionHistoryTime\\d+$")).value;
+        kv["conditionDate"] = get_one_element_by_regex(row.cells[0], re_PCHDate).value;
+        kv["conditionTime"] = get_one_element_by_regex(row.cells[0], re_PCHTime).value;
         kv["conditions"] = [];
-        row.cells[1].childNodes.forEach(x => { // patientConditionHistoryStatus
+        row.cells[1].childNodes.forEach(x => { // PCHStatus
             x.childNodes.forEach(y => {
-                if (y.type == "checkbox" && y.checked == true) {
-                    kv["conditions"].push(y.name);
+                if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
+                    kv["conditions"].push(y.firstChild.name);
                 }
-                if (y.type == "textarea" && y.value.length > 0) {
-                    kv["conditionOthers"] = y.value;
-                }
+                // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+                //if (y.firstChild.type == "textarea") {
+                //    kv["conditionOthers"] = y.firstChild.value;
+                //}
             });
         });
-        kv["details"] = get_one_element_by_regex(row.cells[2], new RegExp("patientConditionHistoryDetail\\d+$")).value;
-        created_data["conditionHistory"].push(kv);
+        /* add conditionOthers if not exists. */
+        if (kv.conditionOthers == undefined) {
+            kv["conditionOthers"] = "";
+        }
+        kv["details"] = get_one_element_by_regex(row.cells[2], re_PCHDetailsTextarea).value;
+        data_entered["conditionHistory"].push(kv);
     }
 
-    console.log("created_data=", created_data);
-    return created_data;
+    return data_entered;
 }
 
-async function send_patient_data(patient_data)
+async function send_plod(patient_data)
 {
     fetch(SERVER_PATH + "/beak", {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify(patient_data),
     }).then(response => {
-        console.log("response:", response);
         return response.json();
     }).then(content => {
-        confirm("EventID " + content["result"]["reportId"] + " で、登録されました。");
-        window.location.reload(false);
-    }).catch(error => console.error("Error:", error));
-    /*
-    $.ajax({
-        url: SERVER_PATH + "/beak",
-        type: "POST",
-        dataType: "text",
-        data: JSON.stringify(patient_data)
-    }).done(function(content) {
-        console.log("callback=", content);
-        if (content) {
-            content = JSON.parse(content);
-            confirm("EventID " + content["result"]["reportId"] + " で、登録されました。");
-            //put_current_value(content);
+//console.log("content:", content);
+        let status = content["status"];
+        if (status == "200") {
+            let data = content["result"]["data"];
+            confirm("reportId " + data["reportId"] + " が登録されました。");
+            // XXX needs to decide whehter new record is added to local table or just reload.
+            //table_listview.row.add(data).draw();
+            window.location.reload(false);
+        } else {
+            confirm("reportId " + data["reportId"] + " の登録に失敗しました。status=" + status);
         }
+    }).catch(error => {
+        console.error("Error:", error);
     });
-    */
-    /*
-    if (Object.keys(patient_data).length != 0) {
-        // post only if any value are changed.
-        post_request(SERVER_PATH + '/beak', function(content) {
-                console.log("callback=", content);
-                if (content) {
-                    confirm("EventID " + content["result"]["reportId"] +
-                        " で、登録されました。");
-                    //put_current_value(content);
-                }
-            },
-            patient_data);
-    }
-    */
+}
+
+async function delete_plod(reportId)
+{
+    fetch(SERVER_PATH + "/tail/" + reportId, {
+        method: "DELETE",
+    }).then(response => {
+        return response.json();
+    }).then(content => {
+//console.log("content:", content);
+        let status = content["status"];
+        if (status == "200") {
+            confirm("reportId " + reportId + " が削除されました。");
+            // XXX needs to decide whehter new record is deleted from local table or just reload.
+            window.location.reload(false);
+        } else {
+            confirm("reportId " + reportId + " の削除に失敗しました。status=" + status);
+        }
+    }).catch(error => {
+        console.error("Error:", error);
+    });
 }
 
 /*
  * event handlers
  */
-function ev_click_ins_line_patient_location_history()
+function ev_click_add_line_PLHTable()
 {
-    ins_line_patient_location_history(-1);
+    ins_line_PLHTable(-1, get_default_PLH());
 }
 
-function ev_click_ins_line_patient_condition_history()
+function ev_click_add_line_PCHTable()
 {
-    ins_line_patient_condition_history(-1);
+    ins_line_PCHTable(-1, get_default_PCH());
 }
 
 function ev_click_ins_line(row)
 {
-    if (row.parentElement.parentElement.id == "tablePatientLocationHistory") {
-        ins_line_patient_location_history(row.rowIndex);
+    if (row.parentElement.parentElement.id == "tablePLH") {
+        ins_line_PLHTable(row.rowIndex-1, get_default_PLH(row));
     } else
-    if (row.parentElement.parentElement.id == "tablePatientConditionHistory") {
-        ins_line_patient_condition_history(row.rowIndex);
+    if (row.parentElement.parentElement.id == "tablePCH") {
+        ins_line_PCHTable(row.rowIndex-1, get_default_PCH(row));
     }
+}
+
+function plod_form_table_del_line(row)
+{
+    jQuery(row).find(".inputDate").datetimepicker("destroy");
+    jQuery(row).find(".inputTime").datetimepicker("destroy");
+    jQuery(row).remove();
+}
+
+function plod_form_table_destroy(target_id)
+{
+    let t = document.getElementById(target_id).getElementsByTagName('tbody')[0];
+    /* it's tricky.  n must be preserved. */
+    for (let i = 0, n = t.childNodes.length; i < n; i++) {
+        plod_form_table_del_line(t.childNodes[0]);
+    }
+}
+
+function plod_form_reset()
+{
+    $('#modal-control-form').modaal('close');
+    jQuery("#dateConfirmed").datetimepicker("destroy");
+    plod_form_table_destroy("tablePLH");
+    plod_form_table_destroy("tablePCH");
 }
 
 function ev_click_del_line(row)
 {
     if (true == confirm("削除しますか？")) {
-        jQuery(get_elements_by_regex(row, new RegExp("Date\\d+$"))).datetimepicker("destroy");
-        jQuery(get_elements_by_regex(row, new RegExp("Time\\d+$"))).datetimepicker("destroy");
-        row.parentNode.deleteRow(row.sectionRowIndex);
+        plod_form_table_del_line(row);
     }
 }
 
-function ev_click_submit(a)
+function plod_form_submit()
 {
-    if (true == confirm("登録しますか？")) {
-        send_patient_data(make_patient_data());
+    let data_entered = make_data_entries();
+    if (data_entered == false) {
+        return false;
+    }
+    send_plod(data_entered);
+    $('#modal-control-confirm-entry').modaal('close');
+    g_form_value = null;
+    plod_form_reset();
+}
+
+function plod_form_create()
+{
+    let x;
+
+//console.log(g_form_value);
+
+    /* layout the edit blocks */
+    add_input_select_and_text(document.getElementById("divPublisher"), "publisher", {
+        clear_content: true,
+        select_list: publisherList,
+        value_selected: g_form_value.publisher,
+        label_name: "所轄の自治体名:",
+        need_input_text: true,
+        initial_text: g_form_value.publisherOthers,
+        placeholder_text: m_select_others_and_input,
+    });
+
+    add_input_text(document.getElementById("divLocalId"), "localId", {
+        clear_content: true,
+        label_name: "管理No:",
+        initial_value: g_form_value.localId,
+        placeholder_text: "厚労省で管理している識別子等あれば入力する。",
+    });
+
+    add_input_text(document.getElementById("divLocalSubId"), "localSubId", {
+        clear_content: true,
+        label_name: "副管理No:",
+        initial_value: g_form_value.localSubId,
+        placeholder_text: "所轄における識別子等あれば入力する。",
+    });
+
+    add_input_select_and_text(document.getElementById("divDisease"), "disease", {
+        clear_content: true,
+        select_list: diseaseList,
+        value_selected: g_form_value.disease,
+        label_name: "患者の病名:",
+        need_input_text: true,
+        initial_text: g_form_value.diseaseOthers,
+        placeholder_text: m_select_others_and_input,
+    });
+
+    x = document.getElementById("divDateConfirmed");
+    x.innerHTML = "";
+    add_input_date_time_to_obj_x(x, "dateConfirmed", g_form_value.dateConfirmed, undefined, undefined, "患者の状態が確認された日付:");
+
+    add_input_select_and_text(document.getElementById("divAge"), "age", {
+        clear_content: true,
+        select_list: ageList,
+        value_selected: g_form_value.age,
+        label_name: "患者の年代:",
+        need_input_text: false,
+    });
+
+    add_input_select_and_text(document.getElementById("divGender"), "gender", {
+        clear_content: true,
+        select_list: genderList,
+        value_selected: g_form_value.gender,
+        label_name: "患者の性別:",
+        need_input_text: false,
+    });
+
+    add_input_select_and_text(document.getElementById("divResidence"), "residence", {
+        select_list: residenceList,
+        value_selected: g_form_value.residence,
+        label_name: "患者の居住地域:",
+        need_input_text: true,
+        initial_text: g_form_value.residenceAnnex,
+        placeholder_text: "補足情報等があれば入力する。",
+        clear_content: true,
+    });
+
+    /* lines for location history */
+    document.getElementById("tablePLH").getElementsByTagName('tbody')[0].innerHTML = "";
+    if (g_form_value.locationHistory.length > 0) {
+        g_form_value.locationHistory.forEach(x => ins_line_PLHTable(-1, x));
+    }
+
+    /* lines for condition history */
+    document.getElementById("tablePCH").getElementsByTagName('tbody')[0].innerHTML = "";
+    if (g_form_value.conditionHistory.length > 0) {
+        g_form_value.conditionHistory.forEach(x => ins_line_PCHTable(-1, x));
     }
 }
 
-function ev_click_confirm_no()
+function make_table_from_dict(d, headerList)
 {
-    jQuery(".divModelBlock").fadeOut();
-}
-
-function ev_click_confirm_yes()
-{
-    jQuery(".divModelBlock").fadeOut();
-    send_patient_data(make_patient_data());
-}
-
-function ev_click_confirm(a)
-{
-    let created_data = make_patient_data();
-
-    let x = document.getElementById("confirmMessage");
-    x.innerText = JSON.stringify(created_data, undefined, 2);
-
-    jQuery(".divModelBlock").fadeIn();
+    let details = "";
+    if (d.length > 0) {
+        details += "<table><thead>";
+        details += "<tr>";
+        headerList.forEach(a => details +=`<th>${a}</th>`);
+        details += "</tr><tbody>";
+        d.forEach(r => {
+            details += "<tr>";
+            headerList.forEach(x => {
+                var y = Object.entries(r).find(a => a[0] == x);
+                if (y != undefined) {
+                    details += "<td>" + y[1] + "</td>";
+                } else {
+                    details += "<td></td>";
+                }
+            });
+            details += "</tr>";
+        });
+        details  += "</tbody></table>";
+    }
+    return details;
 }
 
 function ev_load(e)
 {
-    let parent_obj;
-
-
-    /* create other list bsaed from lgList. */
-    //lgList.forEach(x => {
-    //    publisherList.push({ "id": x["id"], "text": x["text"] });
-    //});
-    publisherList = JSON.parse(JSON.stringify(lgList));
+    /*
+     * create select-lists from lgList.
+     *   publisherList: Others, 厚労省
+     *   locationList: Others, Abroad
+     *   residenceList: Others, Abroad, Unspecified
+     */
+    lgList.push({ "id": "Others", "text": "その他" });
+    publisherList = JSON.parse(JSON.stringify(lgList))
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
     locationList = JSON.parse(JSON.stringify(lgList));
-    //locationList.push({ "id": "Others", "text": "その他" });
+    locationList.push({ "id": "Abroad", "text": "海外" });
+    residenceList = JSON.parse(JSON.stringify(lgList));
+    residenceList.push({ "id": "Abroad", "text": "海外" });
+    residenceList.push({ "id": "Unspecified", "text": "不明" });
 
-    /* layout the blocks */
-    add_input_select2_freetext_to_obj(document.getElementById("divBlockPublisher"), "publisher", publisherList, "厚労省", "選択肢にない場合、その他を選んでから記述する。", "所轄の自治体名:");
-    add_input_text_to_obj(document.getElementById("divLocalId"), "localId", "厚労省で管理している識別子等あれば入力する。");
-    add_input_text_to_obj(document.getElementById("divLocalSubId"), "localSubId", "所轄における識別子等あれば入力する。");
+    /* create table of list view */
+    let tr = document.createElement("tr");
+    tr.appendChild(document.createElement("th"));   // for show_row_details()
+    baseHeaderCols.forEach(x => {
+        var th = document.createElement("th");
+        th.innerHTML = x;
+        tr.appendChild(th);
+    });
+    let thead = document.createElement("thead");
+    thead.appendChild(tr);
+    document.getElementById("table-listview").appendChild(thead);
 
-    add_input_date_to_obj(document.getElementById("divBlockDateConfirmed"), "dateConfirmed");
+    let columns = baseHeaderCols.map(a => {return {"data":a}});
+    columns.unshift({
+        "className": "details-control",
+        "orderable": false,
+        "data": null,
+        "defaultContent": "",
+    });
+    table_listview = $('#table-listview').DataTable( {
+        "ajax": {
+            //"url": "sample.json",
+            "url": "/tummy/json/all",
+            "dataSrc": "result"
+        },
+        "columns": columns,
+        "order": [[1, 'asc']],
+    } );
 
-    add_input_select_to_obj(document.getElementById("divPatientAge"), "patientAge", ageList, "Unspecified");
+    $('#table-listview tbody').on('click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            table_listview.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    } );
 
-    add_input_select_to_obj(document.getElementById("divPatientGender"), "patientGender", genderList, "Unspecified");
+    $('#table-listview tbody').on('click', 'td.details-control', function () {
+        let tr = $(this).closest('tr');
+        let row = table_listview.row( tr );
+        if ( row.child.isShown() ) {
+            // This row is already open.
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            let button_id = "button-delete-plod-" + get_xid();
+            row.child( function() {
+                let row_data = row.data();
+                let details = "";
+                details += make_table_from_dict(row_data.locationHistory, locationHeaderCols);
+                details += make_table_from_dict(row_data.conditionHistory, conditionHeaderCols);
+                details += `<hr><span style="margin-left:20px;">_id = ${row_data._id}</span>`;
+                details += `<span><input class="button-delete-plod" id="${button_id}" type="button" value="削除"></span>`;
+                return details;
+            } ).show();
+            tr.addClass('shown');
+            // add event.
+            jQuery(`#${button_id}`).on("click", function() {
+                if (true == confirm("削除しますか？")) {
+                    let result = delete_plod(row.data()["reportId"]);
+                    //console.log("delete result:", result);
+                }
+                row.child.hide();
+                tr.removeClass('shown');
+                // XXX why it doesn't work ?
+                // XXX referring to https://datatables.net/examples/api/select_single_row.html
+                // row.remove().draw( false );
+                $(this).removeClass('selected');
+            });
+        }
+    } );
 
-    add_input_select_freetext_to_obj(document.getElementById("divBlockPatientDisease"), "patientDisease", diseaseList, "COVID-2019");
+    /* modal */
+    $('#modal-control-form').modaal({
+        content_source: '#divEntryForm',
+        fullscreen: 'true',
+        hide_close: true,
+    });
 
-    add_input_select2_freetext_to_obj(document.getElementById("divBlockPatientResidence"), "patientResidence", lgList, "東京都", "補足情報等があれば入力する。", "患者の居住地域:");
+    $('#modal-control-confirm-entry').modaal({
+        content_source: '#divConfirmSubmit',
+    });
 
-    /* create patient's location history */
-    document.getElementById("addLinePatientLocationHistory").addEventListener("click", ev_click_ins_line_patient_location_history, false);
-    ins_line_patient_location_history(-1);
+    $('#button-confirm-entry').on("click", function() {
+        let data_entered = make_data_entries();
+        if (data_entered == false) {
+            return false;
+        }
+        let x = document.getElementById("divConfirmEntry");
+        x.innerText = JSON.stringify(data_entered, undefined, 2);
+        $('#modal-control-confirm-entry').modaal('open');
+    });
 
-    /* create patient's condition history */
-    document.getElementById("addLinePatientConditionHistory").addEventListener("click", ev_click_ins_line_patient_condition_history, false);
-    ins_line_patient_condition_history(-1);
+    jQuery("#button-no-confirm-entry").on("click", function() {
+        $('#modal-control-confirm-entry').modaal('close');
+    });
 
-    document.getElementById("confirmButton").addEventListener("click", ev_click_confirm, false);
-    document.getElementById("submitButton").addEventListener("click", ev_click_submit, false);
+    jQuery("#button-yes-confirm-entry").on("click", function() {
+        plod_form_submit();
+    });
 
-    /* modal window for confirming */
-    document.getElementById("confirmButtonYes").addEventListener("click", ev_click_confirm_yes, false);
-    jQuery(".confirmButtonNo").on("click", ev_click_confirm_no);
+    $('#button-plod-edit').click( function () {
+        if (table_listview.row('.selected').length != 0) {
+            g_form_value = table_listview.row('.selected').data();
+            plod_form_create();
+            $('#modal-control-form').modaal('open');
+        }
+    });
+
+    document.getElementById("button-plod-new").addEventListener("click", function() {
+        g_form_value = get_default_PLOD();
+        plod_form_create();
+        $('#modal-control-form').modaal('open');
+    }, false);
+
+    document.getElementById("button-submit-entry").addEventListener("click", function() {
+        if (true == confirm("登録しますか？")) {
+            plod_form_submit();
+        }
+    }, false);
+
+    document.getElementById("button-cancel-entry").addEventListener("click", function () {
+        if (true == confirm("取り消しますか？")) {
+	    plod_form_reset();
+	}
+    });
+
+    document.getElementById("addLinePLH").addEventListener("click", ev_click_add_line_PLHTable, false);
+    document.getElementById("addLinePCH").addEventListener("click", ev_click_add_line_PCHTable, false);
 
 }
 
     </script>
 
-    <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
-    <style type="text/css">
-
-    * { font-size: 14px; }
-    .inputDate, .inputTime { width: 100px; }
-    .transportationMethodCheckbox { display: inline-block; }
-    .transportationMethodFreeText { width: 340px; }
-    .patientConditionHistoryStatusCheckbox { display: inline-block; margin-right:8px; }
-    .patientConditionHistoryStatusFreeText { width: 95%; }
-    /*textarea[id^="patientLocationHistoryDetail"]  { width: 500px; }*/
-    input[id^="patientLocationHistoryDepartureFrom"] { width: 180px; }
-    input[id^="patientLocationHistoryArrivalIn"] { width: 180px; }
-    /*textarea[id^="patientConditionHistoryDetail2"]  { width: 500px; }*/
-
-    /* below are for alignment of the blocks. */
-    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; border: 1px dotted #333333; }
-
-    .inputInsLine { }
-    .inputDelLine { }
-    .classDivSelectFreeText { display: inline-block; }
-    .cellBlock { margin-left: 3px; }
-
-    #divBlockPublisher, #divBlockLocalId, #divBlockLocalSubId, #divBlockPatientDisease, #divBlockDateConfirmed, #divBlockPatientAge, #divBlockPatientGender, #divBlockPatientResidence, #divPatientResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
-
-    #divPublisher, #publisherSelected, #publisherFreeTextBlock,
-    #divLocalId,
-    #divLocalSubId,
-    #divPatientDisease, #patientDiseaseSelected, #patientDiseaseFreeTextBlock,
-    #divDateConfirmed, #dateConfirmed,
-    #divPatientAge, #patientAgeSelected,
-    #divPatientGender, #patientGenderSelected,
-    #divPatientResidence, #patientResidenceSelected, #patientResidenceFreeTextBlock { display: inline-block; }
-
-    #plodLogo { float:left; margin-right: 10px; }
-
-    /* below are for the placeholder */
-    input::-webkit-input-placeholder { font-size: 8px; }
-    input:-moz-placeholder { font-size: 8px; }
-    input::-moz-placeholder { font-size: 8px; }
-    input:-ms-input-placeholder { font-size: 8px; }
-    textarea::placeholder { font-size: 8px; }
-
-    /* below are for the modal block */
-    .divModelBlock {
-        display: none;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        width: 100%;
-    }
-    .divModalContainer {
-        background: rgba(0,0,0,0.8);
-        height: 100vh;
-        position: absolute;
-        width: 100%;
-    }
-    #divModalContent {
-        background: #fff;
-        left: 50%;
-        padding: 40px;
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%,-50%);
-        width: 60%;
-        height: 80%;
-        overflow: auto;
-    }
-    #confirmMessage {
-        white-space: pre-wrap;
-        font-family: monospace;
-        font-size: 18px;
-    }
-
-    </style>
-
 </head>
 <body>
 
-    <div>
-        <div style="display:inline-block">
-            <a href="images/PLOD-v0.1.png">
-                <img id="plodLogo" src="images/PLOD-v0.1-48x48.png" alt="PLOD logo">
-            </a>
+    <!-- window for list view -->
+    <div id="divListView">
+        <div id="divEntryFormTitle">
+            <div style="display:inline-block; vertical-align:top;">
+                <a href="images/PLOD-v0.1.png">
+                    <img id="plodLogo" src="images/PLOD-v0.1-48x48.png" alt="PLOD logo">
+                </a>
+            </div>
+            <div style="display:inline-block; width:90%;">
+                <span>Patient Locational Open Data (PLOD) List View</span>
+                <br>
+                <span>
+                    　
+                </span>
+            </div>
         </div>
-        <div style="display:inline-block; width:60%;">
-            <span>Patient Locational Open Data (PLOD) Entry Form</span>
-            <br>
+        <hr>
+
+        <div class="divBlock" style="width:100%; margin-right:3px;">
             <span>
-                位置情報に関するガイド:
-                患者のプライバシーを考慮しつつ、かつ、
-                移動した場所がある程度特定できるように入力してください。
+                <input id="button-plod-edit" class="control-button" type="button" value="選択したPLODを編集する">
+                <!--input id="button-plod-delete" type="button" value="選択したPLODを削除する"-->
+            </span>
+            <span style="float:right">
+                <input id="button-plod-new" class="control-button" type="button" value="新しいPLODを入力する">
             </span>
         </div>
-        <!--
-        <div style="display:inline-block; float:right;">
-            <a href="http://127.0.0.1:8081">編集(臨時)</a>
-        </div>
-        -->
-    </div>
-    <hr>
 
-    <div class="divBlock">
-        <div id="divBlockPublisher">
-            <!--label for="divPublisher">所轄の自治体名:</label-->
-            <!-- insert dynamically -->
-        </div>
-        <div id="divBlockLocalId">
-            <label for="divLocalId">管理No:</label>
-            <div id="divLocalId"></div>
-            <!-- insert dynamically -->
-        </div>
-        <div id="divBlockLocalSubId">
-            <label for="divLocalSubId">副管理No:</label>
-            <div id="divLocalSubId"></div>
-            <!-- insert dynamically -->
-        </div>
+        <hr>
+
+        <table id="table-listview" class="display" style="width:98%"></table>
     </div>
 
-    <div class="divBlock">
-        <div id="divBlockPatientDisease">
-            <label for="divPatientDisease">患者の病名:</label>
-            <!-- insert dynamically -->
-        </div>
-
-        <div id="divBlockDateConfirmed">
-            <label for="dateConfirmed">患者の状態が確認された日付:</label>
-            <!--input id="dateConfirmed" type="text" /-->
-            <!-- insert dynamically -->
-        </div>
-    </div>
-
-    <div class="divBlock">
-        <div id="divBlockPatientAge">
-            <label for="divPatientAge">患者の年代:</label>
-            <div id="divPatientAge"></div>
-            <!-- insert dynamically -->
-        </div>
-
-        <div id="divBlockPatientGender">
-            <label for="divPatientGender">患者の性別:</label>
-            <div id="divPatientGender"></div>
-            <!-- insert dynamically -->
-        </div>
-
-        <div id="divBlockPatientResidence">
-            <!--label for="divPatientResidence">患者の居住地域:</label-->
-            <!-- insert dynamically -->
-        </div>
-    </div>
-
-    <hr>
-    <div class="divBlock" id="divPatientLocationHistoryBlock">
-        <label for="divPatientLocationHistory">患者の移動の履歴:</label>
-        <div id="divPatientLocationHistory">
-            <table id="tablePatientLocationHistory" border=1>
-                <tr>
-                    <th class="trPatientLocationHistoryDepartureDateTime">出発時間</th>
-                    <th class="trPatientLocationHistoryDepartureFrom">出発地</th>
-                    <th class="trPatientLocationHistoryDepartureDateTime">到着時間</th>
-                    <th class="trPatientLocationHistoryArrivalIn">到着地</th>
-                    <th class="trTransportationMethod">移動方法(複数選択可)</th>
-                    <th class="trPatientLocationHistoryDetail">所見や患者の行動等</th>
-                    <th>行増減</th>
-                </tr>
-                <!-- insert dynamically -->
-            </table>
-            <input id="addLinePatientLocationHistory" type="button" value="↑行を追加する">
-        </div>
-    </div>
-
-    <hr>
-    <div class="divBlock" id="divPatientConditionHistoryBlock">
-        <label for="divPatientConditionHistory">患者の状態の履歴:</label>
-        <div id="divPatientConditionHistory">
-            <table id="tablePatientConditionHistory" border=1>
-                <tr>
-                    <th>日付</th>
-                    <th>健康状態</th>
-                    <th>所見や患者の状況等</th>
-                    <th>行増減</th>
-                </tr>
-                <!-- insert dynamically -->
-            </table>
-            <input id="addLinePatientConditionHistory" type="button" value="↑行を追加する">
-        </div>
-    </div>
-
-    <div>
-        <input id="confirmButton" type="button" value="確認画面へ移動する。">
-        <input id="submitButton" type="button" value="登録する。">
-    </div>
-
-    <hr>
-
-    <div class="divModelBlock">
-        <div class="divModalContainer confirmButtonNo"></div>
-        <div id="divModalContent">
-            <div>
-                登録しますか？
-                <input class="confirmButtonNo" type="button" value="いいえ">
-                <input id="confirmButtonYes" type="button" value="はい">
+    <!-- window for entry form -->
+    <div id="modal-control-form"></div>
+    <div id="divEntryForm" style="display:none;">
+        <div id="divEntryFormTitle">
+            <div style="display:inline-block; vertical-align:top;">
+                <a href="images/PLOD-v0.1.png">
+                    <img id="plodLogo" src="images/PLOD-v0.1-48x48.png" alt="PLOD logo">
+                </a>
             </div>
+            <div style="display:inline-block; width:90%;">
+                <span>Patient Locational Open Data (PLOD) Entry Form</span>
+                <br>
+                <span>
+                    位置情報の入力に関するガイド:
+                    患者のプライバシーを考慮しつつ、かつ、
+                    移動した場所がある程度特定できるように入力してください。
+                </span>
+            </div>
+        </div>
+        <hr>
+
+        <div class="divBlock">
+            <div id="divPublisher"> <!-- insert dynamically --> </div>
+            <div id="divLocalId"> <!-- insert dynamically --> </div>
+            <div id="divLocalSubId"> <!-- insert dynamically --> </div>
+        </div>
+
+        <div class="divBlock">
+            <div id="divDisease"> <!-- insert dynamically --> </div>
+            <div id="divDateConfirmed"> <!-- insert dynamically --> </div>
+        </div>
+
+        <div class="divBlock">
+            <div id="divAge"> <!-- insert dynamically --> </div> 
+            <div id="divGender"> <!-- insert dynamically --> </div> 
+            <div id="divResidence"> <!-- insert dynamically --> </div>
+        </div>
+
+        <hr>
+        <div class="divBlock">
+            <label for="divPLH">患者の移動の履歴:</label>
+            <div id="divPLH">
+                <table id="tablePLH" class="table-form">
+                    <thead>
+                        <tr>
+                            <th>出発日時</th>
+                            <th>出発地</th>
+                            <th>到着日時</th>
+                            <th>到着地</th>
+                            <th>移動方法(複数選択可)</th>
+                            <th>所見や患者の行動等</th>
+                            <th>行増減</th>
+                        </tr>
+                    </thead>
+                    <tbody> <!-- insert dynamically --> </tbody>
+                </table>
+                <input id="addLinePLH" type="button" value="↑行を追加する">
+            </div>
+        </div>
+
+        <hr>
+        <div class="divBlock">
+            <label for="divPCH">患者の状態の履歴:</label>
+            <div id="divPCH">
+                <table id="tablePCH" class="table-form">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>健康状態</th>
+                            <th>自由記述欄</th>
+                            <th>行増減</th>
+                        </tr>
+                    </thead>
+                    <tbody> <!-- insert dynamically --> </tbody>
+                </table>
+                <input id="addLinePCH" type="button" value="↑行を追加する">
+            </div>
+        </div>
+
+        <hr>
+        <div class="divBlock" style="width:100%; margin-right:3px;">
+            <span>
+                <input id="button-confirm-entry" class="control-button" type="button" value="確認する">
+                <input id="button-submit-entry" class="control-button" type="button" value="登録する">
+            </span>
+            <span style="float:right">
+                <input id="button-cancel-entry" class="control-button" type="button" value="取り消す">
+            </span>
+        </div>
+
+        <hr>
+    </div>
+
+    <!-- window for confirmation of submit -->
+    <div id="modal-control-confirm-entry"></div>
+    <div id="divConfirmSubmit" style="display:none">
+        <div style="padding: 20px">
+            <span>
+                登録しますか？
+                <input id="button-no-confirm-entry" type="button" value="いいえ">
+                <input id="button-yes-confirm-entry" type="button" value="はい">
+            </span>
             <hr>
-            <div id="confirmMessage"></div>
+            <div id="divConfirmEntry"></div>
         </div>
     </div>
 
+</div>
 </body>
 </html>
-
 
