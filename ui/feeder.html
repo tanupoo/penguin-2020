@@ -1337,6 +1337,8 @@ function ev_load(e)
             g_form_value = table_listview.row('.selected').data();
             plod_form_create();
             $('#modal-control-form').modaal('open');
+        } else {
+            alert("データを選択してください。");
         }
     });
 
