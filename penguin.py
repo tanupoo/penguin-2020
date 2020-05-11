@@ -80,12 +80,14 @@ def check_config(config, debug_mode=False):
 def dumps_utf8(data):
     return json.dumps(data, ensure_ascii=False)
 
-def http_response_turtle(msg):
+def http_response_turtle(msg, filename=None):
     http_response_logging(msg)
+    # XXX shout put Content-Disposition: attachment; filename=filename
     return web.Response(body=msg, content_type="text/turtle")
 
-def http_response_json(msg):
+def http_response_json(msg, filename=None):
     http_response_logging(msg)
+    # XXX shout put Content-Disposition: attachment; filename=filename
     return web.json_response(msg, dumps=dumps_utf8)
 
 def http_response(msg, status=200, log_text=None):
@@ -432,7 +434,7 @@ app.router.add_route("POST", "/beak/bulk", receive_plod_bulk_handler)
 app.router.add_route("POST", "/beak", receive_plod_handler)
 app.router.add_route("DELETE", "/tail/{cond:.+}", delete_plod_handler)
 app.router.add_route("GET", "/tummy/{fmt:(json|turtle)}/{cond:.+}", provide_plod_handler)
-#app.router.add_route("POST", "/tummy/{fmt:(json|turtle)}", provide_plod_handler)
+app.router.add_route("GET", "/tummy", provide_listview_handler)
 app.router.add_route("GET", "/images/{name:.+\.(png)}", get_doc_handler)
 app.router.add_route("GET", "/js/{name:.+\.(js|css|map)}", get_doc_handler)
 app.router.add_route("GET", "/favicon.ico", get_doc_handler)
