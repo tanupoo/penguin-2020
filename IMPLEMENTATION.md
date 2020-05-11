@@ -1,7 +1,5 @@
 IMPLEMENTATION NOTE
-====================
-
-Japanese/English are mixed.
+===================
 
 ## User-side: Browser (Chrome, Firefox)
 
@@ -137,24 +135,32 @@ return:
 
 - GET /tummy
 
+PLODのリスト表示とダウンロードするフォームを返す。
+
+return:
+
+    200 HTML
+
+- GET /tummy/{type}/{CONDITION}
+
 指定した条件に該当する PLODs を、JSON形式と Turtle形式で返す。
 
-    + GET /tummy/json/CONDITION
-    + GET /tummy/turtle/CONDITION
+    + GET /tummy/json/{CONDITION}
+    + GET /tummy/turtle/{CONDITION}
 
-CONDITIONの部分は下記の通り。
+{CONDITION}の部分は下記いずれか。
 
     + "all"
         * e.g. GET /tummy/json/all
+        * e.g. GET /turtle/json/all
     + reportId
         * GET /tummy/json/1ef3c491-a892-4410-b4db-dc755c656cd1
-    + _id
-        * GET /tummy/json/5e7d9ace0810c91d43c60130
+        * GET /tummy/turtle/1ef3c491-a892-4410-b4db-dc755c656cd1
 
 curl を使用した例:
 
 ```
-% curl -k https://plod.server/tummy/json/5e8046d40810c97060607ebe
+% curl -k https://plod.server/tummy/json/96cb3e7f-63c4-4293-affb-6a7b46432a96
 {"msg_type": "response", "status": 200, "ts": "2020-03-29T16:04:47.326933", "result": [{"publisher": "千葉県", "localId": "13", "localSubId": "1", "disease": "COVID-2019", "dateConfirmed": "2020-01-31", "age": "20s", "gender": "Female", "residence": "千葉県", "locationHistory": [{"departureDate": "2020-01-16", "departureFrom": "東京都", "arrivalDate": "2020-01-16", "arrivalIn": "大阪府", "byTrain": true}, {"departureDate": "2020-01-22", "departureFrom": "大阪府", "arrivalDate": "2020-01-22", "arrivalIn": "東京都", "byTrain": true}], "cndHistory": [{"reportDate": "2020-01-16", "cndMalaise": true}, {"reportDate": "2020-01-22", "cndChill": true}], "reportId": "96cb3e7f-63c4-4293-affb-6a7b46432a96", "_id": "5e8046d40810c97060607ebe"}]}
 ```
 
@@ -165,12 +171,12 @@ curl を使用した例:
 
 とかできるとRESTぽいが、それはユースケースがこなれてきてから実装する。
 
-- POST /tummy
+- POST /tummy/{type}/{CONDITIOON}
 
 指定した条件に該当する PLODs を返す。GET /tummy も参照のこと。
 
-    + POST /tummy/json/CONDITION
-    + POST /tummy/turtle/CONDITION
+    + POST /tummy/json/{CONDITION}
+    + POST /tummy/turtle/{CONDITION}
 
 MongoDBのfilterをそのまま bodyにセットして POST する。
 セキュリティホールになるかも？だけど、今はとりあえず提供することを考える。
@@ -179,19 +185,5 @@ curlを使用した例:
 
 ```
 % curl -k -X POST -H'content-type: application/json; charset=utf-8' -d '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}' https://plod.server/tummy/json
-```
-
-- GET /tummy の別の使い方()
-
-MongoDBのfilterをそのまま RFC2396でエンコードした文字列をパスに指定する。
-
-例えば、
-
-    '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}'
-
-ならば、
-
-```
-curl -k https://plod.server/tummy/json/`tools/rfc2396encode.py '{ "locationHistory": {"$elemMatch": { "departureFrom": "東京都" }}}' `
 ```
 
