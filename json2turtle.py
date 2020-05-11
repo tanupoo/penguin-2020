@@ -7,7 +7,7 @@ import json
 #
 report_url = "https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html"
 referencedBy = "https://www.pref.chiba.lg.jp/shippei/kansenshou/keihatu-index.html"
-url_prefix = "https://plod.info/data"
+url_prefix = "https://plod.info/rdf"
 
 #
 # by definition
@@ -19,7 +19,7 @@ __prefix = """\
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix gnjp: <http://geonames.jp/resource/> .
-@prefix plod: <https://plod.info/property/> .
+@prefix plod: <https://plod.info/rdf/> .
 """
 
 """
@@ -27,7 +27,7 @@ http://geonames.jp/resource
 http://geonames.jp
 """
 postfix = """\
-<https://plod.info/entity/COVID-19> a schema:InfectiousDisease ;
+<https://plod.info/rdf/COVID-19> a schema:InfectiousDisease ;
     rdfs:label "COVID-19" ;
     schema:name "2019-nCoV acute respiratory disease"@en ;
     schema:infectiousAgent "2019-nCoV" ;
@@ -66,7 +66,7 @@ def cv_location(a):
 
 def cv_healthCondition(a):
     db = {
-        "COVID-2019": "https://plod.info/entity/COVID-19"
+        "COVID-2019": "https://plod.info/rdf/COVID-19"
     }
     return finddb(db, a)
 
@@ -106,8 +106,8 @@ def plod_json2turtle(plod_list):
 <{url_prefix}/{reportId}-R01> a schema:Report ;
     rdfs:label "{reportId}-R01" ;
     schema:mainEntity <{url_prefix}/{reportId}> ;
-    plod:numberOfPatients "1"^^schema:Integer ;
-    schema:datePublished "{dateConfirmed}"^^schema:DateTime ;
+    plod:numberOfPatients "1"^^xsd:integer ;
+    schema:datePublished "{dateConfirmed}"^^xsd:dateTime ;
     schema:publisher {publisher} ;
     schema:url <{report_url}> ;
     dcterms:isReferencedBy <{referencedBy}>.
@@ -116,7 +116,7 @@ def plod_json2turtle(plod_list):
     rdfs:label "{patient_path}" ;
     schema:subjectOf <{url_prefix}/{reportId}> ;
     schema:healthCondition <{healthCondition}> ;
-    plod:dateConfirmed "{dateConfirmed}"^^schema:DateTime ;
+    plod:dateConfirmed "{dateConfirmed}"^^xsd:dateTime ;
     foaf:age "{age}" ;
     schema:gender "{gender}" ;
     schema:homeLocation {residence} .
@@ -133,7 +133,7 @@ def plod_json2turtle(plod_list):
 
             dt_str = make_date_time(x, "departureDate", "departureTime")
             if dt_str is not None:
-                rdf += ('    schema:startTime "{}"^^schema:DateTime ;\n'
+                rdf += ('    schema:startTime "{}"^^xsd:dateTime ;\n'
                         .format(dt_str))
 
             if x.get("departureFrom"):
@@ -142,7 +142,7 @@ def plod_json2turtle(plod_list):
 
             dt_str = make_date_time(x, "arrivalDate", "arrivalTime")
             if dt_str is not None:
-                rdf += ('    schema:endTime "{}"^^schema:DateTime ;\n'
+                rdf += ('    schema:endTime "{}"^^xsd:dateTime ;\n'
                         .format(dt_str))
 
             if x.get("arrivalIn"):
@@ -172,12 +172,5 @@ if __name__ == "__main__":
     else:
         fd = sys.stdin
     jd = json.load(fd)
-
-    if isinstance(jd, list):
-        for x in jd:
-            turtle = plod_json2turtle(x)
-            print(turtle)
-    else:
-        turtle = plod_json2turtle(jd)
-        print(turtle)
-
+    turtle = plod_json2turtle(jd)
+    print(turtle)
