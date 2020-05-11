@@ -22,7 +22,6 @@ import re
 __CONF_SSL_CTX = "__ssl_ctx"
 __CONF_DB_CONN = "__db_conn"
 
-re_db_objectid = re.compile("^[a-f0-9]+$")
 re_db_reportid = re.compile("^[\-a-f0-9]+$")
 
 LOG_FMT = "%(asctime)s.%(msecs)d %(lineno)d %(message)s"
@@ -327,7 +326,7 @@ async def provide_plod_handler(request):
             return http_response("The payload format was not likely JSON.",
                     status=502, log_text=str(e))
         debug_http_message(request.headers, content)
-        condition = await request.json()
+        db_filter = await request.json()
     elif request.method == "GET":
         condition = request.match_info["cond"]
         """
@@ -341,15 +340,10 @@ async def provide_plod_handler(request):
         """
         if condition == "all":
             db_filter = {}
-        elif re_db_objectid.match(condition):
-            db_filter = { "_id": ObjectId(condition) }
         elif re_db_reportid.match(condition):
             db_filter = { "reportId": condition }
         else:
-            try:
-                db_filter = json.loads(condition)
-            except json.decoder.JSONDecodeError as e:
-                return http_response(f"invalid request", status=400)
+            return http_response(f"invalid request", status=400)
     else:
         return http_response(f"{request.method} is not supported.", status=405)
     #
@@ -434,6 +428,7 @@ app.router.add_route("POST", "/beak/bulk", receive_plod_bulk_handler)
 app.router.add_route("POST", "/beak", receive_plod_handler)
 app.router.add_route("DELETE", "/tail/{cond:.+}", delete_plod_handler)
 app.router.add_route("GET", "/tummy/{fmt:(json|turtle)}/{cond:.+}", provide_plod_handler)
+app.router.add_route("POST", "/tummy/{fmt:(json|turtle)}", provide_plod_handler)
 app.router.add_route("GET", "/tummy", provide_listview_handler)
 app.router.add_route("GET", "/images/{name:.+\.(png)}", get_doc_handler)
 app.router.add_route("GET", "/js/{name:.+\.(js|css|map)}", get_doc_handler)
