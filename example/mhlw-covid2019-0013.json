@@ -11,7 +11,7 @@
         "age": "20s",
         "gender": "Female",
         "residence": "千葉県",
-        "residenceAnnex": ""
+        "residenceAnnex": "",
         "locationHistory": [
             {
                 "arrivalDate": "2020-01-16",
