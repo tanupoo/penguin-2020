@@ -87,7 +87,7 @@ def http_response_turtle(msg, filename=None):
 def http_response_json(msg, filename=None):
     http_response_logging(msg)
     # XXX shout put Content-Disposition: attachment; filename=filename
-    return web.json_response(msg, dumps=dumps_utf8)
+    return web.json_response({"result":"success", "plod":msg}, dumps=dumps_utf8)
 
 def http_response(msg, status=200, log_text=None):
     http_response_logging(msg, status=status, log_text=log_text)
@@ -292,7 +292,7 @@ async def receive_plod_handler(request):
     if content.get("_id"):
         _id = str(content.pop("_id"))
         content.update({"_id": f"{_id}"})
-    return http_response({"data":content})
+    return http_response_json(content)
 
 async def delete_plod_handler(request):
     common_access_log(request)
