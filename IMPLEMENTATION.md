@@ -16,7 +16,7 @@ IMPLEMENTATION NOTE
 ## Server-side: HTTPサーバ
 
 - まずは融通が効くので aiohttpだけで書く。
-- そのうち tornado あたりに置き換える。
+- そのうち FastAPI あたりに置き換える。
 
 ## Server-side: Database: MongoDB
 
