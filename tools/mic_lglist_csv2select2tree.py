@@ -7,7 +7,7 @@ import json
 """
 ## Usage
 
-python miclglist_csv2select2tree.py mic-lglist-000618153.csv > lglist-select2-20200327.js
+python mic_lglist_csv2select2tree.py mic-lglist-000618153.csv > lglist-select2-20200327.js
 
 ## Output
 
