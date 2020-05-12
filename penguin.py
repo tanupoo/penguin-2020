@@ -82,7 +82,7 @@ def dumps_utf8(data):
 def http_response_turtle(msg, filename=None):
     http_response_logging(msg)
     # XXX shout put Content-Disposition: attachment; filename=filename
-    return web.Response(body=msg, content_type="text/turtle")
+    return web.Response(body=msg, content_type="text/turtle; charset=utf-8")
 
 def http_response_json(msg, filename=None):
     http_response_logging(msg)
