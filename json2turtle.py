@@ -1,34 +1,36 @@
 import sys
 import re
 import json
+import nta_conum_dict
 
 #
 # XXX TO BE DEFINED
 #
-report_url = "https://www.pref.TO_BE_DEFINED.lg.jp/shippei/press/2019/ncov20200131.html"
-referencedBy = "https://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html"
+report_url = "http://www.pref.TO_BE_DEFINED.lg.jp/shippei/press/2019/ncov20200131.html"
+referencedBy = "http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html"
 
 #
 # by definition
 #
-url_prefix = "https://plod.info/rdf"
-__prefix = """\
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix schema: <https://schema.org/> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix gnjp: <http://geonames.jp/resource/> .
-@prefix plod: <https://plod.info/rdf/> .
-"""
+prefix_plod = "plod:"
+prefix_dict = {
+        "rdf:": "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
+        "rdfs:": "<http://www.w3.org/2000/01/rdf-schema#>",
+        "xsd:": "<http://www.w3.org/2001/XMLSchema#>",
+        "schema:": "<http://schema.org/>",
+        "dcterms:": "<http://purl.org/dc/terms/>",
+        "foaf:": "<http://xmlns.com/foaf/0.1/>",
+        "gnjp:": "<http://geonames.jp/resource/>",
+        prefix_plod: "<http://plod.info/rdf/>",
+        }
 
 """
 http://geonames.jp/resource
 http://geonames.jp
 """
-postfix = """\
-<https://plod.info/rdf/COVID-19> a schema:InfectiousDisease ;
+
+__postfix = f"""\
+{prefix_plod}:COVID-19 a schema:InfectiousDisease ;
     rdfs:label "COVID-19" ;
     schema:name "2019-nCoV acute respiratory disease"@en ;
     schema:infectiousAgent "2019-nCoV" ;
@@ -48,34 +50,44 @@ def finddb(db, search_key):
             return v
     return None
 
-def add_turtle_org(base, name):
-    base += f'plod:{name} a schema:GovernmentOrganization ;\n'
-    base += f'    schema:location "gnjp:{name}" .\n'
-    base += "\n"
-    return base
+#
+# add triple for the tale.
+#
+def add_turtle_publisher(key, prefix):
+    conum = finddb(nta_conum_dict.co_num_dict, key)
+    return "\n".join([
+            f'{prefix_plod}{key} a schema:GovernmentOrganization ;',
+            f'    schema:location "gnjp:{key}" ;',
+            f'    rdfs:seeAlso <http://hojin-info.go.jp/data/basic/{conum}> .',
+            ""])
 
-def add_turtle_place(base, name):
-    base += f'<http://geonames.jp/resource/{name}> a schema:Place ;\n'
-    base += f'    rdfs:label "{name}" .\n'
-    base += "\n"
-    return base
+def add_turtle_location(key, prefix):
+    # f'<http://geonames.jp/resource/{a}> a schema:Place ;\n'
+    return "\n".join([
+            f'{prefix}:{key} a schema:Place ;',
+            f'    rdfs:label "{prefix}{key}" .',
+            ""])
 
+#
+# converting value.
+#
 def cv_publisher(a):
     if a == "厚労省":
-        name = f"plod:厚生労働省"
-    else:
-        name = f"plod:{a}"
-    postfix_publisher.setdefault(a, True)  # use it later.
+        a = "厚生労働省"
+    prefix = prefix_plod
+    name = f"{prefix}{a}"
+    postfix_publisher.setdefault(a, prefix)  # use it later.
     return name
 
 def cv_location(a):
-    name = f"gnjp:{a}"
-    postfix_geoname.setdefault(a, True)  # use it later.
+    prefix = "gnjp"
+    name = f"{prefix}:{a}"
+    postfix_geoname.setdefault(a, prefix)  # use it later.
     return name
 
 def cv_healthCondition(a):
     db = {
-        "COVID-2019": "https://plod.info/rdf/COVID-19"
+        "COVID-2019": f"{prefix_plod}COVID-19"
     }
     return finddb(db, a)
 
@@ -95,11 +107,15 @@ def plod_json2turtle(plod_list):
     """
     plod_list: json-like list of one or more dict.
     """
-    rdf = __prefix
+    buf = []
+    for k,v in prefix_dict.items():
+        buf.append(f"@prefix {k} {v} .")
+    buf.append("")  # for a line separator.
+    #
     # adding one or more PLOD in turtle.
     for jd in plod_list:
         reportId = jd["reportId"]
-        publisher = cv_location(jd["publisher"])
+        publisher = cv_publisher(jd["publisher"])
         healthCondition = cv_healthCondition(jd["disease"])
         dateConfirmed = jd["dateConfirmed"]
         age = jd["age"]
@@ -107,75 +123,75 @@ def plod_json2turtle(plod_list):
         residence = cv_location(jd["residence"])
         patient_path = f"{reportId}-P01"
 
-        rdf += "\n"
-        rdf += f'''\
-<{url_prefix}/{reportId}> a schema:Event ;
+        buf.append(f'''\
+{prefix_plod}{reportId} a schema:Event ;
     rdfs:label "{reportId}" .
 
-<{url_prefix}/{reportId}-R01> a schema:Report ;
+{prefix_plod}{reportId}-R01 a schema:Report ;
     rdfs:label "{reportId}-R01" ;
-    schema:mainEntity <{url_prefix}/{reportId}> ;
-    plod:numberOfPatients "1"^^xsd:integer ;
+    schema:mainEntity {prefix_plod}{reportId} ;
+    {prefix_plod}numberOfPatients "1"^^xsd:integer ;
     schema:datePublished "{dateConfirmed}"^^xsd:dateTime ;
     schema:publisher {publisher} ;
     schema:url <{report_url}> ;
     dcterms:isReferencedBy <{referencedBy}>.
 
-<{url_prefix}/{patient_path}> a schema:Patient ;
+{prefix_plod}{patient_path} a schema:Patient ;
     rdfs:label "{patient_path}" ;
-    schema:subjectOf <{url_prefix}/{reportId}> ;
+    schema:subjectOf {prefix_plod}{reportId} ;
     schema:healthCondition <{healthCondition}> ;
-    plod:dateConfirmed "{dateConfirmed}"^^xsd:dateTime ;
+    {prefix_plod}dateConfirmed "{dateConfirmed}"^^xsd:dateTime ;
     foaf:age "{age}" ;
     schema:gender "{gender}" ;
     schema:homeLocation {residence} .
-    '''
-
-        rdf += "\n"
+''')
+        # adding locations
         labelMoveAction = 0;
         for x in jd["locationHistory"]:
             labelMoveAction += 1;
             agent_path = f"{patient_path}-M{labelMoveAction:02d}"
-            rdf += f'<{url_prefix}/{agent_path}> a schema:MoveAction ;\n'
-            rdf += f'    rdfs:label "{agent_path}" ;\n'
-            rdf += f'    schema:agent <{url_prefix}/{patient_path}> ;\n'
+            buf.append(f'{prefix_plod}{agent_path} a schema:MoveAction ;')
+            buf.append(f'    rdfs:label "{agent_path}" ;')
+            buf.append(f'    schema:agent {prefix_plod}{patient_path} ;')
 
             dt_str = make_date_time(x, "departureDate", "departureTime")
             if dt_str is not None:
-                rdf += ('    schema:startTime "{}"^^xsd:dateTime ;\n'
-                        .format(dt_str))
+                buf.append(('    schema:startTime "{}"^^xsd:dateTime ;'
+                            .format(dt_str)))
 
             if x.get("departureFrom"):
-                rdf += ('    schema:fromLocation {} ;\n'
-                        .format(cv_location(x["departureFrom"])))
+                buf.append('    schema:fromLocation {} ;'
+                           .format(cv_location(x["departureFrom"])))
 
             dt_str = make_date_time(x, "arrivalDate", "arrivalTime")
             if dt_str is not None:
-                rdf += ('    schema:endTime "{}"^^xsd:dateTime ;\n'
-                        .format(dt_str))
+                buf.append('    schema:endTime "{}"^^xsd:dateTime ;'
+                           .format(dt_str))
 
             if x.get("arrivalIn"):
-                rdf += ('    schema:toLocation {} ;\n'
-                        .format(cv_location(x["arrivalIn"])))
+                buf.append('    schema:toLocation {} ;'
+                           .format(cv_location(x["arrivalIn"])))
 
             if x.get("vehicles"):
                 for v in x["vehicles"]:
-                    rdf += (f'    schema:instrument "{v}"@ja .\n')
-            rdf += "\n"
+                    buf.append(f'    schema:instrument "{v}"@ja .')
 
-        # Publisher
-        for k in postfix_publisher.keys():
-            rdf = add_turtle_place(rdf, k)
+            buf.append("")  # for a line separator.
 
         # Place
-        for k in postfix_geoname.keys():
-            rdf = add_turtle_place(rdf, k)
+        for key,prefix in postfix_geoname.items():
+            buf.append(add_turtle_location(key, prefix))
+
+        # Publisher
+        for key,prefix in postfix_publisher.items():
+            buf.append(add_turtle_publisher(key, prefix))
 
         # InfectiousDisease
-        rdf += postfix
-        rdf += "\n"
+        buf.append(__postfix)
 
-    return rdf
+        buf.append("")  # for a line separator.
+
+    return "\n".join(buf)
 #
 #
 #
