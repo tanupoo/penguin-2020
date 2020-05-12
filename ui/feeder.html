@@ -999,9 +999,9 @@ async function send_plod(patient_data)
         return response.json();
     }).then(content => {
 //console.log("content:", content);
-        let status = content["status"];
-        if (status == "200") {
-            let data = content["result"]["data"];
+        let status = content["result"];
+        if (status == "success") {
+            let data = content["plod"];
             confirm("reportId " + data["reportId"] + " が登録されました。");
             // XXX needs to decide whehter new record is added to local table or just reload.
             //table_listview.row.add(data).draw();
@@ -1022,8 +1022,8 @@ async function delete_plod(reportId)
         return response.json();
     }).then(content => {
 //console.log("content:", content);
-        let status = content["status"];
-        if (status == "200") {
+        let status = content["result"];
+        if (status == "success") {
             confirm("reportId " + reportId + " が削除されました。");
             // XXX needs to decide whehter new record is deleted from local table or just reload.
             window.location.reload(false);
@@ -1253,7 +1253,7 @@ function ev_load(e)
         "ajax": {
             //"url": "sample.json",
             "url": "/tummy/json/all",
-            "dataSrc": function (json) { return json; },
+            "dataSrc": "plod",
         },
         "columns": columns,
         "order": [[1, 'asc']],

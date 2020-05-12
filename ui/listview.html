@@ -298,9 +298,8 @@ function ev_load(e)
     });
     table_listview = $('#table-listview').DataTable( {
         "ajax": {
-            //"url": "sample.json",
             "url": "/tummy/json/all",
-            "dataSrc": function (json) { return json; },
+            "dataSrc": "plod",
         },
         "columns": columns,
         "order": [[1, 'asc']],
