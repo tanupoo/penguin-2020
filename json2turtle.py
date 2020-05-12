@@ -3,18 +3,19 @@ import re
 import json
 
 #
-# given
+# XXX TO BE DEFINED
 #
-report_url = "https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html"
-referencedBy = "https://www.pref.chiba.lg.jp/shippei/kansenshou/keihatu-index.html"
-url_prefix = "https://plod.info/rdf"
+report_url = "https://www.pref.TO_BE_DEFINED.lg.jp/shippei/press/2019/ncov20200131.html"
+referencedBy = "https://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html"
 
 #
 # by definition
 #
+url_prefix = "https://plod.info/rdf"
 __prefix = """\
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix schema: <https://schema.org/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -39,12 +40,19 @@ postfix = """\
 """
 
 postfix_geoname = {}
+postfix_publisher = {}
 
 def finddb(db, search_key):
     for k,v in db.items():
         if k == search_key:
             return v
     return None
+
+def add_turtle_org(base, name):
+    base += f'plod:{name} a schema:GovernmentOrganization ;\n'
+    base += f'    schema:location "gnjp:{name}" .\n'
+    base += "\n"
+    return base
 
 def add_turtle_place(base, name):
     base += f'<http://geonames.jp/resource/{name}> a schema:Place ;\n'
@@ -54,9 +62,10 @@ def add_turtle_place(base, name):
 
 def cv_publisher(a):
     if a == "厚労省":
-        name = a
+        name = f"plod:厚生労働省"
     else:
-        name = f"gnjp:{a}"
+        name = f"plod:{a}"
+    postfix_publisher.setdefault(a, True)  # use it later.
     return name
 
 def cv_location(a):
@@ -153,6 +162,10 @@ def plod_json2turtle(plod_list):
                 for v in x["vehicles"]:
                     rdf += (f'    schema:instrument "{v}"@ja .\n')
             rdf += "\n"
+
+        # Publisher
+        for k in postfix_publisher.keys():
+            rdf = add_turtle_place(rdf, k)
 
         # Place
         for k in postfix_geoname.keys():
