@@ -174,7 +174,10 @@ def plod_json2turtle(plod_list):
 
             if x.get("vehicles"):
                 for v in x["vehicles"]:
-                    buf.append(f'    schema:instrument "{v}"@ja .')
+                    buf.append(f'    schema:instrument "{v}"@ja ;')
+
+            # replace the end of char in the end of line into ".".
+            buf[-1] = buf[-1][:-1] + "."
 
             buf.append("")  # for a line separator.
 
