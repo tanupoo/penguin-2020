@@ -196,11 +196,10 @@ const conditionHeaderCols = [
  * you have to check value_selected in below functions.
  */
 
-/* publisher */
-let publisherList = []; // produced from lgList.
-
-/* location */
-let locationList = [];  // copied from lgList at this time.
+/* options for select */
+let publisherList = [];
+let locationList = [];
+let residenceList = [];
 
 // key -> text
 // value -> id
@@ -1219,14 +1218,17 @@ function ev_load(e)
      *   locationList: Others, Abroad
      *   residenceList: Others, Abroad, Unspecified
      */
-    lgList.push({ "id": "Others", "text": "その他" });
     publisherList = JSON.parse(JSON.stringify(lgList))
     publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
+    publisherList.push({ "id": "Others", "text": "その他" });
     locationList = JSON.parse(JSON.stringify(lgList));
+    locationList.unshift({ "id": "Others", "text": "その他" });
     locationList.push({ "id": "Abroad", "text": "海外" });
+    locationList.push({ "id": "Japan", "text": "日本" });
     residenceList = JSON.parse(JSON.stringify(lgList));
+    residenceList.unshift({ "id": "Unspecified", "text": "不明" });
+    residenceList.push({ "id": "Japan", "text": "日本" });
     residenceList.push({ "id": "Abroad", "text": "海外" });
-    residenceList.push({ "id": "Unspecified", "text": "不明" });
 
     /* create table of list view */
     let tr = document.createElement("tr");
