@@ -1365,14 +1365,14 @@ function ev_load(e)
                 let row_data = row.data();
                 let details = "";
                 details += "<hr>"
-                details += `<div class="inline-block div-block"><label class="label">updatedTime</label><span class="value-box inset-box">${row_data.updatedTime}</span></div>`;
-                details += `<div class="inline-block div-block"><label class="label">createdTime</label><span class="value-box inset-box">${row_data.createdTime}</span></div>`;
                 details += `<div class="inline-block div-block"><label class="label">dateConfirmed</label><span class="value-box inset-box">${row_data.dateConfirmed}</span></div>`;
                 details += make_table_from_dict(row_data.locationHistory, headers_PLH);
                 details += make_table_from_dict(row_data.conditionHistory, headers_PCH);
-                details += "<hr>";
+                details += "<br>";
                 details += `<div class="inline-block div-block"><label class="label">closeContacts</label><span class="value-box inset-box">${row_data.closeContacts}</span></div>`;
                 details += "<hr>";
+                details += `<div class="inline-block div-block"><label class="label">updatedTime</label><span class="value-box inset-box">${row_data.updatedTime}</span></div>`;
+                details += `<div class="inline-block div-block"><label class="label">createdTime</label><span class="value-box inset-box">${row_data.createdTime}</span></div>`;
                 details += `<div class="inine-block div-block"><label class="label">_id</label><span class="value-box inset-box">${row_data._id}</span><span><input class="control-button notation" id="${button_id}" type="button" value="削除する"></span></div>`;
                 return details;
             } ).show();
