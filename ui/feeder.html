@@ -20,13 +20,18 @@
     <style type="text/css" class="init">
 
     * { font-size: 14px; }
-    .inputInsLine { }
-    .inputDelLine { }
-    .inlineBlock { display: inline-block; }
+    .inline-block { display: inline-block; }
+    .div-block { margin: 5px; }
+    .no-margin { margin: 0px; padding: 0px; }
+    .inset-box { border: 1px solid rgba(0, 0, 0, .2) }
+    .view-max { width: 100vw; }
+    .no-border { border: 0; box-shadow: none; }
     .cellBlock { margin-left: 3px; }
     .inputDate, .inputTime { width: 100px; }
-    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; }
-    .input-label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
+    .label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
+    .value-box { padding: 6px; }
+    .left-label { border-radius: 5px 0 0 5px; }
+    .top-label { border-radius: 5px 5px 0 0; }
     .input-text, .input-select { margin-left: 3px; }
 
     .control-button {
@@ -34,8 +39,9 @@
 	padding: 0.5em 1em;
 	text-decoration: none;
 	border-radius: 4px;
-	border-bottom: solid 3px #5e7fca;
+        box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
     }
+    .notation { color: red; }
 
     /* header */
     #plodLogo { float:left; margin-right: 10px; }
@@ -50,65 +56,59 @@
     textarea[id^="conditions"] { width: 95%; }
     textarea[id^="PCHDetails"] { width: 95%; }
 
-    /* below are for alignment of the blocks. */
-    #divPublisher, #divLocalId, #divLocalSubId,
-    #divDisease, #divDateConfirmed,
-    #divAge, #divGender, #divResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
-
     /* data tables */
-    .details-control {
-        background: url('images/details_open.png') no-repeat center center;
+    td.details-button {
+        background: url('images/d-open.png') no-repeat center center;
         cursor: pointer;
     }
 
-    .shown td.details-control {
-        background: url('images/details_close.png') no-repeat center center;
+    .shown td.details-button {
+        background: url('images/d-close.png') no-repeat center center;
     }
 
     .table-form {
     border-collapse:separate;
-    border-spacing: 0;
+        border-spacing: 0;
     }
 
     .table-form th:first-child{
-    border-radius: 5px 0 0 0;
+        border-radius: 5px 0 0 0;
     }
 
     .table-form th:last-child{
-    border-radius: 0 5px 0 0;
-    border-right: 1px solid #3c6690;
+        border-radius: 0 5px 0 0;
     }
 
     .table-form th{
-    text-align: center;
-    color:white;
-    background: linear-gradient(#94bae3,#3686d6);
-    border-left: 1px solid #3c6690;
-    border-top: 1px solid #3c6690;
-    border-bottom: 1px solid #3c6690;
-    box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
-    padding: 5px 5px;
+        text-align: center;
+        color:white;
+        background: linear-gradient(#94bae3,#3686d6);
+        border-left: 1px solid #3c6690;
+        border-top: 1px solid #3c6690;
+        border-bottom: 1px solid #3c6690;
+        box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
+        padding: 5px 5px;
     }
 
     .table-form td{
-    text-align: center;
-    border-left: 1px solid #a8b7c5;
-    border-bottom: 1px solid #a8b7c5;
-    border-top:none;
-    box-shadow: 0px -3px 5px 1px #eee inset;
-    padding: 5px 5px;
+        text-align: center;
+        border-left: 1px solid #a8b7c5;
+        border-bottom: 1px solid #a8b7c5;
+        border-top:none;
+        box-shadow: 0px -3px 5px 1px #eee inset;
+        padding: 5px 5px;
     }
 
     .table-form td:last-child{
-    border-right: 1px solid #a8b7c5;
+        border-right: 1px solid #a8b7c5;
     }
 
     .table-form tr:last-child td:first-child {
-    border-radius: 0 0 0 5px;
+        border-radius: 0 0 0 5px;
     }
 
     .table-form tr:last-child td:last-child {
-    border-radius: 0 0 5px 0;
+        border-radius: 0 0 5px 0;
     }
 
     /* below are for the placeholder */
@@ -117,8 +117,6 @@
     input::-moz-placeholder { font-size: 8px; }
     input:-ms-input-placeholder { font-size: 8px; }
     textarea::placeholder { font-size: 8px; }
-
-    .button-delete-plod { margin-left: 20px; color: red; }
 
     /* modaal */
     .modaal-wrapper { z-index: 9995; }
@@ -154,22 +152,21 @@ var DEBUG_XHR = false;
 
 jQuery.datetimepicker.setLocale("ja");
 
-let table_listview;
+let plod_table;
 
 /* header columns of listview */
-const baseHeaderCols = [
-    "publisher",
-    "localId",
-    "localSubId",
-    "disease",
-    "dateConfirmed",
-    "age",
-    "gender",
-    "residence",
-    "reportId"
+const headers_base = [
+    { "key": "publisher", "notation": "所轄の自治体名" },
+    { "key": "localId", "notation": "管理No." },
+    { "key": "localSubId", "notation": "副管理No." },
+    { "key": "disease", "notation": "患者の病名" },
+    { "key": "age", "notation": "患者の年代" },
+    { "key": "gender", "notation": "患者の性別" },
+    { "key": "residence", "notation": "患者の居住地域" },
+    { "key": "reportId", "notation": "reportId" },
 ];
 
-const locationHeaderCols = [
+const headers_PLH = [
     "departureDate",
     "departureTime",
     "departureFrom",
@@ -183,7 +180,7 @@ const locationHeaderCols = [
     "details",
 ];
 
-const conditionHeaderCols = [
+const headers_PCH = [
     "conditionDate",
     "conditionTime",
     "conditions",
@@ -303,24 +300,47 @@ function add_input_textarea(parent_obj, target_id, args)
      * args must include:
      *     initial_value
      *     placeholder_text
+     * options:
+     *     label_name
      *
      * it makes below id:
      *     target_id + "Textarea"
      *
      * the block is gonna be:
-     *   <div>
+     *   <fieldset class="no-border no-magin">
      *     <textarea id=`${target_id}Textarea` placeholder=args.placeholder_text>
-     *   </div>
+     *   </fieldset>
+     *
+     * or, if label_name exists,
+     *   <fieldset class="no-border no-magin">
+     *     <legend class="label top-label" for= `${target_id}Textarea` > args.label_name </label>
+     *     <textarea id=`${target_id}Textarea` placeholder=args.placeholder_text>
+     *   </fieldset>
      */
     let child, x;
+    let id_name = `${target_id}Textarea`;
 
-    child = document.createElement("div");
+    child = document.createElement("fieldset");
+    child.classList.add("no-border");
+    child.classList.add("no-margin");
+
+    if (args.label_name) { /* not undefind and not false */
+        x = document.createElement("legend");
+        x.htmlFor = id_name;
+        x.innerHTML = args.label_name;
+        x.classList.add("label");
+        x.classList.add("top-label");
+        child.appendChild(x);
+    }
+
     x = document.createElement("textarea");
-    x.id = `${target_id}Textarea`;
+    x.id = id_name;
+    x.setAttribute("style", "width: 90%;");
     x.placeholder = args.placeholder_text;
     if (args.initial_value != undefined && args.initial_value != "") {
         x.innerText = args.initial_value;
     }
+
     child.appendChild(x);
     parent_obj.appendChild(child);
 }
@@ -341,7 +361,7 @@ function add_input_checkbox_and_textarea(parent_obj, target_name, args)
      *
      * don't use id to identify a checkbox.
      *
-     *   <div class="inlineBlock">
+     *   <div class="inline-block">
      *     <div class=`Checkbox-${args.target_name}`>
      *       <input type="checkbox" name=kv["name"]>
      *       <label name=${kv.name}>kv.key</label>
@@ -357,7 +377,7 @@ function add_input_checkbox_and_textarea(parent_obj, target_name, args)
     args.item_list.forEach(kv => {
         cb = document.createElement("div")
         //cb.classList.add(`Checkbox-${target_name}`);
-        cb.classList.add("inlineBlock");
+        cb.classList.add("inline-block");
 
         x = document.createElement("input");
         x.type = "checkbox";
@@ -418,8 +438,8 @@ function add_input_select_and_text(parent_obj, target_id, args)
      *     target_id + "Selected"
      *     target_id + "Text"
      *
-     * <div class="inlineBlock">
-     *   <label class="input-label" for={target_id}+"Selected">{args.label_name}</label>
+     * <div class="inline-block">
+     *   <label class="label left-label" for={target_id}+"Selected">{args.label_name}</label>
      *   <select class="input-select" id={target_id}+"Selected">
      *     <option> select2+tree </option>
      *   </select>
@@ -441,12 +461,13 @@ function add_input_select_and_text(parent_obj, target_id, args)
         parent_obj.innerHTML = "";
     }
     child = document.createElement("div");
-    child.classList.add("inlineBlock");
+    child.classList.add("inline-block");
     if (args.label_name != undefined) {
         x = document.createElement("label");
         x.htmlFor = target_id + "Selected";
         x.innerHTML = args.label_name;
-        x.classList.add("input-label");
+        x.classList.add("label");
+        x.classList.add("left-label");
         child.appendChild(x);
     }
     x = document.createElement("select");
@@ -523,12 +544,13 @@ function add_input_date_time_to_obj_x(parent_obj, date_target_id, date_initial, 
     let child, x;
 
     child = document.createElement("div");
-    child.classList.add("inlineBlock");
+    child.classList.add("inline-block");
     if (label_name != undefined) {
         x = document.createElement("label");
         x.htmlFor = date_target_id;
         x.innerHTML = label_name;
-        x.classList.add("input-label");
+        x.classList.add("label");
+        x.classList.add("left-label");
         child.appendChild(x);
     }
     add_input_date_to_obj(child, date_target_id, date_initial);
@@ -554,8 +576,8 @@ function add_input_text(parent_obj, target_id, args)
      *     target_id + "Text"
      *
      * the block gonna be:
-     *   <div class="inlineBlock">
-     *     <label class="input-label" for= `${target_id}Text` > args.label_name </label>
+     *   <div class="inline-block">
+     *     <label class="label left-label" for= `${target_id}Text` > args.label_name </label>
      *     <input id= `${target_id}Text` type="text" vlaue=args.initial_value placeholder=args.placeholder_text>
      *   </div>
      *
@@ -566,12 +588,13 @@ function add_input_text(parent_obj, target_id, args)
         parent_obj.innerHTML = "";
     }
     child = document.createElement("div");
-    child.classList.add("inlineBlock");
+    child.classList.add("inline-block");
     if (args.label_name != undefined) {
         x = document.createElement("label");
         x.htmlFor = target_id + "Text";
         x.innerHTML = args.label_name;
-        x.classList.add("input-label");
+        x.classList.add("label");
+        x.classList.add("left-label");
         child.appendChild(x);
     }
     x = document.createElement("input");
@@ -603,6 +626,7 @@ function get_default_PLOD()
         "gender": "Unspecified",
         "residence": "Unspecified",
         "residenceAnnex": "",
+        "closeContacts": "",
         "locationHistory": [
             // not needed for initial.
             //get_default_PLH(),
@@ -696,7 +720,7 @@ function get_default_PCH(base_row)
 function add_input_button_ins_line(parent_obj, row)
 {
     let x = document.createElement("input");
-    x.class = "inputInsLine"
+    x.classList.add("control-button");
     x.type = "button";
     x.value = "↑追加";
     x.addEventListener("click", function(){ ev_click_ins_line(row) }, false);
@@ -706,7 +730,7 @@ function add_input_button_ins_line(parent_obj, row)
 function add_input_button_del_line(parent_obj, row)
 {
     let x = document.createElement("input");
-    x.class = "inputDelLine"
+    x.classList.add("control-button");
     x.type = "button";
     x.value = "←削除";
     x.addEventListener("click", function(){ ev_click_del_line(row) }, false);
@@ -900,6 +924,7 @@ function make_data_entries()
         "gender": get_selected_value("genderSelected"),
         "residence": document.getElementById("residenceSelected").value,
         "residenceAnnex": document.getElementById("residenceText").value,
+        "closeContacts": document.getElementById("closeContactsTextarea").value,
         "locationHistory": [
         ],
         "conditionHistory": [
@@ -1004,7 +1029,7 @@ async function send_plod(patient_data)
             let data = content["plod"];
             confirm("reportId " + data["reportId"] + " が登録されました。");
             // XXX needs to decide whehter new record is added to local table or just reload.
-            //table_listview.row.add(data).draw();
+            //plod_table.row.add(data).draw();
             window.location.reload(false);
         } else {
             confirm("reportId " + data["reportId"] + " の登録に失敗しました。status=" + status);
@@ -1183,6 +1208,12 @@ function plod_form_create()
     if (g_form_value.conditionHistory.length > 0) {
         g_form_value.conditionHistory.forEach(x => ins_line_PCHTable(-1, x));
     }
+
+    add_input_textarea(document.getElementById("divCloseContacts"), "closeContacts", {
+        initial_value: g_form_value.closeContacts,
+        placeholder_text: "濃厚接触者の情報を列挙する。記述方法は要検討。",
+        label_name: "濃厚接触者情報",
+    });
 }
 
 function make_table_from_dict(d, headerList)
@@ -1232,75 +1263,118 @@ function ev_load(e)
 
     /* create table of list view */
     let tr = document.createElement("tr");
-    tr.appendChild(document.createElement("th"));   // for show_row_details()
-    baseHeaderCols.forEach(x => {
+    tr.appendChild(document.createElement("th"));   // this is for details-button()
+    headers_base.forEach(x => {
         var th = document.createElement("th");
-        th.innerHTML = x;
+        th.innerHTML = x.notation;
         tr.appendChild(th);
     });
     let thead = document.createElement("thead");
     thead.appendChild(tr);
-    document.getElementById("table-listview").appendChild(thead);
+    document.getElementById("plod-list").appendChild(thead);
 
-    let columns = baseHeaderCols.map(a => {return {"data":a}});
+    let columns = headers_base.map(x => {return {"data":x.key}});
     columns.unshift({
-        "className": "details-control",
+        "className": "details-button",
         "orderable": false,
         "data": null,
         "defaultContent": "",
     });
-    table_listview = $('#table-listview').DataTable( {
+    plod_table = $("#plod-list").DataTable( {
         "ajax": {
-            //"url": "sample.json",
             "url": "/tummy/json/all",
             "dataSrc": "plod",
         },
         "columns": columns,
-        "order": [[1, 'asc']],
+        "order": [[1, "asc"]],
     } );
 
-    $('#table-listview tbody').on('click', 'tr', function () {
-        if ( $(this).hasClass('selected') ) {
-            $(this).removeClass('selected');
-        }
-        else {
-            table_listview.$('tr.selected').removeClass('selected');
-            $(this).addClass('selected');
+    /*
+     * You have to consider below two controls for clicking the row in the list view.
+     */
+    $("#plod-list tbody").on("click", "tr", function () {
+        let tr = $(this).closest("tr");
+        let row = plod_table.row( tr );
+        /*
+         * excute below only when the details in this row is NOT shown.
+         * see the case in below where td.details-button is clicked.
+         */
+        if (! row.child.isShown()) {
+            /*
+             * close other rows showing details anyway.
+             * and two ways;
+             *   1. remove class "selected" from this row when the row has been selected.
+             *   2. otherwise, add class "selected" in this row.
+             */
+            if (plod_table.row(".shown").length) {
+                $(".details-button", plod_table.row(".shown").node()).click();
+            }
+            if ( $(this).hasClass("selected") ) {
+                $(this).removeClass("selected");
+            }
+            else {
+                plod_table.$("tr.selected").removeClass("selected");
+                $(this).addClass("selected");
+            }
         }
     } );
 
-    $('#table-listview tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = table_listview.row( tr );
+    /*
+     * See above the clikcing "plod-list tbody" control.
+     */
+    $("#plod-list tbody").on("click", "td.details-button", function () {
+        let tr = $(this).closest("tr");
+        let row = plod_table.row( tr );
+        /*
+         * when you see the details in this row, it close the details.
+         * and, remove classes; "shown" and "selected".
+         * otherwise, it shows details AND adds the two classes after removing "selected" from all other rows..
+         */
         if ( row.child.isShown() ) {
-            // This row is already open.
+            /*
+             * close this details because this row is already open.
+             * remove classes; shown and selected.
+             */
             row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            // Open this row
+            tr.removeClass("shown");
+            if ($(this).hasClass("selected")) {
+                $(this).removeClass("selected");
+            }
+        } else {
+            // cloase other rows anyway.
+            if (plod_table.row(".shown").length) {
+                $(".details-button", plod_table.row(".shown").node()).click();
+            }
             let button_id = "button-delete-plod-" + get_xid();
             row.child( function() {
                 let row_data = row.data();
                 let details = "";
-                details += make_table_from_dict(row_data.locationHistory, locationHeaderCols);
-                details += make_table_from_dict(row_data.conditionHistory, conditionHeaderCols);
-                details += `<hr><span style="margin-left:20px;">_id = ${row_data._id}</span>`;
-                details += `<span><input class="button-delete-plod" id="${button_id}" type="button" value="削除"></span>`;
+                details += "<hr>"
+                details += `<div class="inline-block div-block"><label class="label">updatedTime</label><span class="value-box inset-box">${row_data.updatedTime}</span></div>`;
+                details += `<div class="inline-block div-block"><label class="label">createdTime</label><span class="value-box inset-box">${row_data.createdTime}</span></div>`;
+                details += `<div class="inline-block div-block"><label class="label">dateConfirmed</label><span class="value-box inset-box">${row_data.dateConfirmed}</span></div>`;
+                details += make_table_from_dict(row_data.locationHistory, headers_PLH);
+                details += make_table_from_dict(row_data.conditionHistory, headers_PCH);
+                details += "<hr>";
+                details += `<div class="inline-block div-block"><label class="label">closeContacts</label><span class="value-box inset-box">${row_data.closeContacts}</span></div>`;
+                details += "<hr>";
+                details += `<div class="inine-block div-block"><label class="label">_id</label><span class="value-box inset-box">${row_data._id}</span><span><input class="control-button notation" id="${button_id}" type="button" value="削除する"></span></div>`;
                 return details;
             } ).show();
-            tr.addClass('shown');
+            tr.addClass("shown");
+            plod_table.$("tr.selected").removeClass("selected");
+            tr.addClass("selected");
             // add event.
             jQuery(`#${button_id}`).on("click", function() {
                 if (true == confirm("削除しますか？")) {
                     let result = delete_plod(row.data()["reportId"]);
                 }
                 row.child.hide();
-                tr.removeClass('shown');
+                tr.removeClass("shown");
                 // XXX why it doesn't work ?
                 // XXX referring to https://datatables.net/examples/api/select_single_row.html
                 // row.remove().draw( false );
-                $(this).removeClass('selected');
+                $(this).removeClass("selected");
             });
         }
     } );
@@ -1335,8 +1409,8 @@ function ev_load(e)
     });
 
     $('#button-plod-edit').click( function () {
-        if (table_listview.row('.selected').length != 0) {
-            g_form_value = table_listview.row('.selected').data();
+        if (plod_table.row('.selected').length != 0) {
+            g_form_value = plod_table.row('.selected').data();
             plod_form_create();
             $('#modal-control-form').modaal('open');
         } else {
@@ -1390,19 +1464,19 @@ function ev_load(e)
         </div>
         <hr>
 
-        <div class="divBlock" style="width:100%; margin-right:3px;">
+        <div class="inline-block div-block" style="width:100%; margin-right:3px;">
             <span>
                 <input id="button-plod-edit" class="control-button" type="button" value="選択したPLODを編集する">
                 <!--input id="button-plod-delete" type="button" value="選択したPLODを削除する"-->
             </span>
-            <span style="float:right">
+            <span style="float:right; margin-right:5px;">
                 <input id="button-plod-new" class="control-button" type="button" value="新しいPLODを入力する">
             </span>
         </div>
 
         <hr>
 
-        <table id="table-listview" class="display" style="width:98%"></table>
+        <table id="plod-list" class="display" style="width:98%"></table>
     </div>
 
     <!-- window for entry form -->
@@ -1426,25 +1500,25 @@ function ev_load(e)
         </div>
         <hr>
 
-        <div class="divBlock">
-            <div id="divPublisher"> <!-- insert dynamically --> </div>
-            <div id="divLocalId"> <!-- insert dynamically --> </div>
-            <div id="divLocalSubId"> <!-- insert dynamically --> </div>
+        <div class="inline-block">
+            <div id="divPublisher" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
+            <div id="divLocalId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
+            <div id="divLocalSubId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
-        <div class="divBlock">
-            <div id="divDisease"> <!-- insert dynamically --> </div>
-            <div id="divDateConfirmed"> <!-- insert dynamically --> </div>
+        <div class="inline-block">
+            <div id="divDisease" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
+            <div id="divDateConfirmed" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
-        <div class="divBlock">
-            <div id="divAge"> <!-- insert dynamically --> </div> 
-            <div id="divGender"> <!-- insert dynamically --> </div> 
-            <div id="divResidence"> <!-- insert dynamically --> </div>
+        <div class="inline-block">
+            <div id="divAge" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div> 
+            <div id="divGender" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div> 
+            <div id="divResidence" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
         <hr>
-        <div class="divBlock">
+        <div class="inline-block div-block">
             <label for="divPLH">患者の移動の履歴:</label>
             <div id="divPLH">
                 <table id="tablePLH" class="table-form">
@@ -1461,12 +1535,12 @@ function ev_load(e)
                     </thead>
                     <tbody> <!-- insert dynamically --> </tbody>
                 </table>
-                <input id="addLinePLH" type="button" value="↑行を追加する">
+                <input id="addLinePLH" class="control-button" type="button" value="↑行を追加する">
             </div>
         </div>
 
         <hr>
-        <div class="divBlock">
+        <div class="inline-block div-block">
             <label for="divPCH">患者の状態の履歴:</label>
             <div id="divPCH">
                 <table id="tablePCH" class="table-form">
@@ -1480,19 +1554,24 @@ function ev_load(e)
                     </thead>
                     <tbody> <!-- insert dynamically --> </tbody>
                 </table>
-                <input id="addLinePCH" type="button" value="↑行を追加する">
+                <input id="addLinePCH" class="control-button" type="button" value="↑行を追加する">
             </div>
         </div>
 
         <hr>
-        <div class="divBlock" style="width:100%; margin-right:3px;">
-            <span>
-                <input id="button-confirm-entry" class="control-button" type="button" value="確認する">
-                <input id="button-submit-entry" class="control-button" type="button" value="登録する">
-            </span>
-            <span style="float:right">
-                <input id="button-cancel-entry" class="control-button" type="button" value="取り消す">
-            </span>
+        <div id="divCloseContacts" class="div-block"> <!-- insert dynamically --> </div>
+
+        <hr>
+        <div>
+            <div class="inline-block div-block" style="width:98%; margin-right:3px;">
+                <span>
+                    <input id="button-confirm-entry" class="control-button" type="button" value="確認する">
+                    <input id="button-submit-entry" class="control-button" type="button" value="登録する">
+                </span>
+                <span style="float:right; margin-right:5px;">
+                    <input id="button-cancel-entry" class="control-button" type="button" value="取り消す">
+                </span>
+            </div>
         </div>
 
         <hr>
