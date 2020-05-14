@@ -71,12 +71,15 @@ PLOD = {
     "gender": GENDER,
     "residence": LOCATION,
     "residenceAnnex": FREE_TEXT,
+    "closeContacts": FREE_TEXT,
     "locationHistory": [
 	PLH_MEMBERS
     ],
     "conditionHistory": [
 	PCH_MEMBERS
     ],
+    "createdTime": ISO_DATE_TIME or NULL,
+    "updatedTime": ISO_DATE_TIME or NULL,
 };
 ```
 
