@@ -11,6 +11,7 @@ import logging
 import ssl
 from argparse import ArgumentParser
 from datetime import datetime
+import dateutil.tz
 from pymongo import MongoClient
 import pymongo.errors
 from pymongo import ReturnDocument
@@ -266,6 +267,13 @@ async def receive_plod_bulk_handler(request):
     return http_response("success")
 
 async def receive_plod_handler(request):
+    """
+    create or update PLOD.
+    if the data sent by a client doesn't include reportId,
+    then it adds reportId and createdTime.
+    if the data sent by a client does include reportId,
+    then it adds or updates updatedTime.
+    """
     common_access_log(request)
     try:
         if not request.can_read_body:
@@ -281,8 +289,18 @@ async def receive_plod_handler(request):
     ## sanity check.
     #if check_valid_data(content) is False:
     #    return http_response("The content was not likely PLOD.", status=502)
-    # assign new reportId.
-    report_id = content.setdefault("reportId", str(uuid.uuid4()))
+    #
+    # update createdTime or updatedTime.
+    report_id = content.get("reportId")
+    if report_id is None:
+        # assign new reportId.
+        report_id = content.setdefault("reportId", str(uuid.uuid4()))
+        content.setdefault("createdTime",
+            datetime.now(tz=dateutil.tz.gettz(config[CONF_TZ])).isoformat())
+    else:
+        content.setdefault("updatedTime",
+            datetime.now(tz=dateutil.tz.gettz(config[CONF_TZ])).isoformat())
+    #
     logger.debug("submit data: {}".format(json.dumps(content)))
     if not config[__CONF_DB_CONN].submit(content):
         return http_response("Registration failed.", status=503)
