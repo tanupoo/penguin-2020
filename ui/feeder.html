@@ -58,12 +58,12 @@
 
     /* data tables */
     td.details-button {
-        background: url('images/d-open.png') no-repeat center center;
+        background: url('images/details_open.png') no-repeat center center;
         cursor: pointer;
     }
 
     .shown td.details-button {
-        background: url('images/d-close.png') no-repeat center center;
+        background: url('images/details_close.png') no-repeat center center;
     }
 
     .table-form {
@@ -1256,6 +1256,22 @@ function make_table_from_dict(d, headerList)
     return details;
 }
 
+function make_details_view(row_data, button_id)
+{
+    let details = "";
+    details += "<hr>"
+    details += `<div class="inline-block div-block"><label class="label">dateConfirmed</label><span class="value-box inset-box">${row_data.dateConfirmed}</span></div>`;
+    details += make_table_from_dict(row_data.locationHistory, headers_PLH);
+    details += make_table_from_dict(row_data.conditionHistory, headers_PCH);
+    details += "<br>";
+    details += `<div class="inline-block div-block"><label class="label">closeContacts</label><span class="value-box inset-box">${row_data.closeContacts}</span></div>`;
+    details += "<hr>";
+    details += `<div class="inline-block div-block"><label class="label">updatedTime</label><span class="value-box inset-box">${row_data.updatedTime}</span></div>`;
+    details += `<div class="inline-block div-block"><label class="label">createdTime</label><span class="value-box inset-box">${row_data.createdTime}</span></div>`;
+    details += `<div class="inine-block div-block"><label class="label">_id</label><span class="value-box inset-box">${row_data._id}</span><span><input class="control-button notation" id="${button_id}" type="button" value="削除する"></span></div>`;
+    return details;
+}
+
 function ev_load(e)
 {
     /*
@@ -1361,21 +1377,7 @@ function ev_load(e)
                 $(".details-button", plod_table.row(".shown").node()).click();
             }
             let button_id = "button-delete-plod-" + get_xid();
-            row.child( function() {
-                let row_data = row.data();
-                let details = "";
-                details += "<hr>"
-                details += `<div class="inline-block div-block"><label class="label">dateConfirmed</label><span class="value-box inset-box">${row_data.dateConfirmed}</span></div>`;
-                details += make_table_from_dict(row_data.locationHistory, headers_PLH);
-                details += make_table_from_dict(row_data.conditionHistory, headers_PCH);
-                details += "<br>";
-                details += `<div class="inline-block div-block"><label class="label">closeContacts</label><span class="value-box inset-box">${row_data.closeContacts}</span></div>`;
-                details += "<hr>";
-                details += `<div class="inline-block div-block"><label class="label">updatedTime</label><span class="value-box inset-box">${row_data.updatedTime}</span></div>`;
-                details += `<div class="inline-block div-block"><label class="label">createdTime</label><span class="value-box inset-box">${row_data.createdTime}</span></div>`;
-                details += `<div class="inine-block div-block"><label class="label">_id</label><span class="value-box inset-box">${row_data._id}</span><span><input class="control-button notation" id="${button_id}" type="button" value="削除する"></span></div>`;
-                return details;
-            } ).show();
+            row.child(make_details_view(row.data(), button_id)).show();
             tr.addClass("shown");
             plod_table.$("tr.selected").removeClass("selected");
             tr.addClass("selected");
