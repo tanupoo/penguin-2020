@@ -5,104 +5,155 @@ const plod_locale = "ja";
 const headers_base = [
     {
         "key": "publisher",
-        "list": true,
         "notation": "所轄の自治体名",
+        "list": true,
         "orderable": true
     },
     {
         "key": "localId",
-        "list": true,
         "notation": "管理No.",
+        "list": true,
         "orderable": true
     },
     {
         "key": "localSubId",
-        "list": true,
         "notation": "副管理No.",
+        "list": true,
         "orderable": true
     },
     {
         "key": "dateConfirmed",
-        "list": false,
         "notation": "患者の状態が確認された日付",
+        "list": false,
         "orderable": true
     },
     {
         "key": "disease",
-        "list": true,
         "notation": "患者の病名",
+        "list": true,
         "orderable": true
     },
     {
         "key": "age",
-        "list": true,
         "notation": "患者の年代",
+        "list": true,
         "orderable": true
     },
     {
         "key": "gender",
-        "list": true,
         "notation": "患者の性別",
+        "list": true,
         "orderable": true
     },
     {
         "key": "residence",
-        "list": true,
         "notation": "患者の居住地域",
+        "list": true,
         "orderable": true
     },
     {
         "key": "closeContacts",
-        "list": false,
         "notation": "濃厚接触者情報",
+        "list": false,
         "orderable": false
     },
     {
         "key": "reportId",
-        "list": true,
         "notation": "reportId",
+        "list": true,
         "orderable": false
     },
 ];
 
-/*
- XXX not yet
 const headers_PLH = [
-    { "key": "departureDate", "list": true, "notation": "出発日" },
-    { "key": "departureTime", "list": true, "notation": "出発時間" },
-    { "key": "departureFrom", "list": true, "notation": "出発地" },
-    { "key": "departureFromAnnex", "list": true, "notation": "" },
-    { "key": "arrivalDate", "list": true, "notation": "到着日" },
-    { "key": "arrivalTime", "list": true, "notation": "到着時間" },
-    { "key": "arrivalIn", "list": true, "notation": "到着地" },
-    { "key": "arrivalInAnnex", "list": true, "notation": "" },
-    { "key": "vehicles", "list": true, "notation": "移動方法(複数選択可)" },
-    { "key": "vehicleOthers", "list": true, "notation": "" },
-    { "key": "details", "list": true, "notation": "所見や患者の行動等" },
-];
-*/
-
-const headers_PLH = [
-    "departureDate",
-    "departureTime",
-    "departureFrom",
-    "departureFromAnnex",
-    "arrivalDate",
-    "arrivalTime",
-    "arrivalIn",
-    "arrivalInAnnex",
-    "vehicles",
-    "vehicleOthers",
-    "details",
+    {
+        "key": "departureDate",
+        "notation": "出発日",
+        "list": true,
+    },
+    {
+        "key": "departureTime",
+        "notation": "出発時間",
+        "list": true,
+    },
+    {
+        "key": "departureFrom",
+        "notation": "出発地",
+        "list": true,
+    },
+    {
+        "key": "departureFromAnnex",
+        "notation": "出発地備考",
+        "list": true,
+    },
+    {
+        "key": "arrivalDate",
+        "notation": "到着日",
+        "list": true,
+    },
+    {
+        "key": "arrivalTime",
+        "notation": "到着時間",
+        "list": true,
+    },
+    {
+        "key": "arrivalIn",
+        "notation": "到着地",
+        "list": true,
+    },
+    {
+        "key": "arrivalInAnnex",
+        "notation": "到着地備考",
+        "list": true,
+    },
+    {
+        "key": "vehicles",
+        "notation": "移動方法(複数選択可)",
+        "list": true,
+    },
+    {
+        "key": "vehicleOthers",
+        "notation": "移動方法備考",
+        "list": true,
+    },
+    {
+        "key": "details",
+        "notation": "所見や患者の行動等",
+        "list": true,
+    },
 ];
 
 const headers_PCH = [
-    "conditionDate",
-    "conditionTime",
-    "conditions",
-    "conditionOthers",
-    "details",
+    {
+        "key": "conditionDate",
+        "notation": "日付",
+        "list": true
+    },
+    {
+        "key": "conditionTime",
+        "notation": "時刻",
+        "list": true
+    },
+    {
+        "key": "conditions",
+        "notation": "状態",
+        "list": true
+    },
+    {
+        "key": "conditionOthers",
+        "notation": "状態備考",
+        "list": true
+    },
+    {
+        "key": "details",
+        "notation": "備考",
+        "list": true
+    }
 ];
+
+/*
+ * XXX need to align below structures of key/value data into above key/notation.
+ */
 
 /* age */
 const ageList = [

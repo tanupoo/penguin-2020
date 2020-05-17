@@ -1,18 +1,18 @@
 /*
  * plod-listview.js
  */
-function make_table_from_dict(d, headerList)
+function make_table_from_dict(d, header_list)
 {
     let details = "";
     if (d.length > 0) {
         details += "<table><thead>";
         details += "<tr>";
-        headerList.forEach(a => details +=`<th>${a}</th>`);
+        header_list.filter(x => x.list == true).forEach(x => details += `<th>${x.notation}</th>`);
         details += "</tr><tbody>";
         d.forEach(r => {
             details += "<tr>";
-            headerList.forEach(x => {
-                var y = Object.entries(r).find(a => a[0] == x);
+            header_list.filter(x => x.list == true).forEach(x => {
+                var y = Object.entries(r).find(a => a[0] == x.key);
                 if (y != undefined) {
                     details += "<td>" + y[1] + "</td>";
                 } else {
