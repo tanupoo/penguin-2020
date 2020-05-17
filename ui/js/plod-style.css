@@ -1,4 +1,5 @@
 * { font-size: 14px; }
+hr { border: 1px solid rgba(0,0,0,0.3); }
 
 .inline-block { display: inline-block; }
 .div-block { margin: 5px; }
@@ -12,7 +13,7 @@
 .top-label { border-radius: 5px 5px 0 0; }
 .value-box { padding: 6px; }
 .inputDate, .inputTime { width: 100px; }
-.input-text, .input-select { margin-left: 3px; }
+/*.input-text, .input-select { margin-left: 3px; }*/
 
 .control-button {
     display: inline-block;

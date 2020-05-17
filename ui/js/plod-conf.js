@@ -4,6 +4,12 @@ const plod_locale = "ja";
 /* header columns of listview */
 const headers_base = [
     {
+        "key": "dataSource",
+        "notation": "情報の参照元",
+        "list": false,
+        "orderable": false
+    },
+    {
         "key": "publisher",
         "notation": "所轄の自治体名",
         "list": true,
@@ -213,6 +219,7 @@ const vehiclesList = [
 ];
 
 const DEFAULT_PLOD = {
+    "dataSource": "",
     "publisher": "厚労省",
     "publisherOthers": "",
     "localId": "",
@@ -232,6 +239,7 @@ const DEFAULT_PLOD = {
 };
 
 const M_PLACEHOLDER_SELECT_OTHER_AND_INPUT = "選択肢にない場合、その他を選んでから記述する。";
+const M_PLACEHOLDER_DATASOURCE = "プレスリリースの場合はURLを入力する。";
 const M_PLACEHOLDER_LOCATION_ANNEX = "建物名や駅名等、補足情報等があれば入力する。";
 const M_PLACEHOLDER_TIME = "可能ならば時刻を入力する。";
 const M_PLACEHOLDER_VEHICLE_TEXT = "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)";

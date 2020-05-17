@@ -30,6 +30,7 @@ function make_details_view(row_data, delete_button_id)
 {
     let details = "";
     details += "<hr>"
+    details += `<div class="inline-block div-block"><label class="label">dataSource</label><span class="value-box inset-box">${row_data.dataSource}</span></div>`;
     details += `<div class="inline-block div-block"><label class="label">dateConfirmed</label><span class="value-box inset-box">${row_data.dateConfirmed}</span></div>`;
     details += make_table_from_dict(row_data.locationHistory, headers_PLH);
     details += make_table_from_dict(row_data.conditionHistory, headers_PCH);

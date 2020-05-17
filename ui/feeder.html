@@ -234,7 +234,7 @@ function add_input_select_and_text(parent_obj, target_id, args)
      *
      * <div class="inline-block">
      *   <label class="label left-label" for={target_id}+"Selected">{args.label_name}</label>
-     *   <select class="input-select" id={target_id}+"Selected">
+     *   <select id={target_id}+"Selected">
      *     <option> select2+tree </option>
      *   </select>
      *   --> add_input_text() <--
@@ -365,6 +365,8 @@ function add_input_text(parent_obj, target_id, args)
      *     initial_value
      *     label_name
      *     placeholder_text
+     * options:
+     *     size
      *
      * it makes two ids:
      *     target_id + "Text"
@@ -372,7 +374,7 @@ function add_input_text(parent_obj, target_id, args)
      * the block gonna be:
      *   <div class="inline-block">
      *     <label class="label left-label" for=`${target_id}Text`> args.label_name </label>
-     *     <input id=`${target_id}Text` class="input-text" type="text" vlaue=args.initial_value placeholder=args.placeholder_text>
+     *     <input id=`${target_id}Text` type="text" vlaue=args.initial_value placeholder=args.placeholder_text>
      *   </div>
      *
      */
@@ -394,7 +396,9 @@ function add_input_text(parent_obj, target_id, args)
     x = document.createElement("input");
     x.id = target_id + "Text";
     x.type = "text";
-    x.classList.add("input-text");
+    if (args.size) {
+        x.setAttribute("size", args.size);
+    }
     if (args.initial_value != undefined) {
         x.value = args.initial_value;
     }
@@ -677,6 +681,7 @@ function check_value_and_other(main_value, other_value)
 function make_data_entries()
 {
     let data_entered = {
+        "dataSource": document.getElementById("dataSourceText").value,
         "publisher": get_selected_value("publisherSelected"),
         "publisherOthers": document.getElementById("publisherText").value,
         "localId": document.getElementById("localIdText").value,
@@ -897,6 +902,15 @@ function plod_form_create()
 //console.log(g_form_value);
 
     /* layout the edit blocks */
+
+    add_input_text(document.getElementById("divDataSource"), "dataSource", {
+        clear_content: true,
+        label_name: headers_base.filter(x => x["key"] == "dataSource")[0].notation,
+        size: "100%",
+        initial_value: g_form_value.dataSource,
+        placeholder_text: M_PLACEHOLDER_DATASOURCE,
+    });
+
     add_input_select_and_text(document.getElementById("divPublisher"), "publisher", {
         clear_content: true,
         select_list: publisherList,
@@ -1129,6 +1143,7 @@ function ev_load(e)
         <hr>
 
         <div class="inline-block">
+            <div id="divDataSource" class="div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divPublisher" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divLocalId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divLocalSubId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
@@ -1139,6 +1154,7 @@ function ev_load(e)
             <div id="divDateConfirmed" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
+        <hr>
         <div class="inline-block">
             <div id="divAge" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div> 
             <div id="divGender" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div> 
