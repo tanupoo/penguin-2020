@@ -934,7 +934,7 @@ function plod_form_create()
     x = document.getElementById("divDateConfirmed");
     x.innerHTML = "";
     add_input_date_time_to_obj_x(x, "dateConfirmed", g_form_value.dateConfirmed, undefined, undefined,
-        headers_base.filter(x => x["key"] == "dataConfirmed")[0].notation);
+        headers_base.filter(x => x["key"] == "dateConfirmed")[0].notation);
 
     add_input_select_and_text(document.getElementById("divAge"), "age", {
         clear_content: true,
