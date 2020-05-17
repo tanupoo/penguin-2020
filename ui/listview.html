@@ -8,199 +8,21 @@
 
     <!-- DataTables -->
     <link rel="stylesheet" type="text/css" href="js/jquery.dataTables.css">
-    <!-- Modaal -->
-    <link rel="stylesheet" type="text/css" href="js/modaal.min.css">
-    <!-- select2 -->
-    <link rel="stylesheet" type="text/css" href="js/select2-4.0.3.min.css">
-    <link rel="stylesheet" type="text/css" href="js/select2totree.css">
-    <!-- datatimepicker -->
-    <link rel="stylesheet" type="text/css" href="js/jquery.datetimepicker.css">
-
-    <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
-    <style type="text/css" class="init">
-
-    * { font-size: 14px; }
-    .inputInsLine { }
-    .inputDelLine { }
-    .inlineBlock { display: inline-block; }
-    .cellBlock { margin-left: 3px; }
-    .inputDate, .inputTime { width: 100px; }
-    .divBlock { display: inline-block; padding: 5px; margin-bottom: 5px; }
-    .input-label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
-    .input-text, .input-select { margin-left: 3px; }
-
-    .control-button {
-	display: inline-block;
-	padding: 0.5em 1em;
-	text-decoration: none;
-	border-radius: 4px;
-	border-bottom: solid 3px #5e7fca;
-    }
-
-    /* header */
-    #plodLogo { float:left; margin-right: 10px; }
-
-    /* locations */
-    textarea[id^="vehicles"] { width: 95%; }
-    input[id^="PLHDepartureFrom"] { width: 180px; }
-    input[id^="PLHArrivalIn"] { width: 180px; }
-    textarea[id^="PLHDetails"] { width: 95%; }
-
-    /* conditions */
-    textarea[id^="conditions"] { width: 95%; }
-    textarea[id^="PCHDetails"] { width: 95%; }
-
-    /* below are for alignment of the blocks. */
-    #divPublisher, #divLocalId, #divLocalSubId,
-    #divDisease, #divDateConfirmed,
-    #divAge, #divGender, #divResidence { display: inline-block; padding: 5px; border: 1px dotted #333333; }
-
-    /* data tables */
-    .details-control {
-        background: url('images/details_open.png') no-repeat center center;
-        cursor: pointer;
-    }
-
-    .shown td.details-control {
-        background: url('images/details_close.png') no-repeat center center;
-    }
-
-    .table-form {
-    border-collapse:separate;
-    border-spacing: 0;
-    }
-
-    .table-form th:first-child{
-    border-radius: 5px 0 0 0;
-    }
-
-    .table-form th:last-child{
-    border-radius: 0 5px 0 0;
-    border-right: 1px solid #3c6690;
-    }
-
-    .table-form th{
-    text-align: center;
-    color:white;
-    background: linear-gradient(#94bae3,#3686d6);
-    border-left: 1px solid #3c6690;
-    border-top: 1px solid #3c6690;
-    border-bottom: 1px solid #3c6690;
-    box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
-    padding: 5px 5px;
-    }
-
-    .table-form td{
-    text-align: center;
-    border-left: 1px solid #a8b7c5;
-    border-bottom: 1px solid #a8b7c5;
-    border-top:none;
-    box-shadow: 0px -3px 5px 1px #eee inset;
-    padding: 5px 5px;
-    }
-
-    .table-form td:last-child{
-    border-right: 1px solid #a8b7c5;
-    }
-
-    .table-form tr:last-child td:first-child {
-    border-radius: 0 0 0 5px;
-    }
-
-    .table-form tr:last-child td:last-child {
-    border-radius: 0 0 5px 0;
-    }
-
-    /* below are for the placeholder */
-    input::-webkit-input-placeholder { font-size: 8px; }
-    input:-moz-placeholder { font-size: 8px; }
-    input::-moz-placeholder { font-size: 8px; }
-    input:-ms-input-placeholder { font-size: 8px; }
-    textarea::placeholder { font-size: 8px; }
-
-    .button-delete-plod { margin-left: 20px; color: red; }
-
-    /* modaal */
-    .modaal-wrapper { z-index: 9995; }
-    .modaal-content-container { padding: 0px; }
-
-    #divConfirmEntry {
-        white-space: pre-wrap;
-        font-family: monospace;
-        font-size: 18px;
-    }
-
-    </style>
+    <!-- PLOD -->
+    <link rel="stylesheet" type="text/css" href="js/plod-style.css">
 
     <!--script src="https://code.jquery.com/jquery-1.11.1.min.js"></script-->
     <script language="javascript" src="js/jquery-3.3.1.min.js"></script>
     <!-- DataTables -->
     <script language="javascript" src="js/jquery.dataTables.js"></script>
-    <!-- Modaal -->
-    <script language="javascript" src="js/modaal.min.js"></script>
-    <!-- select2 -->
-    <script src="js/select2-4.0.3.min.js"></script>
-    <script src="js/select2totree.js"></script>
-    <!-- datatimepicker -->
-    <script src="js/jquery.datetimepicker.full.min.js"></script>
-
-    <!-- lglist -->
-    <script src="js/lglist-select2-20200327.js"></script>
-
+    <!-- PLOD -->
+    <script src="js/plod-conf.js"></script>
+    <script src="js/plod-listview.js"></script>
     <script type="text/javascript" language="javascript" class="init">
-
-var SERVER_PATH = '';
-var DEBUG_XHR = false;
-
-jQuery.datetimepicker.setLocale("ja");
-
-let table_listview;
-
-/* header columns of listview */
-const baseHeaderCols = [
-    "publisher",
-    "localId",
-    "localSubId",
-    "disease",
-    "dateConfirmed",
-    "age",
-    "gender",
-    "residence",
-    "reportId"
-];
-
-const locationHeaderCols = [
-    "departureDate",
-    "departureTime",
-    "departureFrom",
-    "departureFromAnnex",
-    "arrivalDate",
-    "arrivalTime",
-    "arrivalIn",
-    "arrivalInAnnex",
-    "vehicles",
-    "vehicleOthers",
-    "details",
-];
-
-const conditionHeaderCols = [
-    "conditionDate",
-    "conditionTime",
-    "conditions",
-    "conditionOthers",
-    "details",
-];
 
 window.addEventListener("load", ev_load, false);
 
-let row_num = 0;
-
-function get_xid()
-{
-    // no purpose than making a cell to be unique. 
-    row_num += 1;
-    return row_num;
-}
+let plod_table;
 
 /*
  * functions for submission
@@ -238,109 +60,21 @@ async function get_plod(url, type)
 
 async function get_plod_all(type)
 {
-    get_plod(`${SERVER_PATH}/tummy/${type}/all`, type);
+    get_plod(`/tummy/${type}/all`, type);
 }
 
 async function get_plod_one(reportId, type)
 {
-    get_plod(`${SERVER_PATH}/tummy/${type}/${reportId}`, type);
-}
-
-
-/*
- * event handlers
- */
-function make_table_from_dict(d, headerList)
-{
-    let details = "";
-    if (d.length > 0) {
-        details += "<table><thead>";
-        details += "<tr>";
-        headerList.forEach(a => details +=`<th>${a}</th>`);
-        details += "</tr><tbody>";
-        d.forEach(r => {
-            details += "<tr>";
-            headerList.forEach(x => {
-                var y = Object.entries(r).find(a => a[0] == x);
-                if (y != undefined) {
-                    details += "<td>" + y[1] + "</td>";
-                } else {
-                    details += "<td></td>";
-                }
-            });
-            details += "</tr>";
-        });
-        details  += "</tbody></table>";
-    }
-    return details;
+    get_plod(`/tummy/${type}/${reportId}`, type);
 }
 
 function ev_load(e)
 {
-    /* create table of list view */
-    let tr = document.createElement("tr");
-    tr.appendChild(document.createElement("th"));   // for show_row_details()
-    baseHeaderCols.forEach(x => {
-        var th = document.createElement("th");
-        th.innerHTML = x;
-        tr.appendChild(th);
-    });
-    let thead = document.createElement("thead");
-    thead.appendChild(tr);
-    document.getElementById("table-listview").appendChild(thead);
-
-    let columns = baseHeaderCols.map(a => {return {"data":a}});
-    columns.unshift({
-        "className": "details-control",
-        "orderable": false,
-        "data": null,
-        "defaultContent": "",
-    });
-    table_listview = $('#table-listview').DataTable( {
-        "ajax": {
-            "url": "/tummy/json/all",
-            "dataSrc": "plod",
-        },
-        "columns": columns,
-        "order": [[1, 'asc']],
-    } );
-
-    $('#table-listview tbody').on('click', 'tr', function () {
-        if ( $(this).hasClass('selected') ) {
-            $(this).removeClass('selected');
-        }
-        else {
-            table_listview.$('tr.selected').removeClass('selected');
-            $(this).addClass('selected');
-        }
-    } );
-
-    $('#table-listview tbody').on('click', 'td.details-control', function () {
-        let tr = $(this).closest('tr');
-        let row = table_listview.row( tr );
-        if ( row.child.isShown() ) {
-            // This row is already open.
-            row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            // Open this row
-            let button_id = "button-delete-plod-" + get_xid();
-            row.child( function() {
-                let row_data = row.data();
-                let details = "";
-                details += make_table_from_dict(row_data.locationHistory, locationHeaderCols);
-                details += make_table_from_dict(row_data.conditionHistory, conditionHeaderCols);
-                details += `<hr><span style="margin-left:20px;">_id = ${row_data._id}</span>`;
-                return details;
-            } ).show();
-            tr.addClass('shown');
-        }
-    } );
+    plod_listview_init(document.getElementById("plod-list"), {});
 
     $('#button-dl-turtle').click( function () {
-        if (table_listview.row('.selected').length != 0) {
-            let result = get_plod_one(table_listview.row('.selected').data()["reportId"], "turtle");
+        if (plod_table.row('.selected').length != 0) {
+            let result = get_plod_one(plod_table.row('.selected').data()["reportId"], "turtle");
         } else {
             alert("Note: please choose a plod.");
         }
@@ -374,18 +108,18 @@ function ev_load(e)
         </div>
         <hr>
 
-        <div class="divBlock" style="width:100%; margin-right:3px;">
+        <div class="inline-block div-block" style="width:100%; margin-right:3px;">
             <span>
                 <input id="button-dl-turtle" class="control-button" type="button" value="Download in Turtle">
             </span>
-            <span style="float:right">
+            <span style="float:right; margin-right:5px;">
                 <input id="button-dl-all" class="control-button" type="button" value="Download all data in Turtle">
             </span>
         </div>
 
         <hr>
 
-        <table id="table-listview" class="display" style="width:98%"></table>
+        <table id="plod-list" class="display" style="width:98%"></table>
     </div>
 
 </div>

@@ -15,120 +15,8 @@
     <link rel="stylesheet" type="text/css" href="js/select2totree.css">
     <!-- datatimepicker -->
     <link rel="stylesheet" type="text/css" href="js/jquery.datetimepicker.css">
-
-    <!-- link rel="stylesheet" type="text/css" href="feeder.css" -->
-    <style type="text/css" class="init">
-
-    * { font-size: 14px; }
-    .inline-block { display: inline-block; }
-    .div-block { margin: 5px; }
-    .no-margin { margin: 0px; padding: 0px; }
-    .inset-box { border: 1px solid rgba(0, 0, 0, .2) }
-    .view-max { width: 100vw; }
-    .no-border { border: 0; box-shadow: none; }
-    .cellBlock { margin-left: 3px; }
-    .label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
-    .left-label { border-radius: 5px 0 0 5px; }
-    .top-label { border-radius: 5px 5px 0 0; }
-    .value-box { padding: 6px; }
-    .inputDate, .inputTime { width: 100px; }
-    .input-text, .input-select { margin-left: 3px; }
-
-    .control-button {
-	display: inline-block;
-	padding: 0.5em 1em;
-	text-decoration: none;
-	border-radius: 4px;
-        box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
-    }
-    .notation { color: red; }
-
-    /* header */
-    #plodLogo { float:left; margin-right: 10px; }
-
-    /* locations */
-    textarea[id^="vehicles"] { width: 95%; }
-    input[id^="PLHDepartureFrom"] { width: 180px; }
-    input[id^="PLHArrivalIn"] { width: 180px; }
-    textarea[id^="PLHDetails"] { width: 95%; }
-
-    /* conditions */
-    textarea[id^="conditions"] { width: 95%; }
-    textarea[id^="PCHDetails"] { width: 95%; }
-
-    /* data tables */
-    td.details-button {
-        background: url('images/details_open.png') no-repeat center center;
-        cursor: pointer;
-    }
-
-    .shown td.details-button {
-        background: url('images/details_close.png') no-repeat center center;
-    }
-
-    .table-form {
-    border-collapse:separate;
-        border-spacing: 0;
-    }
-
-    .table-form th:first-child{
-        border-radius: 5px 0 0 0;
-    }
-
-    .table-form th:last-child{
-        border-radius: 0 5px 0 0;
-    }
-
-    .table-form th{
-        text-align: center;
-        color:white;
-        background: linear-gradient(#94bae3,#3686d6);
-        border-left: 1px solid #3c6690;
-        border-top: 1px solid #3c6690;
-        border-bottom: 1px solid #3c6690;
-        box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
-        padding: 5px 5px;
-    }
-
-    .table-form td{
-        text-align: center;
-        border-left: 1px solid #a8b7c5;
-        border-bottom: 1px solid #a8b7c5;
-        border-top:none;
-        box-shadow: 0px -3px 5px 1px #eee inset;
-        padding: 5px 5px;
-    }
-
-    .table-form td:last-child{
-        border-right: 1px solid #a8b7c5;
-    }
-
-    .table-form tr:last-child td:first-child {
-        border-radius: 0 0 0 5px;
-    }
-
-    .table-form tr:last-child td:last-child {
-        border-radius: 0 0 5px 0;
-    }
-
-    /* below are for the placeholder */
-    input::-webkit-input-placeholder { font-size: 8px; }
-    input:-moz-placeholder { font-size: 8px; }
-    input::-moz-placeholder { font-size: 8px; }
-    input:-ms-input-placeholder { font-size: 8px; }
-    textarea::placeholder { font-size: 8px; }
-
-    /* modaal */
-    .modaal-wrapper { z-index: 9995; }
-    .modaal-content-container { padding: 0px; }
-
-    #divConfirmEntry {
-        white-space: pre-wrap;
-        font-family: monospace;
-        font-size: 18px;
-    }
-
-    </style>
+    <!-- PLOD -->
+    <link rel="stylesheet" type="text/css" href="js/plod-style.css" -->
 
     <!--script src="https://code.jquery.com/jquery-1.11.1.min.js"></script-->
     <script language="javascript" src="js/jquery-3.3.1.min.js"></script>
@@ -142,51 +30,17 @@
     <!-- datatimepicker -->
     <script src="js/jquery.datetimepicker.full.min.js"></script>
 
-    <!-- lglist -->
+    <!-- PLOD -->
+    <script src="js/plod-conf.js"></script>
+    <script src="js/plod-listview.js"></script>
     <script src="js/lglist-select2-20200327.js"></script>
-
     <script type="text/javascript" language="javascript" class="init">
 
-var SERVER_PATH = '';
-var DEBUG_XHR = false;
+window.addEventListener("load", ev_load, false);
 
-jQuery.datetimepicker.setLocale("ja");
+jQuery.datetimepicker.setLocale(plod_locale);
 
 let plod_table;
-
-/* header columns of listview */
-const headers_base = [
-    { "key": "publisher", "notation": "所轄の自治体名" },
-    { "key": "localId", "notation": "管理No." },
-    { "key": "localSubId", "notation": "副管理No." },
-    { "key": "disease", "notation": "患者の病名" },
-    { "key": "age", "notation": "患者の年代" },
-    { "key": "gender", "notation": "患者の性別" },
-    { "key": "residence", "notation": "患者の居住地域" },
-    { "key": "reportId", "notation": "reportId" },
-];
-
-const headers_PLH = [
-    "departureDate",
-    "departureTime",
-    "departureFrom",
-    "departureFromAnnex",
-    "arrivalDate",
-    "arrivalTime",
-    "arrivalIn",
-    "arrivalInAnnex",
-    "vehicles",
-    "vehicleOthers",
-    "details",
-];
-
-const headers_PCH = [
-    "conditionDate",
-    "conditionTime",
-    "conditions",
-    "conditionOthers",
-    "details",
-];
 
 /*
  * NOTE: if you change the value of the lists.
@@ -201,65 +55,6 @@ let residenceList = [];
 // key -> text
 // value -> id
 
-/* age */
-const ageList = [
-    { "key":"0-9",  "value":"0s" },
-    { "key":"10代", "value":"10s" },
-    { "key":"20代", "value":"20s" },
-    { "key":"30代", "value":"30s" },
-    { "key":"40代", "value":"40s" },
-    { "key":"50代", "value":"50s" },
-    { "key":"60代", "value":"60s" },
-    { "key":"70代", "value":"70s" },
-    { "key":"80代", "value":"80s" },
-    { "key":"90代", "value":"90s" },
-    { "key":"不明", "value":"Unspecified" },
-];
-
-/* gender */
-const genderList = [
-    { "key":"男性", "value":"Male" },
-    { "key":"女性", "value":"Female" },
-    { "key":"不明", "value":"Unspecified" },
-];
-
-/* disease */
-const diseaseList = [
-    { "key":"新型コロナウイルス", "value":"COVID-2019" },
-    { "key":"麻疹", "value":"Measles" },
-    { "key":"その他", "value":"Others" },
-];
-
-/* patientCondition + name */
-const patientConditionList = [
-    { "text": "倦怠感", "id": "Malaise" },
-    { "text": "喀痰", "id": "Sputum" },
-    { "text": "発熱", "id": "Fever" },
-    { "text": "悪寒", "id": "Chill" },
-    { "text": "咳", "id": "Cough" },
-    { "text": "鼻水", "id": "RunnyNose" },
-    { "text": "肺炎", "id": "Pneumonia" },
-    { "text": "入院", "id": "Hospitalized" },
-    { "text": "陽性", "id": "Positive" },
-    { "text": "陰性", "id": "Negative" },
-];
-
-/* vehicles + name */
-const vehiclesList = [
-    { "text": "タクシー", "id": "Taxi" },
-    { "text": "バス", "id": "Bus" },
-    { "text": "電車", "id": "Train" },
-    { "text": "飛行機", "id": "Airplane" },
-    { "text": "船", "id": "Ship" },
-    { "text": "徒歩", "id": "Walk" },
-    { "text": "不明", "id": "Unknown" },
-    // any vehicles that you can drive solely are not in case.
-    // { "key": "自家用車・自転車・バイク", "name": "Bike" },
-]
-
-const m_select_others_and_input = "選択肢にない場合、その他を選んでから記述する。";
-const m_location_annex = "建物名や駅名等、補足情報等があれば入力する。";
-
 const re_PLHDepartureDate = new RegExp("PLHDepartureDate\\d+$");
 const re_PLHDepartureTime = new RegExp("PLHDepartureTime\\d+$");
 const re_PLHDepartureFromSelected = new RegExp("PLHDepartureFrom\\d+Selected$");
@@ -273,10 +68,6 @@ const re_PCHDate = new RegExp("PCHDate\\d+$");
 const re_PCHTime = new RegExp("PCHTime\\d+$");
 const re_PCHDetailsTextarea = new RegExp("PCHDetails\\d+Textarea$");
 
-window.addEventListener("load", ev_load, false);
-
-let row_num = 0;
-
 function debug_table(table)
 {
     console.log("xxx === debug_table() ===");
@@ -285,13 +76,6 @@ function debug_table(table)
             console.log("xxx cell():", r, c, table.rows[r].cells[c]);
         }
     }
-}
-
-function get_xid()
-{
-    // no purpose than making a cell to be unique. 
-    row_num += 1;
-    return row_num;
 }
 
 function add_input_textarea(parent_obj, target_id, args)
@@ -537,7 +321,7 @@ function add_input_time_to_obj(parent_obj, target_id, initial_value)
     let x = document.createElement("input");
     x.type = "text";
     x.id = target_id;
-    x.placeholder = "可能ならば時刻を入力する。";
+    x.placeholder = M_PLACEHOLDER_TIME;
     x.classList.add("inputTime");
     parent_obj.appendChild(x);
     jQuery(x).val(initial_value);
@@ -624,28 +408,9 @@ function add_input_text(parent_obj, target_id, args)
 
 function get_default_PLOD()
 {
-    return {
-        "publisher": "厚労省",
-        "publisherOthers": "",
-        "localId": "",
-        "localSubId": "",
-        "disease": "COVID-2019",
-        "diseaseOthers": "",
-        "dateConfirmed": get_current_date(),
-        "age": "Unspecified",
-        "gender": "Unspecified",
-        "residence": "Unspecified",
-        "residenceAnnex": "",
-        "closeContacts": "",
-        "locationHistory": [
-            // not needed for initial.
-            //get_default_PLH(),
-        ],
-        "conditionHistory": [
-            // not needed for initial.
-            //default_value_PCH
-        ],
-    };
+    let default_plod = JSON.parse(JSON.stringify(DEFAULT_PLOD));
+    default_plod.dateConfirmed = get_current_date();
+    return DEFAULT_PLOD;
 }
 
 function get_default_PLH(base_row)
@@ -674,11 +439,7 @@ function get_default_PLH(base_row)
         ref_row = tbody.rows[base_row.rowIndex-2];
     }
     if (ref_row == undefined) {
-        /* inserting a row with default */
         let default_location = document.getElementById("residenceSelected").value;
-        if (default_location == "Unspecified") {
-            default_location = "Others";
-        }
         default_PLH.departureFrom = default_location;
         default_PLH.departureDate = get_current_date();
         default_PLH.arrivalIn = default_location;
@@ -732,7 +493,7 @@ function add_input_button_ins_line(parent_obj, row)
     let x = document.createElement("input");
     x.classList.add("control-button");
     x.type = "button";
-    x.value = "↑追加";
+    x.value = M_BUTTON_ADD_ABOVE;
     x.addEventListener("click", function(){ ev_click_ins_line(row) }, false);
     parent_obj.appendChild(x);
 }
@@ -742,7 +503,7 @@ function add_input_button_del_line(parent_obj, row)
     let x = document.createElement("input");
     x.classList.add("control-button");
     x.type = "button";
-    x.value = "←削除";
+    x.value = M_BUTTON_DELETE_THIS;
     x.addEventListener("click", function(){ ev_click_del_line(row) }, false);
     parent_obj.appendChild(x);
 }
@@ -752,17 +513,14 @@ function ins_line_PLHTable(row_index_ins, initial_value)
     let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
     let row = tbody.insertRow(row_index_ins);
     let row_index = tbody.rows.length;
-    let row_num = get_xid();
+    let row_num = Math.random().toString().slice(-8);
     let x, x2, x3, cell;
 
-    /* "出発日時",
-        PLHDepartureDate, date
-        PLHDepartureTime, time
-     */
+    /* PLHDepartureDate and PLHDepartureTime */
     cell = row.insertCell(-1);
     add_input_date_time_to_obj_x(cell, "PLHDepartureDate"+row_num, initial_value.departureDate, "PLHDepartureTime" + row_num, initial_value.departureTime, undefined, true);
 
-    /* "出発地", PLHDepartureFrom, select+text */
+    /* PLHDepartureFrom */
     cell = row.insertCell(-1);
     add_input_select_and_text(cell, "PLHDepartureFrom"+row_num, {
         clear_content: true,
@@ -771,14 +529,14 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         label_name: undefined,
         need_input_text: true,
         initial_text: initial_value.departureFromAnnex,
-        placeholder_text: m_location_annex,
+        placeholder_text: M_PLACEHOLDER_LOCATION_ANNEX,
     });
 
-    /* "到着日時", PLHArrivalDateTime, date+time */
+    /* PLHArrivalDateTime */
     cell = row.insertCell(-1);
     add_input_date_time_to_obj_x(cell, "PLHArrivalDate"+row_num, initial_value.departureDate, "PLHArrivalTime" + row_num, initial_value.departureTime, undefined, true);
 
-    /* "到着地", PLHArrivalIn, select+text */
+    /* PLHArrivalIn */
     cell = row.insertCell(-1);
     add_input_select_and_text(cell, "PLHArrivalIn"+row_num, {
         clear_content: true,
@@ -787,10 +545,10 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         label_name: undefined,
         need_input_text: true,
         initial_text: initial_value.arrivalInAnnex,
-        placeholder_text: m_location_annex,
+        placeholder_text: M_PLACEHOLDER_LOCATION_ANNEX,
     });
 
-    /* "移動手段", vehicles, select+text */
+    /* vehicles */
     cell = row.insertCell(-1);
     add_input_checkbox_and_textarea(cell, "vehicles"+row_num, {
         clear_content: true,
@@ -798,16 +556,16 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         initial_checked: initial_value.vehicles,
         need_input_text: true,
         initial_text: initial_value.vehicleOthers,
-        placeholder_text: "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)",
+        placeholder_text: M_PLACEHOLDER_VEHICLE_TEXT,
     });
 
-    /* "所見や患者の行動等", PLHDetails, text */
+    /* PLHDetails */
     cell = row.insertCell(-1);
     add_input_textarea(cell, "PLHDetails"+row_num, {
         clear_content: false,
         initial_value: initial_value.details,
         label_name: false,
-        placeholder_text: "備考等自由記述",
+        placeholder_text: M_PLACEHOLDER_PLH_ANNEX,
     });
 
     /* DelLine */
@@ -822,37 +580,29 @@ function ins_line_PCHTable(row_index_ins, initial_value)
     let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
     let row = tbody.insertRow(row_index_ins);
     let row_index = tbody.rows.length;
-    let row_num = get_xid();
+    let row_num = Math.random().toString().slice(-8);
     let x, x2, x3, cell;
 
-    /*
-     "日付", cellPCHDateTime, date+time
-        PCHDate, date
-        PCHTime, time
-    */
+    /* PCHDate, PCHTime */
     cell = row.insertCell(-1);
     add_input_date_time_to_obj_x(cell, "PCHDate"+row_num, initial_value.conditionDate, "PCHTime" + row_num, initial_value.conditionTime, undefined, true);
 
-    /* "健康状態", PCHConditios, checkbox+text */
+    /* PCHConditios */
     cell = row.insertCell(-1);
     add_input_checkbox_and_textarea(cell, "conditions"+row_num, {
         clear_content: true,
         item_list: patientConditionList,
         initial_checked: initial_value.conditions,
         need_input_text: false,
-        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
-        //need_input_text: true,
-        //initial_text: initial_value.conditionOthers,
-        //placeholder_text: "備考等自由記述",
     });
 
-    /* "自由記述欄", PCHDetails, text */
+    /* PCHDetails */
     cell = row.insertCell(-1);
     add_input_textarea(cell, "PCHDetails"+row_num, {
         clear_content: false,
         initial_value: initial_value.details,
         label_name: false,
-        placeholder_text: "所見、患者の健康状態、検査機関、その他",
+        placeholder_text: M_PLACEHOLDER_PCH_ANNEX,
     });
 
     /* DelLine */
@@ -918,7 +668,7 @@ function check_value_and_other(main_value, other_value)
         return true;
     }
     /* other_value has something. */
-    if (main_value != "Others") {
+    if (main_value != "Other") {
         return false;
     }
     return true;
@@ -952,11 +702,11 @@ function make_data_entries()
 
     /* check the field of publisher and disease */
     if (check_value_and_other(data_entered["publisher"], data_entered["publisherOthers"]) == false) {
-        window.alert("publisher のその他のフィールドに値を入れる場合は、選択肢からその他を選択してください。");
+        window.alert("publisher" + M_ALERT_SELECT_OTHERS_AND_INPUT);
         return false;
     }
     if (check_value_and_other(data_entered["disease"], data_entered["diseaseOthers"]) == false) {
-        window.alert("disease のその他のフィールドに値を入れる場合は、選択肢からその他を選択してください。");
+        window.alert("disease" + M_ALERT_SELECT_OTHERS_AND_INPUT);
         return false;
     }
 
@@ -1030,7 +780,7 @@ function make_data_entries()
 
 async function send_plod(patient_data)
 {
-    fetch(SERVER_PATH + "/beak", {
+    fetch("/beak", {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify(patient_data),
@@ -1041,12 +791,12 @@ async function send_plod(patient_data)
         let status = content["result"];
         if (status == "success") {
             let data = content["plod"];
-            confirm("reportId " + data["reportId"] + " が登録されました。");
+            confirm("reportId " + data["reportId"] + M_CONFIRM_PLOD_CREATED);
             // XXX needs to decide whehter new record is added to local table or just reload.
             //plod_table.row.add(data).draw();
             window.location.reload(false);
         } else {
-            confirm("reportId " + data["reportId"] + " の登録に失敗しました。status=" + status);
+            confirm("reportId " + data["reportId"] + M_CONFIRM_PLOD_FAILED_CREATION + "status=" + status);
         }
     }).catch(error => {
         console.error("Error:", error);
@@ -1055,7 +805,7 @@ async function send_plod(patient_data)
 
 async function delete_plod(reportId)
 {
-    fetch(SERVER_PATH + "/tail/" + reportId, {
+    fetch("/tail/" + reportId, {
         method: "DELETE",
     }).then(response => {
         return response.json();
@@ -1063,11 +813,11 @@ async function delete_plod(reportId)
 //console.log("content:", content);
         let status = content["result"];
         if (status == "success") {
-            confirm("reportId " + reportId + " が削除されました。");
+            confirm("reportId " + reportId + M_CONFIRM_PLOD_DELETED);
             // XXX needs to decide whehter new record is deleted from local table or just reload.
             window.location.reload(false);
         } else {
-            confirm("reportId " + reportId + " の削除に失敗しました。status=" + status);
+            confirm("reportId " + reportId + M_CONFIRM_PLOD_FAILED_DELETION + "status=" + status);
         }
     }).catch(error => {
         console.error("Error:", error);
@@ -1123,7 +873,7 @@ function plod_form_reset()
 
 function ev_click_del_line(row)
 {
-    if (true == confirm("削除しますか？")) {
+    if (true == confirm(M_CONFIRM_PLOD_ASK_DELETION)) {
         plod_form_table_del_line(row);
     }
 }
@@ -1151,45 +901,46 @@ function plod_form_create()
         clear_content: true,
         select_list: publisherList,
         value_selected: g_form_value.publisher,
-        label_name: "所轄の自治体名:",
+        label_name: headers_base.filter(x => x["key"] == "publisher")[0].notation,
         need_input_text: true,
         initial_text: g_form_value.publisherOthers,
-        placeholder_text: m_select_others_and_input,
+        placeholder_text: M_PLACEHOLDER_SELECT_OTHER_AND_INPUT,
     });
 
     add_input_text(document.getElementById("divLocalId"), "localId", {
         clear_content: true,
-        label_name: "管理No:",
+        label_name: headers_base.filter(x => x["key"] == "localId")[0].notation,
         initial_value: g_form_value.localId,
-        placeholder_text: "厚労省で管理している識別子等あれば入力する。",
+        placeholder_text: M_PLACEHOLDER_LOCALID,
     });
 
     add_input_text(document.getElementById("divLocalSubId"), "localSubId", {
         clear_content: true,
-        label_name: "副管理No:",
+        label_name: headers_base.filter(x => x["key"] == "localSubId")[0].notation,
         initial_value: g_form_value.localSubId,
-        placeholder_text: "所轄における識別子等あれば入力する。",
+        placeholder_text: M_PLACEHOLDER_LOCALSUBID,
     });
 
     add_input_select_and_text(document.getElementById("divDisease"), "disease", {
         clear_content: true,
         select_list: diseaseList,
         value_selected: g_form_value.disease,
-        label_name: "患者の病名:",
+        label_name: headers_base.filter(x => x["key"] == "disease")[0].notation,
         need_input_text: true,
         initial_text: g_form_value.diseaseOthers,
-        placeholder_text: m_select_others_and_input,
+        placeholder_text: M_PLACEHOLDER_SELECT_OTHER_AND_INPUT,
     });
 
     x = document.getElementById("divDateConfirmed");
     x.innerHTML = "";
-    add_input_date_time_to_obj_x(x, "dateConfirmed", g_form_value.dateConfirmed, undefined, undefined, "患者の状態が確認された日付:");
+    add_input_date_time_to_obj_x(x, "dateConfirmed", g_form_value.dateConfirmed, undefined, undefined,
+        headers_base.filter(x => x["key"] == "dataConfirmed")[0].notation);
 
     add_input_select_and_text(document.getElementById("divAge"), "age", {
         clear_content: true,
         select_list: ageList,
         value_selected: g_form_value.age,
-        label_name: "患者の年代:",
+        label_name: headers_base.filter(x => x["key"] == "age")[0].notation,
         need_input_text: false,
     });
 
@@ -1197,17 +948,17 @@ function plod_form_create()
         clear_content: true,
         select_list: genderList,
         value_selected: g_form_value.gender,
-        label_name: "患者の性別:",
+        label_name: headers_base.filter(x => x["key"] == "gender")[0].notation,
         need_input_text: false,
     });
 
     add_input_select_and_text(document.getElementById("divResidence"), "residence", {
         select_list: residenceList,
         value_selected: g_form_value.residence,
-        label_name: "患者の居住地域:",
+        label_name: headers_base.filter(x => x["key"] == "residence")[0].notation,
         need_input_text: true,
         initial_text: g_form_value.residenceAnnex,
-        placeholder_text: "補足情報等があれば入力する。",
+        placeholder_text: M_PLACEHOLDER_RESIDENCEANNEX,
         clear_content: true,
     });
 
@@ -1226,175 +977,36 @@ function plod_form_create()
     add_input_textarea(document.getElementById("divCloseContacts"), "closeContacts", {
         clear_content: true,
         initial_value: g_form_value.closeContacts,
-        placeholder_text: "濃厚接触者の情報を列挙する。記述方法は要検討。",
-        label_name: "濃厚接触者情報",
+        placeholder_text: M_PLACEHOLDER_CLOSECONTACTS,
+        label_name: headers_base.filter(x => x["key"] == "closeContacts")[0].notation,
     });
-}
-
-function make_table_from_dict(d, headerList)
-{
-    let details = "";
-    if (d.length > 0) {
-        details += "<table><thead>";
-        details += "<tr>";
-        headerList.forEach(a => details +=`<th>${a}</th>`);
-        details += "</tr><tbody>";
-        d.forEach(r => {
-            details += "<tr>";
-            headerList.forEach(x => {
-                var y = Object.entries(r).find(a => a[0] == x);
-                if (y != undefined) {
-                    details += "<td>" + y[1] + "</td>";
-                } else {
-                    details += "<td></td>";
-                }
-            });
-            details += "</tr>";
-        });
-        details  += "</tbody></table>";
-    }
-    return details;
-}
-
-function make_details_view(row_data, button_id)
-{
-    let details = "";
-    details += "<hr>"
-    details += `<div class="inline-block div-block"><label class="label">dateConfirmed</label><span class="value-box inset-box">${row_data.dateConfirmed}</span></div>`;
-    details += make_table_from_dict(row_data.locationHistory, headers_PLH);
-    details += make_table_from_dict(row_data.conditionHistory, headers_PCH);
-    details += "<br>";
-    details += `<div class="inline-block div-block"><label class="label">closeContacts</label><span class="value-box inset-box">${row_data.closeContacts}</span></div>`;
-    details += "<hr>";
-    details += `<div class="inline-block div-block"><label class="label">updatedTime</label><span class="value-box inset-box">${row_data.updatedTime}</span></div>`;
-    details += `<div class="inline-block div-block"><label class="label">createdTime</label><span class="value-box inset-box">${row_data.createdTime}</span></div>`;
-    details += `<div class="inine-block div-block"><label class="label">_id</label><span class="value-box inset-box">${row_data._id}</span><span><input class="control-button notation" id="${button_id}" type="button" value="削除する"></span></div>`;
-    return details;
 }
 
 function ev_load(e)
 {
+    plod_listview_init(document.getElementById("plod-list"), { "enable_delete_button": true });
+
     /*
      * create select-lists from lgList.
-     *   publisherList: Others, 厚労省
+     *   publisherList: Others, MHLW
      *   locationList: Others, Abroad
      *   residenceList: Others, Abroad, Unspecified
      */
     publisherList = JSON.parse(JSON.stringify(lgList))
-    publisherList.unshift({ "id": "厚労省", "text": "厚労省" });
-    publisherList.push({ "id": "Others", "text": "その他" });
-    locationList = JSON.parse(JSON.stringify(lgList));
-    locationList.unshift({ "id": "Others", "text": "その他" });
-    locationList.push({ "id": "Abroad", "text": "海外" });
-    locationList.push({ "id": "Japan", "text": "日本" });
+    publisherList.unshift(SELECT_OPT_MHLW);
+    publisherList.push(SELECT_OPT_OTHER);
+
     residenceList = JSON.parse(JSON.stringify(lgList));
-    residenceList.unshift({ "id": "Unspecified", "text": "不明" });
-    residenceList.push({ "id": "Japan", "text": "日本" });
-    residenceList.push({ "id": "Abroad", "text": "海外" });
+    residenceList.unshift(SELECT_OPT_UNSPECIFIED);
+    residenceList.push(SELECT_OPT_JAPAN);
+    residenceList.push(SELECT_OPT_ABROAD);
+    residenceList.push(SELECT_OPT_OTHER);
 
-    /* create table of list view */
-    let tr = document.createElement("tr");
-    tr.appendChild(document.createElement("th"));   // this is for details-button()
-    headers_base.forEach(x => {
-        var th = document.createElement("th");
-        th.innerHTML = x.notation;
-        tr.appendChild(th);
-    });
-    let thead = document.createElement("thead");
-    thead.appendChild(tr);
-    document.getElementById("plod-list").appendChild(thead);
-
-    let columns = headers_base.map(x => {return {"data":x.key}});
-    columns.unshift({
-        "className": "details-button",
-        "orderable": false,
-        "data": null,
-        "defaultContent": "",
-    });
-    plod_table = $("#plod-list").DataTable( {
-        "ajax": {
-            "url": "/tummy/json/all",
-            "dataSrc": "plod",
-        },
-        "columns": columns,
-        "order": [[1, "asc"]],
-    } );
-
-    /*
-     * You have to consider below two controls for clicking the row in the list view.
-     */
-    $("#plod-list tbody").on("click", "tr", function () {
-        let tr = $(this).closest("tr");
-        let row = plod_table.row( tr );
-        /*
-         * excute below only when the details in this row is NOT shown.
-         * see the case in below where td.details-button is clicked.
-         */
-        if (! row.child.isShown()) {
-            /*
-             * close other rows showing details anyway.
-             * and two ways;
-             *   1. remove class "selected" from this row when the row has been selected.
-             *   2. otherwise, add class "selected" in this row.
-             */
-            if (plod_table.row(".shown").length) {
-                $(".details-button", plod_table.row(".shown").node()).click();
-            }
-            if ( $(this).hasClass("selected") ) {
-                $(this).removeClass("selected");
-            }
-            else {
-                plod_table.$("tr.selected").removeClass("selected");
-                $(this).addClass("selected");
-            }
-        }
-    } );
-
-    /*
-     * See above the clikcing "plod-list tbody" control.
-     */
-    $("#plod-list tbody").on("click", "td.details-button", function () {
-        let tr = $(this).closest("tr");
-        let row = plod_table.row( tr );
-        /*
-         * when you see the details in this row, it close the details.
-         * and, remove classes; "shown" and "selected".
-         * otherwise, it shows details AND adds the two classes after removing "selected" from all other rows..
-         */
-        if ( row.child.isShown() ) {
-            /*
-             * close this details because this row is already open.
-             * remove classes; shown and selected.
-             */
-            row.child.hide();
-            tr.removeClass("shown");
-            if ($(this).hasClass("selected")) {
-                $(this).removeClass("selected");
-            }
-        } else {
-            // cloase other rows anyway.
-            if (plod_table.row(".shown").length) {
-                $(".details-button", plod_table.row(".shown").node()).click();
-            }
-            let button_id = "button-delete-plod-" + get_xid();
-            row.child(make_details_view(row.data(), button_id)).show();
-            tr.addClass("shown");
-            plod_table.$("tr.selected").removeClass("selected");
-            tr.addClass("selected");
-            // add event.
-            jQuery(`#${button_id}`).on("click", function() {
-                if (true == confirm("削除しますか？")) {
-                    let result = delete_plod(row.data()["reportId"]);
-                }
-                row.child.hide();
-                tr.removeClass("shown");
-                // XXX why it doesn't work ?
-                // XXX referring to https://datatables.net/examples/api/select_single_row.html
-                // row.remove().draw( false );
-                $(this).removeClass("selected");
-            });
-        }
-    } );
+    locationList = JSON.parse(JSON.stringify(lgList));
+    locationList.unshift(SELECT_OPT_UNSPECIFIED);
+    locationList.push(SELECT_OPT_ABROAD);
+    locationList.push(SELECT_OPT_JAPAN);
+    locationList.push(SELECT_OPT_OTHER);
 
     /* modal */
     $('#modal-control-form').modaal({
@@ -1431,7 +1043,7 @@ function ev_load(e)
             plod_form_create();
             $('#modal-control-form').modaal('open');
         } else {
-            alert("データを選択してください。");
+            alert(M_ALERT_SELECT_DATA);
         }
     });
 
@@ -1442,13 +1054,13 @@ function ev_load(e)
     }, false);
 
     document.getElementById("button-submit-entry").addEventListener("click", function() {
-        if (true == confirm("登録しますか？")) {
+        if (true == confirm(M_CONFIRM_SUBMIT_DATA)) {
             plod_form_submit();
         }
     }, false);
 
     document.getElementById("button-cancel-entry").addEventListener("click", function () {
-        if (true == confirm("取り消しますか？")) {
+        if (true == confirm(M_CONFIRM_CANCEL_SUBMISSION)) {
 	    plod_form_reset();
 	}
     });
@@ -1484,7 +1096,6 @@ function ev_load(e)
         <div class="inline-block div-block" style="width:100%; margin-right:3px;">
             <span>
                 <input id="button-plod-edit" class="control-button" type="button" value="選択したPLODを編集する">
-                <!--input id="button-plod-delete" type="button" value="選択したPLODを削除する"-->
             </span>
             <span style="float:right; margin-right:5px;">
                 <input id="button-plod-new" class="control-button" type="button" value="新しいPLODを入力する">
