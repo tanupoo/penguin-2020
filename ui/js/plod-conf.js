@@ -65,6 +65,8 @@ const headers_base = [
     },
 ];
 
+/*
+ XXX not yet
 const headers_PLH = [
     { "key": "departureDate", "list": true, "notation": "出発日" },
     { "key": "departureTime", "list": true, "notation": "出発時間" },
@@ -77,6 +79,21 @@ const headers_PLH = [
     { "key": "vehicles", "list": true, "notation": "移動方法(複数選択可)" },
     { "key": "vehicleOthers", "list": true, "notation": "" },
     { "key": "details", "list": true, "notation": "所見や患者の行動等" },
+];
+*/
+
+const headers_PLH = [
+    "departureDate",
+    "departureTime",
+    "departureFrom",
+    "departureFromAnnex",
+    "arrivalDate",
+    "arrivalTime",
+    "arrivalIn",
+    "arrivalInAnnex",
+    "vehicles",
+    "vehicleOthers",
+    "details",
 ];
 
 const headers_PCH = [
