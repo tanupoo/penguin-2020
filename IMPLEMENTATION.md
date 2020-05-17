@@ -38,48 +38,49 @@ DATE = YYYY-mm-dd
 TIME = HH:MM
 
 PLH_MEMBERS = {
-    "departureDate": DATE,
-    "departureTime": TIME,
-    "departureFrom": LOCATION,
-    "departureFromAnnex": FREE_TEXT,
-    "arrivalDate": DATE,
-    "arrivalTime": TIME,
-    "arrivalIn": LOCATION,
-    "arrivalInAnnex": FREE_TEXT,
+    "departureDate": DATE(CHOICE),
+    "departureTime": TIME(CHOICE),
+    "departureFrom": LOCATION(CHOICE),
+    "departureFromAnnex": STRING(FREE),
+    "arrivalDate": DATE(CHOICE),
+    "arrivalTime": TIME(CHOICE),
+    "arrivalIn": LOCATION(CHOICE),
+    "arrivalInAnnex": STRING(FREE),
     "vehicles": [ VEHICLES ],
-    "vehicleOthers": FREE_TEXT,
-    "details": FREE_TEXT,
+    "vehicleOthers": STRING(FREE),
+    "details": STRING(FREE),
 };
 
 PCH_MEMBERS = {
-    "conditionDate": DATE,
-    "conditionTime": TIME,
+    "conditionDate": DATE(CHOICE),
+    "conditionTime": TIME(CHOICE),
     "conditions": [ CONDITIONS ],
-    "conditionOthers": FREE_TEXT,
-    "detaills": FREE_TEXT,
+    "conditionOthers": STRING(FREE),
+    "detaills": STRING(FREE),
 };
 
 PLOD = {
-    "publisher": PUBLISHER,
-    "publisherOthers": FREE_TEXT,
-    "localId": FREE_TEXT,
-    "localSubId": FREE_TEXT,
-    "disease": DISEASE,
-    "diseaseOthers": FREE_TEXT,
-    "dateConfirmed": DATE,
-    "age": AGE,
-    "gender": GENDER,
-    "residence": LOCATION,
-    "residenceAnnex": FREE_TEXT,
-    "closeContacts": FREE_TEXT,
+    "dataSource": STRING(FREE),
+    "publisher": STRING(CHOICE),
+    "publisherOthers": STRING(FREE),
+    "localId": STRING(FREE),
+    "localSubId": STRING(FREE),
+    "disease": STRING(CHOICE),
+    "diseaseOthers": STRING(FREE),
+    "dateConfirmed": STRING(CHOICE),
+    "age": STRING(CHOICE),
+    "gender": STRING(CHOICE),
+    "residence": STRING(CHOICE),
+    "residenceAnnex": STRING(FREE),
+    "closeContacts": STRING(FREE),
     "locationHistory": [
 	PLH_MEMBERS
     ],
     "conditionHistory": [
 	PCH_MEMBERS
     ],
-    "createdTime": ISO_DATE_TIME or NULL,
-    "updatedTime": ISO_DATE_TIME or NULL,
+    "createdTime": STRING(ISO_DATE_TIME) or NULL,
+    "updatedTime": STRING(ISO_DATE_TIME) or NULL,
 };
 ```
 
