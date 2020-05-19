@@ -149,40 +149,42 @@ function add_input_checkbox_and_textarea(parent_obj, target_name, args)
      *     the name of the checkboxe is taken from "name" in the item_list.
      *     target_id + "Text"
      *
-     * don't use id to identify a checkbox.
-     *
-     *   <div class="inline-block">
-     *     <div class=`Checkbox-${args.target_name}`>
-     *       <input type="checkbox" name=kv["name"]>
-     *       <label name=${kv.name}>kv.key</label>
-     *     </div>
-     *     <div> ... </div>
+     *   <div>
+     *     <span class=`Checkbox-${args.target_name}`>
+     *       <input type="checkbox" name=item["name"]>
+     *       <label name=${item.name}>item.key</label>
+     *     </span>
+     *     <span> ... </span>
      *     --> add_input_texteat() <--
      *   </div>
      */
-    let child, cb, x;
+    let x;
 
     if (args.clear_content == true) {
         parent_obj.innerHTML = "";
     }
 
-    child = document.createElement("span");
-    args.item_list.forEach(kv => {
-        cb = document.createElement("div")
-        //cb.classList.add(`Checkbox-${target_name}`);
-        cb.classList.add("inline-block");
+    let child = document.createElement("div");
+    child.classList.add("flex-wrap-block");
+
+    args.item_list.forEach(item => {
+        let cb_id = item.key + Math.random().toString().slice(-8);
+        let cb = document.createElement("span")
+        cb.classList.add("option-base");
+        cb.classList.add("option-g" + item.group);
 
         x = document.createElement("input");
         x.type = "checkbox";
-        x.name = kv["id"];
-        if (args.initial_checked != undefined && args.initial_checked.find(x => x == kv["id"]) != undefined) {
+        x.name = item.key;
+        x.id = cb_id
+        if (args.initial_checked != undefined && args.initial_checked.find(x => x == item.key) != undefined) {
             x.checked = true;
         }
         cb.appendChild(x);
 
         x = document.createElement("label")
-        //x.htmlFor = kv["id"]
-        x.appendChild(document.createTextNode(kv["text"]));
+        x.setAttribute("for", cb_id);
+        x.appendChild(document.createTextNode(item["notation"]));
         cb.appendChild(x);
 
         child.appendChild(cb);

@@ -192,30 +192,31 @@ const diseaseList = [
 
 /* patientCondition + name */
 const patientConditionList = [
-    { "text": "倦怠感", "id": "Malaise" },
-    { "text": "喀痰", "id": "Sputum" },
-    { "text": "発熱", "id": "Fever" },
-    { "text": "悪寒", "id": "Chill" },
-    { "text": "咳", "id": "Cough" },
-    { "text": "鼻水", "id": "RunnyNose" },
-    { "text": "肺炎", "id": "Pneumonia" },
-    { "text": "陽性", "id": "Positive" },
-    { "text": "陰性", "id": "Negative" },
-    { "text": "入院", "id": "Hospitalized" },
-    { "text": "退院", "id": "Discharge" },
+    { "notation": "倦怠感", "key": "Malaise", "group": 0 },
+    { "notation": "喀痰", "key": "Sputum", "group": 0 },
+    { "notation": "発熱", "key": "Fever", "group": 0 },
+    { "notation": "悪寒", "key": "Chill", "group": 0 },
+    { "notation": "咳", "key": "Cough", "group": 0 },
+    { "notation": "鼻水", "key": "RunnyNose", "group": 0 },
+    { "notation": "肺炎", "key": "Pneumonia", "group": 0 },
+    { "notation": "陽性", "key": "Positive", "group": 1 },
+    { "notation": "陰性", "key": "Negative", "group": 1 },
+    { "notation": "入院", "key": "Hospitalized", "group": 2 },
+    { "notation": "退院", "key": "Discharge", "group": 2 },
 ];
 
 /* vehicles + name */
 const vehiclesList = [
-    { "text": "タクシー", "id": "Taxi" },
-    { "text": "バス", "id": "Bus" },
-    { "text": "電車", "id": "Train" },
-    { "text": "飛行機", "id": "Airplane" },
-    { "text": "船", "id": "Ship" },
-    { "text": "徒歩", "id": "Walk" },
-    { "text": "不明", "id": "Unknown" },
-    // any vehicles that you can drive solely are not in case.
-    // { "key": "自家用車・自転車・バイク", "name": "Bike" },
+    { "notation": "タクシー", "key": "Taxi", "group": 0 },
+    { "notation": "バス", "key": "Bus", "group": 0 },
+    { "notation": "電車", "key": "Train", "group": 0 },
+    { "notation": "飛行機", "key": "Airplane", "group": 0 },
+    { "notation": "船", "key": "Ship", "group": 0 },
+    { "notation": "徒歩", "key": "Walk", "group": 0 },
+    { "notation": "自家用車", "key": "PrivateCar", "group": 1 },
+    { "notation": "自転車", "key": "Bicycle", "group": 1 },
+    { "notation": "バイク", "key": "MotorBike", "group": 1 },
+    { "notation": "不明", "key": "Unknown", "group": 3 },
 ];
 
 const DEFAULT_PLOD = {
