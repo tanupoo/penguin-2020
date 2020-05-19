@@ -161,11 +161,19 @@ return:
         * GET /tummy/json/1ef3c491-a892-4410-b4db-dc755c656cd1
         * GET /tummy/turtle/1ef3c491-a892-4410-b4db-dc755c656cd1
 
+- JSON形式
+
+    { "result": "success", "plod": [ PLODs ] }
+
+該当する PLODがなかった場合は、空のPLODが帰る。
+
+    { "result": "success", "plod": [] }
+
 curl を使用した例:
 
 ```
-% curl -k https://plod.server/tummy/json/96cb3e7f-63c4-4293-affb-6a7b46432a96
-{"msg_type": "response", "status": 200, "ts": "2020-03-29T16:04:47.326933", "result": [{"publisher": "千葉県", "localId": "13", "localSubId": "1", "disease": "COVID-2019", "dateConfirmed": "2020-01-31", "age": "20s", "gender": "Female", "residence": "千葉県", "locationHistory": [{"departureDate": "2020-01-16", "departureFrom": "東京都", "arrivalDate": "2020-01-16", "arrivalIn": "大阪府", "byTrain": true}, {"departureDate": "2020-01-22", "departureFrom": "大阪府", "arrivalDate": "2020-01-22", "arrivalIn": "東京都", "byTrain": true}], "cndHistory": [{"reportDate": "2020-01-16", "cndMalaise": true}, {"reportDate": "2020-01-22", "cndChill": true}], "reportId": "96cb3e7f-63c4-4293-affb-6a7b46432a96", "_id": "5e8046d40810c97060607ebe"}]}
+% curl https://plod.server/tummy/json/2c5c6a22-c1b3-4097-b119-dad4c1ba57b9
+{"result": "success", "plod": [{"publisher": "千葉県", "publisherOthers": "", "localId": "13", "localSubId": "1", "disease": "COVID-2019", "diseaseOthers": "", "dateConfirmed": "2020-01-31", "age": "20s", "gender": "Female", "residence": "千葉県", "residenceAnnex": "", "locationHistory": [{"departureDate": "2020-01-16", "departureTime": "", "departureFrom": "千葉県", "departureFromAnnex": "", "arrivalDate": "2020-01-16", "arrivalTime": "", "arrivalIn": "大阪府", "arrivalInAnnex": "", "vehicles": ["Airplane"], "vehicleOthers": "", "details": ""}, {"departureDate": "2020-01-17", "departureTime": "", "departureFrom": "大阪府", "departureFromAnnex": "", "arrivalDate": "2020-01-22", "arrivalTime": "", "arrivalIn": "Others", "arrivalInAnnex": "ツアー", "vehicles": ["Bus"], "vehicleOthers": "", "details": ""}, {"departureDate": "2020-01-22", "departureTime": "", "departureFrom": "大阪府", "departureFromAnnex": "", "arrivalDate": "2020-01-22", "arrivalTime": "", "arrivalIn": "千葉県", "arrivalInAnnex": "", "vehicles": ["Bus"], "vehicleOthers": "", "details": ""}, {"departureDate": "2020-01-29", "departureTime": "", "departureFrom": "千葉県", "departureFromAnnex": "", "arrivalDate": "2020-01-29", "arrivalTime": "", "arrivalIn": "千葉県", "arrivalInAnnex": "医療機関", "vehicles": ["Unknown"], "vehicleOthers": "", "details": ""}, {"departureDate": "2020-01-30", "departureTime": "", "departureFrom": "千葉県", "departureFromAnnex": "", "arrivalDate": "2020-01-30", "arrivalTime": "", "arrivalIn": "千葉県", "arrivalInAnnex": "医療機関", "vehicles": ["Unknown"], "vehicleOthers": "", "details": ""}], "conditionHistory": [{"conditionDate": "2020-01-20", "conditionTime": "", "conditions": ["Cough", "RunnyNose"], "conditionOthers": "", "details": ""}, {"conditionDate": "2020-04-29", "conditionTime": "", "conditions": ["RunnyNose"], "conditionOthers": "", "details": ""}], "reportId": "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9", "_id": "5e8b5e53d0126b2bb98dc120"}]}
 ```
 
 理想的には
