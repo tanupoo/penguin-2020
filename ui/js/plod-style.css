@@ -4,13 +4,16 @@ hr { border: 1px solid rgba(0,0,0,0.3); }
 .div-block { margin: 5px; }
 .no-margin { margin: 0px; padding: 0px; }
 
+.top-block { width: 99%; }
+
 .inline-block { display: inline-block; }
+.flex-block { display: flex; flex-wrap: auto; }
 .flex-wrap-block { display: flex; flex-wrap: wrap; }
 .inset-box { border: 1px solid rgba(0, 0, 0, .2) }
 .view-max { width: 100vw; }
 .no-border { border: 0; box-shadow: none; }
 .cellBlock { margin-left: 3px; }
-.label { color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
+.label { white-space: nowrap; color: white; font-weight: bold; background: linear-gradient(#94bae3, #3686d6); padding: 6px; }
 .left-label { border-radius: 5px 0 0 5px; }
 .top-label { border-radius: 5px 5px 0 0; }
 .value-box { padding: 6px; }
@@ -35,15 +38,12 @@ hr { border: 1px solid rgba(0,0,0,0.3); }
 /* header */
 #plodLogo { float:left; margin-right: 10px; }
 
-/* locations */
-textarea[id^="vehicles"] { width: 95%; }
-input[id^="PLHDepartureFrom"] { width: 180px; }
-input[id^="PLHArrivalIn"] { width: 180px; }
-textarea[id^="PLHDetails"] { width: 95%; }
-
-/* conditions */
-textarea[id^="conditions"] { width: 95%; }
-textarea[id^="PCHDetails"] { width: 95%; }
+/* input text, textarea */
+/* #divDataSource, #dataSource, #dataSourceText { width: 100%; } */
+#closeContactsTextarea { width: 70%; }
+input[id^="PLHDepartureFrom"] { width: 100%; }
+input[id^="PLHArrivalIn"] { width: 100%; }
+textare { width: 100%; }
 
 /* data tables */
 td.details-button {

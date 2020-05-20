@@ -102,71 +102,63 @@ function add_input_textarea(parent_obj, target_id, args)
      *     <textarea id=`${target_id}Textarea` placeholder=args.placeholder_text>
      *   </fieldset>
      */
-    let child, x;
-    let id_name = `${target_id}Textarea`;
-
     if (args.clear_content == true) {
         parent_obj.innerHTML = "";
+        args.clear_content = false;
     }
 
-    child = document.createElement("fieldset");
-    child.classList.add("no-border");
-    child.classList.add("no-margin");
+    let id_name = `${target_id}Textarea`;
+    let this_obj = document.createElement("fieldset");
+    this_obj.classList.add("no-border");
+    this_obj.classList.add("no-margin");
 
+    let x;
     if (args.label_name) { /* not undefind and not false */
         x = document.createElement("legend");
         x.htmlFor = id_name;
         x.innerHTML = args.label_name;
         x.classList.add("label");
         x.classList.add("top-label");
-        child.appendChild(x);
+        this_obj.appendChild(x);
     }
 
     x = document.createElement("textarea");
     x.id = id_name;
-    x.setAttribute("style", "width: 90%;");
     x.placeholder = args.placeholder_text;
     if (args.initial_value != undefined && args.initial_value != "") {
         x.innerText = args.initial_value;
     }
 
-    child.appendChild(x);
-    parent_obj.appendChild(child);
+    this_obj.appendChild(x);
+    parent_obj.appendChild(this_obj);
 }
 
-function add_input_checkbox_and_textarea(parent_obj, target_name, args)
+function add_input_checkbox(parent_obj, target_name, args)
 {
     /*
      * args must include:
      *     clear_content
      *     item_list
      *     initial_checked
-     *     need_input_text
-     *     initial_text
-     *     placeholder_text
      *
-     * it makes below id:
-     *     the name of the checkboxe is taken from "name" in the item_list.
-     *     target_id + "Text"
+     * Note that target_name is not used.
      *
-     *   <div>
-     *     <span class=`Checkbox-${args.target_name}`>
-     *       <input type="checkbox" name=item["name"]>
-     *       <label name=${item.name}>item.key</label>
+     *   <div class="flex-wrap-block">
+     *     <span class="option-base option-gNNN">
+     *       <input type="checkbox" name=${item.key} id=${cb_id}>
+     *       <label for=${cb_id}>${item.notation}</label>
      *     </span>
      *     <span> ... </span>
-     *     --> add_input_texteat() <--
      *   </div>
      */
-    let x;
-
     if (args.clear_content == true) {
         parent_obj.innerHTML = "";
     }
 
-    let child = document.createElement("div");
-    child.classList.add("flex-wrap-block");
+    let this_obj = document.createElement("div");
+    this_obj.classList.add("flex-wrap-block");
 
+    let x;
     args.item_list.forEach(item => {
         let cb_id = item.key + Math.random().toString().slice(-8);
         let cb = document.createElement("span")
@@ -187,21 +179,41 @@ function add_input_checkbox_and_textarea(parent_obj, target_name, args)
         x.appendChild(document.createTextNode(item["notation"]));
         cb.appendChild(x);
 
-        child.appendChild(cb);
+        this_obj.appendChild(cb);
     });
 
-    if (args.need_input_text == true) {
-        add_input_textarea(child, target_name, {
-            clear_content: false,
-            initial_value: args.initial_text,
-            placeholder_text: args.placeholder_text,
-        });
-    }
-
-    parent_obj.appendChild(child);
+    parent_obj.appendChild(this_obj);
 }
 
-function add_input_select_options_to_obj(parent_obj, opts, value_selected)
+function add_input_checkbox_and_textarea(parent_obj, target_name, args)
+{
+    /*
+     * args must include:
+     *     need_input_text
+     * others follows add_input_checkbox() and add_input_textarea() respectively.
+     *
+     *   <div>
+     *     --> add_input_checkbox() <--
+     *     --> add_input_texteat() <--
+     *   </div>
+     */
+    if (args.clear_content == true) {
+        parent_obj.innerHTML = "";
+        args.clear_content = false;
+    }
+
+    let this_obj = document.createElement("div");
+
+    add_input_checkbox(this_obj, target_name, args);
+
+    if (args.need_input_text == true) {
+        add_input_textarea(this_obj, target_name, args);
+    }
+
+    parent_obj.appendChild(this_obj);
+}
+
+function add_input_select_options(parent_obj, opts, value_selected)
 {
     /*
      * parent_obj, not parent_id, should be passed here.
@@ -239,7 +251,7 @@ function add_input_select_and_text(parent_obj, target_id, args)
      *   <select id={target_id}+"Selected">
      *     <option> select2+tree </option>
      *   </select>
-     *   --> add_input_text() <--
+     *   --> add_input_text({labbel_name: undefined}) <--
      * </div>
      *
      * if args.need_input_text is true, the input text is gonna be added by add_input_text().
@@ -251,40 +263,43 @@ function add_input_select_and_text(parent_obj, target_id, args)
      * note if args.value_selected doesn't apper, you should check if the value exists in the args.select_list.
      *
      */
-    let child, x;
-
     if (args.clear_content == true) {
         parent_obj.innerHTML = "";
+        args.clear_content = false;
     }
-    child = document.createElement("div");
-    child.classList.add("inline-block");
+
+    this_obj = document.createElement("div");
+    this_obj.classList.add("inline-block");
+
+    let x;
     if (args.label_name != undefined) {
         x = document.createElement("label");
         x.htmlFor = target_id + "Selected";
         x.innerHTML = args.label_name;
         x.classList.add("label");
         x.classList.add("left-label");
-        child.appendChild(x);
+        this_obj.appendChild(x);
     }
+
     x = document.createElement("select");
     x.id = target_id + "Selected";
-    child.appendChild(x);
-
+    this_obj.appendChild(x);
     if (args.select_list[0].id) {
+        // this is for select2 module.
         jQuery(x).select2ToTree({
             treeData: {dataArr: args.select_list},
             multiple: false,
             dropdownAutoWidth: "auto",
             width: "auto",
-            //dropdownParent: jQuery(parent_obj).parents("[id^='modaal_']"),
             dropdownParent: jQuery("#divResidence"),
         }).val(args.value_selected).trigger("change");
     } else if (args.select_list[0].key) {
-        add_input_select_options_to_obj(x, args.select_list, args.value_selected);
+        // this is for native select element.
+        add_input_select_options(x, args.select_list, args.value_selected);
     }
 
     if (args.need_input_text == true) {
-        add_input_text(child, target_id, {
+        add_input_text(this_obj, target_id, {
             clear_content: false,
             initial_value: args.initial_text,
             label_name: undefined,
@@ -292,7 +307,7 @@ function add_input_select_and_text(parent_obj, target_id, args)
         });
     }
 
-    parent_obj.appendChild(child);
+    parent_obj.appendChild(this_obj);
 }
 
 function get_current_date()
@@ -301,7 +316,7 @@ function get_current_date()
     return local_time.toJSON().slice(0,10);
 }
 
-function add_input_date_to_obj(parent_obj, target_id, initial_value)
+function add_input_date(parent_obj, target_id, initial_value)
 {
     let x = document.createElement("input");
     x.type = "text";
@@ -317,7 +332,7 @@ function add_input_date_to_obj(parent_obj, target_id, initial_value)
     });
 }
 
-function add_input_time_to_obj(parent_obj, target_id, initial_value)
+function add_input_time(parent_obj, target_id, initial_value)
 {
     let local_time = new Date();
     let x = document.createElement("input");
@@ -335,28 +350,44 @@ function add_input_time_to_obj(parent_obj, target_id, initial_value)
     });
 }
 
-function add_input_date_time_to_obj_x(parent_obj, date_target_id, date_initial, time_target_id, time_initial, label_name, line_break)
+function add_input_date_time(parent_obj, args)
 {
-    let child, x;
+    /*
+     * args:
+     *     clear_content
+     *     date_target_id,
+     *     date_initial,
+     *     time_target_id,
+     *     time_initial,
+     *     label_name,
+     *     line_break
+     */
+    if (args.clear_content == true) {
+        parent_obj.innerHTML = "";
+        args.clear_content = false;
+    }
 
-    child = document.createElement("div");
-    child.classList.add("inline-block");
-    if (label_name != undefined) {
-        x = document.createElement("label");
-        x.htmlFor = date_target_id;
-        x.innerHTML = label_name;
+    let this_obj = document.createElement("div");
+    this_obj.classList.add("inline-block");
+
+    if (args.label_name != undefined) {
+        let x = document.createElement("label");
+        x.htmlFor = args.date_target_id;
+        x.innerHTML = args.label_name;
         x.classList.add("label");
         x.classList.add("left-label");
-        child.appendChild(x);
+        this_obj.appendChild(x);
     }
-    add_input_date_to_obj(child, date_target_id, date_initial);
-    if (time_target_id != null) {
-        if (line_break == true) {
-            child.appendChild(document.createElement("br"));
+
+    add_input_date(this_obj, args.date_target_id, args.date_initial);
+    if (args.time_target_id != null) {
+        if (args.line_break == true) {
+            this_obj.appendChild(document.createElement("br"));
         }
-        add_input_time_to_obj(child, time_target_id, time_initial);
+        add_input_time(this_obj, args.time_target_id, args.time_initial);
     }
-    parent_obj.appendChild(child);
+
+    parent_obj.appendChild(this_obj);
 }
 
 function add_input_text(parent_obj, target_id, args)
@@ -367,129 +398,47 @@ function add_input_text(parent_obj, target_id, args)
      *     initial_value
      *     label_name
      *     placeholder_text
-     * options:
-     *     size
      *
      * it makes two ids:
      *     target_id + "Text"
      *
      * the block gonna be:
-     *   <div class="inline-block">
-     *     <label class="label left-label" for=`${target_id}Text`> args.label_name </label>
+     *   <div id=${target_id} class="inline-block">
+     *     <label class="label left-label" for=${target_id}"Text"> args.label_name </label>
      *     <input id=`${target_id}Text` type="text" vlaue=args.initial_value placeholder=args.placeholder_text>
      *   </div>
      *
      */
-    let child, x;
-
     if (args.clear_content == true) {
         parent_obj.innerHTML = "";
+        args.clear_content = false;
     }
-    child = document.createElement("div");
-    child.classList.add("inline-block");
+
+    let this_obj = document.createElement("div");
+    this_obj.id = target_id;
+    this_obj.classList.add("inline-block");
+
+    let x;
     if (args.label_name != undefined) {
         x = document.createElement("label");
         x.htmlFor = target_id + "Text";
         x.innerHTML = args.label_name;
         x.classList.add("label");
         x.classList.add("left-label");
-        child.appendChild(x);
+        this_obj.appendChild(x);
     }
     x = document.createElement("input");
     x.id = target_id + "Text";
     x.type = "text";
-    if (args.size) {
-        x.setAttribute("size", args.size);
-    }
     if (args.initial_value != undefined) {
         x.value = args.initial_value;
     }
     if (args.placeholder_text != undefined) {
         x.placeholder = args.placeholder_text;
     }
-    child.appendChild(x);
+    this_obj.appendChild(x);
 
-    parent_obj.appendChild(child);
-}
-
-function get_default_PLOD()
-{
-    let default_plod = JSON.parse(JSON.stringify(DEFAULT_PLOD));
-    default_plod.dateConfirmed = get_current_date();
-    return DEFAULT_PLOD;
-}
-
-function get_default_PLH(base_row)
-{
-    let default_PLH = {
-        "departureDate": "",
-        "departureTime": "",
-        "departureFrom": "",
-        "departureFromAnnex": "",
-        "arrivalDate": "",
-        "arrivalTime": "",
-        "arrivalIn": "",
-        "arrivalInAnnex": "",
-        "vehicles": [],
-        "details": "",
-    };
-    let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
-    /* set ref_row if possible */
-    let ref_row;
-    if (base_row == undefined || base_row == null) {
-        if (tbody.rows.length > 0) {
-            ref_row = tbody.rows[tbody.rows.length-1];
-        }
-    } else if (base_row.rowIndex >= 2) {
-        ref_row = tbody.rows[base_row.rowIndex-2];
-    }
-    if (ref_row == undefined) {
-        let default_location = document.getElementById("residenceSelected").value;
-        default_PLH.departureFrom = default_location;
-        default_PLH.departureDate = get_current_date();
-        default_PLH.arrivalIn = default_location;
-        default_PLH.arrivalDate = get_current_date();
-        return default_PLH;
-    }
-    /* inserting a row with the referring row. */
-    default_PLH.departureDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
-    default_PLH.departureTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
-    default_PLH.departureFrom = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInSelected).value;
-    default_PLH.departureFromAnnex = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInText).value;
-    default_PLH.arrivalDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
-    default_PLH.arrivalTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
-    default_PLH.arrivalIn = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromSelected).value;
-    default_PLH.arrivalInAnnex = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromText).value;
-    return default_PLH;
-}
-
-function get_default_PCH(base_row)
-{
-    let default_PCH = {
-        "conditionDate": "",
-        "conditionTime": "",
-        "conditions": [],
-        "details": "",
-    };
-    let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
-    /* set ref_row if possible */
-    let ref_row;
-    if (base_row == undefined || base_row == null) {
-        if (tbody.rows.length > 0) {
-            ref_row = tbody.rows[tbody.rows.length-1];
-        }
-    } else if (base_row.rowIndex >= 2) {
-        ref_row = tbody.rows[base_row.rowIndex-2];
-    }
-    if (ref_row == undefined) {
-        /* inserting a row with default */
-        default_PCH.conditionDate = get_current_date();
-        return default_PCH;
-    }
-    /* inserting a row with the referring row. */
-    default_PCH.conditionDate = get_one_element_by_regex(ref_row.cells[0], re_PCHDate).value;
-    default_PCH.conditionTime = get_one_element_by_regex(ref_row.cells[0], re_PCHTime).value;
-    return default_PCH;
+    parent_obj.appendChild(this_obj);
 }
 
 function add_input_button_ins_line(parent_obj, row)
@@ -522,7 +471,15 @@ function ins_line_PLHTable(row_index_ins, initial_value)
 
     /* PLHDepartureDate and PLHDepartureTime */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj_x(cell, "PLHDepartureDate"+row_num, initial_value.departureDate, "PLHDepartureTime" + row_num, initial_value.departureTime, undefined, true);
+    add_input_date_time(cell, {
+        clear_content: true,
+        date_target_id: "PLHDepartureDate" + row_num,
+        date_initial: initial_value.departureDate,
+        time_target_id: "PLHDepartureTime" + row_num,
+        time_initial: initial_value.departureTime,
+        label_name: undefined,
+        line_break: true,
+    });
 
     /* PLHDepartureFrom */
     cell = row.insertCell(-1);
@@ -538,7 +495,15 @@ function ins_line_PLHTable(row_index_ins, initial_value)
 
     /* PLHArrivalDateTime */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj_x(cell, "PLHArrivalDate"+row_num, initial_value.departureDate, "PLHArrivalTime" + row_num, initial_value.departureTime, undefined, true);
+    add_input_date_time(cell, {
+        clear_content: true,
+        date_target_id: "PLHArrivalDate" + row_num,
+        date_initial: initial_value.departureDate,
+        time_target_id: "PLHArrivalTime" + row_num,
+        time_initial: initial_value.departureTime,
+        label_name: undefined,
+        line_break: true,
+    });
 
     /* PLHArrivalIn */
     cell = row.insertCell(-1);
@@ -559,6 +524,11 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         item_list: vehiclesList,
         initial_checked: initial_value.vehicles,
         need_input_text: false,
+        // temporally disabled: discussed with Tsuna-san, 26-Apr-2020
+        //need_input_text: true,
+        //initial_text: initial_value.vehicleOthers,
+        //placeholder_text: "HOGE",
+
     });
 
     /* PLHDetails */
@@ -587,7 +557,15 @@ function ins_line_PCHTable(row_index_ins, initial_value)
 
     /* PCHDate, PCHTime */
     cell = row.insertCell(-1);
-    add_input_date_time_to_obj_x(cell, "PCHDate"+row_num, initial_value.conditionDate, "PCHTime" + row_num, initial_value.conditionTime, undefined, true);
+    add_input_date_time(cell, {
+        clear_content: true,
+        date_target_id: "PCHDate" + row_num,
+        date_initial: initial_value.conditionDate,
+        time_target_id: "PCHTime" + row_num,
+        time_initial: initial_value.conditionTime,
+        label_name: undefined,
+        line_break: true,
+    });
 
     /* PCHConditios */
     cell = row.insertCell(-1);
@@ -832,6 +810,89 @@ async function delete_plod(reportId)
 }
 
 /*
+ * set default value for edit form.
+ */
+function get_default_PLOD()
+{
+    let default_plod = JSON.parse(JSON.stringify(DEFAULT_PLOD));
+    default_plod.dateConfirmed = get_current_date();
+    return DEFAULT_PLOD;
+}
+
+function get_default_PLH(base_row)
+{
+    let default_PLH = {
+        "departureDate": "",
+        "departureTime": "",
+        "departureFrom": "",
+        "departureFromAnnex": "",
+        "arrivalDate": "",
+        "arrivalTime": "",
+        "arrivalIn": "",
+        "arrivalInAnnex": "",
+        "vehicles": [],
+        "details": "",
+    };
+    let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
+    /* set ref_row if possible */
+    let ref_row;
+    if (base_row == undefined || base_row == null) {
+        if (tbody.rows.length > 0) {
+            ref_row = tbody.rows[tbody.rows.length-1];
+        }
+    } else if (base_row.rowIndex >= 2) {
+        ref_row = tbody.rows[base_row.rowIndex-2];
+    }
+    if (ref_row == undefined) {
+        let default_location = document.getElementById("residenceSelected").value;
+        default_PLH.departureFrom = default_location;
+        default_PLH.departureDate = get_current_date();
+        default_PLH.arrivalIn = default_location;
+        default_PLH.arrivalDate = get_current_date();
+        return default_PLH;
+    }
+    /* inserting a row with the referring row. */
+    default_PLH.departureDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
+    default_PLH.departureTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
+    default_PLH.departureFrom = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInSelected).value;
+    default_PLH.departureFromAnnex = get_one_element_by_regex(ref_row.cells[3], re_PLHArrivalInText).value;
+    default_PLH.arrivalDate = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalDate).value;
+    default_PLH.arrivalTime = get_one_element_by_regex(ref_row.cells[2], re_PLHArrivalTime).value;
+    default_PLH.arrivalIn = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromSelected).value;
+    default_PLH.arrivalInAnnex = get_one_element_by_regex(ref_row.cells[1], re_PLHDepartureFromText).value;
+    return default_PLH;
+}
+
+function get_default_PCH(base_row)
+{
+    let default_PCH = {
+        "conditionDate": "",
+        "conditionTime": "",
+        "conditions": [],
+        "details": "",
+    };
+    let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
+    /* set ref_row if possible */
+    let ref_row;
+    if (base_row == undefined || base_row == null) {
+        if (tbody.rows.length > 0) {
+            ref_row = tbody.rows[tbody.rows.length-1];
+        }
+    } else if (base_row.rowIndex >= 2) {
+        ref_row = tbody.rows[base_row.rowIndex-2];
+    }
+    if (ref_row == undefined) {
+        /* inserting a row with default */
+        default_PCH.conditionDate = get_current_date();
+        return default_PCH;
+    }
+    /* inserting a row with the referring row. */
+    default_PCH.conditionDate = get_one_element_by_regex(ref_row.cells[0], re_PCHDate).value;
+    default_PCH.conditionTime = get_one_element_by_regex(ref_row.cells[0], re_PCHTime).value;
+    return default_PCH;
+}
+
+/*
  * event handlers
  */
 function ev_click_add_line_PLHTable()
@@ -899,8 +960,6 @@ function plod_form_submit()
 
 function plod_form_create()
 {
-    let x;
-
 //console.log(g_form_value);
 
     /* layout the edit blocks */
@@ -908,7 +967,6 @@ function plod_form_create()
     add_input_text(document.getElementById("divDataSource"), "dataSource", {
         clear_content: true,
         label_name: headers_base.filter(x => x["key"] == "dataSource")[0].notation,
-        size: "100%",
         initial_value: g_form_value.dataSource,
         placeholder_text: M_PLACEHOLDER_DATASOURCE,
     });
@@ -940,10 +998,16 @@ function plod_form_create()
         placeholder_text: M_PLACEHOLDER_SELECT_OTHER_AND_INPUT,
     });
 
-    x = document.getElementById("divDateConfirmed");
-    x.innerHTML = "";
-    add_input_date_time_to_obj_x(x, "dateConfirmed", g_form_value.dateConfirmed, undefined, undefined,
-        headers_base.filter(x => x["key"] == "dateConfirmed")[0].notation);
+
+    add_input_date_time(document.getElementById("divDateConfirmed"), {
+        clear_content: true,
+        date_target_id: "dateConfirmed",
+        date_initial: g_form_value.dateConfirmed,
+        time_target_id: undefined,
+        time_initial: undefined,
+        label_name: headers_base.find(x => x["key"] == "dateConfirmed").notation,
+        line_break: false,
+    });
 
     add_input_select_and_text(document.getElementById("divAge"), "age", {
         clear_content: true,
@@ -1137,26 +1201,26 @@ function ev_load(e)
         </div>
         <hr>
 
-        <div class="inline-block">
-            <div id="divDataSource" class="div-block inset-box"> <!-- insert dynamically --> </div>
+        <div class="top-block inline-block">
+            <div id="divDataSource" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divPublisher" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divLocalId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
-        <div class="inline-block">
+        <div class="top-block inline-block">
             <div id="divDisease" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divDateConfirmed" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
         <hr>
-        <div class="inline-block">
+        <div class="top-block inline-block">
             <div id="divAge" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div> 
             <div id="divGender" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div> 
             <div id="divResidence" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
         <hr>
-        <div class="inline-block div-block">
+        <div class="top-block inline-block div-block">
             <label for="divPLH">患者の移動の履歴:</label>
             <div id="divPLH">
                 <table id="tablePLH" class="table-form">
@@ -1178,7 +1242,7 @@ function ev_load(e)
         </div>
 
         <hr>
-        <div class="inline-block div-block">
+        <div class="top-block inline-block div-block">
             <label for="divPCH">患者の状態の履歴:</label>
             <div id="divPCH">
                 <table id="tablePCH" class="table-form">
@@ -1197,7 +1261,7 @@ function ev_load(e)
         </div>
 
         <hr>
-        <div id="divCloseContacts" class="div-block"> <!-- insert dynamically --> </div>
+        <div id="divCloseContacts" class="top-block div-block"> <!-- insert dynamically --> </div>
 
         <hr>
         <div>
