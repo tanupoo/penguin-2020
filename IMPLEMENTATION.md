@@ -47,7 +47,6 @@ PLH_MEMBERS = {
     "arrivalIn": LOCATION(CHOICE),
     "arrivalInAnnex": STRING(FREE),
     "vehicles": [ VEHICLES ],
-    "vehicleOthers": STRING(FREE),
     "details": STRING(FREE),
 };
 
@@ -55,8 +54,7 @@ PCH_MEMBERS = {
     "conditionDate": DATE(CHOICE),
     "conditionTime": TIME(CHOICE),
     "conditions": [ CONDITIONS ],
-    "conditionOthers": STRING(FREE),
-    "detaills": STRING(FREE),
+    "details": STRING(FREE),
 };
 
 PLOD = {
@@ -104,9 +102,11 @@ return:
 
 JSON形式のPLODを受け取り、データベースに登録する。
 
+    { PLOD }
+
 return:
 
-    "result": { "data": JSON-PLOD }
+    "result": { "plod": { PLOD } }
 
 curl を使用した例:
 
@@ -118,6 +118,14 @@ curl を使用した例:
 - POST /beak/bulk
 
 JSON形式のPLODのリストを受け取り、データベースに登録する。
+
+input:
+
+    [ { PLOD }, ... ]
+
+    or 
+
+    { "result": "...", "plod": [ { PLOD }, ... ] }
 
 return:
 
