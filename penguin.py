@@ -236,6 +236,11 @@ async def get_doc_handler(request):
 async def receive_plod_bulk_handler(request):
     """
     Note that it doesn't assign reportId.
+    the format of the content is either:
+        - list of PLOD 
+            e.g. [ { PLOD }, ... ]
+        - data responsed by the API /tummy/all
+            e.g. { "result": "...", "plod": [ { PLOD }, ... ] }
     """
     common_access_log(request)
     try:
@@ -249,7 +254,14 @@ async def receive_plod_bulk_handler(request):
     #
     if not config[__CONF_DB_CONN]:
         return http_response("DB hasn't been ready.", status=503)
-    # need more sanity check
+    # checking the content.
+    if isinstance(content, list):
+        pass
+    elif content.get("plod"):
+        content = content["plod"]
+    else:
+        return http_response("Invalid format for the bulk insersion.",
+                status=502)
     for plod in content:
         report_id = plod.get("reportId")
         if report_id is None:
