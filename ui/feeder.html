@@ -431,7 +431,6 @@ function get_default_PLH(base_row)
         "arrivalIn": "",
         "arrivalInAnnex": "",
         "vehicles": [],
-        "vehicleOthers": "",
         "details": "",
     };
     let tbody = document.getElementById("tablePLH").getElementsByTagName('tbody')[0];
@@ -470,7 +469,6 @@ function get_default_PCH(base_row)
         "conditionDate": "",
         "conditionTime": "",
         "conditions": [],
-        "conditionOthers": "",
         "details": "",
     };
     let tbody = document.getElementById("tablePCH").getElementsByTagName('tbody')[0];
@@ -560,9 +558,7 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         clear_content: true,
         item_list: vehiclesList,
         initial_checked: initial_value.vehicles,
-        need_input_text: true,
-        initial_text: initial_value.vehicleOthers,
-        placeholder_text: M_PLACEHOLDER_VEHICLE_TEXT,
+        need_input_text: false,
     });
 
     /* PLHDetails */
@@ -571,7 +567,7 @@ function ins_line_PLHTable(row_index_ins, initial_value)
         clear_content: false,
         initial_value: initial_value.details,
         label_name: false,
-        placeholder_text: M_PLACEHOLDER_PLH_ANNEX,
+        placeholder_text: M_PLACEHOLDER_PLH_DETAILS,
     });
 
     /* DelLine */
@@ -608,7 +604,7 @@ function ins_line_PCHTable(row_index_ins, initial_value)
         clear_content: false,
         initial_value: initial_value.details,
         label_name: false,
-        placeholder_text: M_PLACEHOLDER_PCH_ANNEX,
+        placeholder_text: M_PLACEHOLDER_PCH_DETAILS,
     });
 
     /* DelLine */
@@ -687,7 +683,6 @@ function make_data_entries()
         "publisher": get_selected_value("publisherSelected"),
         "publisherOthers": document.getElementById("publisherText").value,
         "localId": document.getElementById("localIdText").value,
-        "localSubId": document.getElementById("localSubIdText").value,
         "disease": get_selected_value("diseaseSelected"),
         "diseaseOthers": document.getElementById("diseaseText").value,
         "dateConfirmed": document.getElementById("dateConfirmed").value,
@@ -740,15 +735,19 @@ function make_data_entries()
                 if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
                     kv["vehicles"].push(y.firstChild.name);
                 }
-                if (y.firstChild.type == "textarea") {
-                    kv["vehicleOthers"] = y.firstChild.value;
-                }
+                // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+                // can be deleted.  might be no more needed.
+                // if (y.firstChild.type == "textarea") {
+                //     kv["vehicleOthers"] = y.firstChild.value;
+                // }
             });
         });
         /* add vehicleOthers if not exists. */
-        if (kv.vehicleOthers == undefined) {
-            kv["vehicleOthers"] = "";
-        }
+        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+        // can be deleted.  might be no more needed.
+        // if (kv.vehicleOthers == undefined) {
+        //    kv["vehicleOthers"] = "";
+        // }
         kv["details"] = get_one_element_by_regex(row.cells[5], re_PLHDetailsTextarea).value;
         data_entered["locationHistory"].push(kv);
     }
@@ -775,9 +774,10 @@ function make_data_entries()
             });
         });
         /* add conditionOthers if not exists. */
-        if (kv.conditionOthers == undefined) {
-            kv["conditionOthers"] = "";
-        }
+        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
+        // if (kv.conditionOthers == undefined) {
+        //     kv["conditionOthers"] = "";
+        // }
         kv["details"] = get_one_element_by_regex(row.cells[2], re_PCHDetailsTextarea).value;
         data_entered["conditionHistory"].push(kv);
     }
@@ -928,13 +928,6 @@ function plod_form_create()
         label_name: headers_base.filter(x => x["key"] == "localId")[0].notation,
         initial_value: g_form_value.localId,
         placeholder_text: M_PLACEHOLDER_LOCALID,
-    });
-
-    add_input_text(document.getElementById("divLocalSubId"), "localSubId", {
-        clear_content: true,
-        label_name: headers_base.filter(x => x["key"] == "localSubId")[0].notation,
-        initial_value: g_form_value.localSubId,
-        placeholder_text: M_PLACEHOLDER_LOCALSUBID,
     });
 
     add_input_select_and_text(document.getElementById("divDisease"), "disease", {
@@ -1148,7 +1141,6 @@ function ev_load(e)
             <div id="divDataSource" class="div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divPublisher" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
             <div id="divLocalId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
-            <div id="divLocalSubId" class="inline-block div-block inset-box"> <!-- insert dynamically --> </div>
         </div>
 
         <div class="inline-block">

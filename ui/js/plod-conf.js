@@ -22,12 +22,6 @@ const headers_base = [
         "orderable": true
     },
     {
-        "key": "localSubId",
-        "notation": "副管理No.",
-        "list": true,
-        "orderable": true
-    },
-    {
         "key": "dateConfirmed",
         "notation": "患者の状態が確認された日付",
         "list": false,
@@ -118,11 +112,6 @@ const headers_PLH = [
         "list": true,
     },
     {
-        "key": "vehicleOthers",
-        "notation": "移動方法備考",
-        "list": true,
-    },
-    {
         "key": "details",
         "notation": "所見や患者の行動等",
         "list": true,
@@ -143,11 +132,6 @@ const headers_PCH = [
     {
         "key": "conditions",
         "notation": "状態",
-        "list": true
-    },
-    {
-        "key": "conditionOthers",
-        "notation": "状態備考",
         "list": true
     },
     {
@@ -224,7 +208,6 @@ const DEFAULT_PLOD = {
     "publisher": "厚労省",
     "publisherOthers": "",
     "localId": "",
-    "localSubId": "",
     "disease": "COVID-2019",
     "diseaseOthers": "",
     "dateConfirmed": "",
@@ -241,14 +224,12 @@ const DEFAULT_PLOD = {
 
 const M_PLACEHOLDER_SELECT_OTHER_AND_INPUT = "選択肢にない場合、その他を選んでから記述する。";
 const M_PLACEHOLDER_DATASOURCE = "プレスリリースの場合はURLを入力する。";
-const M_PLACEHOLDER_LOCATION_ANNEX = "建物名や駅名等、補足情報等があれば入力する。";
+const M_PLACEHOLDER_LOCATION_ANNEX = "建物名や駅名など、補足情報などがあれば入力する。";
 const M_PLACEHOLDER_TIME = "可能ならば時刻を入力する。";
-const M_PLACEHOLDER_VEHICLE_TEXT = "自由記述\n(自家用車、バイク等他人と遭遇せず単独行動した場合等)";
-const M_PLACEHOLDER_PLH_ANNEX = "備考等自由記述";
-const M_PLACEHOLDER_PCH_ANNEX = "所見、患者の健康状態、検査機関、その他";
-const M_PLACEHOLDER_LOCALID = "厚労省で管理している識別子等あれば入力する。";
-const M_PLACEHOLDER_LOCALSUBID = "所轄における識別子等あれば入力する。";
-const M_PLACEHOLDER_RESIDENCEANNEX = "補足情報等があれば入力する。";
+const M_PLACEHOLDER_PLH_DETAILS = "表記以外の移動手段、その他備考など自由記述。";
+const M_PLACEHOLDER_PCH_DETAILS = "所見、患者の健康状態、検査機関、その他";
+const M_PLACEHOLDER_LOCALID = "所轄で管理している識別子や検索用キーなどあれば入力する。";
+const M_PLACEHOLDER_RESIDENCEANNEX = "補足情報などがあれば入力する。";
 const M_PLACEHOLDER_CLOSECONTACTS = "濃厚接触者の情報を列挙する。記述方法は要検討。";
 
 const M_BUTTON_DELETE_THIS = "←削除";
