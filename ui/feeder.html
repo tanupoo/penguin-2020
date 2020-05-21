@@ -713,10 +713,13 @@ function make_data_entries()
         ]
     };
 
-    /* put _id and/or reportId if exists. */
-    if (g_form_value.reportId != undefined) {
-        data_entered.reportId = g_form_value.reportId;
-    }
+    /* put magic values if exists. */
+    magic = [ "reportId", "_id", "createdTime", "updatedTime" ];
+    magic.forEach(x => {
+        if (g_form_value[x] != undefined) {
+            data_entered[x] = g_form_value[x];
+        }
+    });
 
     /* check the field of publisher and disease */
     if (check_value_and_other(data_entered["publisher"], data_entered["publisherOthers"]) == false) {
@@ -787,19 +790,20 @@ async function send_plod(patient_data)
     }).then(response => {
         return response.json();
     }).then(content => {
-//console.log("content:", content);
         let status = content["result"];
         if (status == "success") {
             let data = content["plod"];
-            confirm("reportId " + data["reportId"] + M_CONFIRM_PLOD_CREATED);
+            confirm(`${M_CONFIRM_PLOD_CREATED} reportId=${data.reportId}`);
             // XXX needs to decide whehter new record is added to local table or just reload.
             //plod_table.row.add(data).draw();
             window.location.reload(false);
         } else {
-            confirm("reportId " + data["reportId"] + M_CONFIRM_PLOD_FAILED_CREATION + "status=" + status);
+            if (patient_data.reportId != undefined) {
+                confirm(`${M_CONFIRM_PLOD_FAILED_CREATION} reportId=${patient_data.reportId} status=${status}`);
+            } else {
+                confirm(`${M_CONFIRM_PLOD_FAILED_CREATION} status=${status}`);
+            }
         }
-    }).catch(error => {
-        console.error("Error:", error);
     });
 }
 
@@ -810,17 +814,14 @@ async function delete_plod(reportId)
     }).then(response => {
         return response.json();
     }).then(content => {
-//console.log("content:", content);
         let status = content["result"];
         if (status == "success") {
-            confirm("reportId " + reportId + M_CONFIRM_PLOD_DELETED);
+            confirm(`${M_CONFIRM_PLOD_DELETED} reportId=${reportId}`);
             // XXX needs to decide whehter new record is deleted from local table or just reload.
             window.location.reload(false);
         } else {
-            confirm("reportId " + reportId + M_CONFIRM_PLOD_FAILED_DELETION + "status=" + status);
+            confirm(`${M_CONFIRM_PLOD_FAILED_DELETION} reportId=${reportId} status=${status}`);
         }
-    }).catch(error => {
-        console.error("Error:", error);
     });
 }
 
