@@ -125,6 +125,9 @@ class db_connector():
                                 self.config[CONF_DB_PORT]))
 
     def submit(self, kv_data, **kwargs):
+        if kv_data.get("_id"):
+            # as calling replace() method of MongoDB, _id must not exist.i
+            kv_data.pop("_id")
         try:
             # report_id (UUID4) is the unique key.
             #ret = self.col.update_one({"_id":kv_data["_id"]}, kv_data,
@@ -307,18 +310,21 @@ async def receive_plod_handler(request):
     if report_id is None:
         # assign new reportId.
         report_id = content.setdefault("reportId", str(uuid.uuid4()))
-        content.setdefault("createdTime",
-            datetime.now(tz=dateutil.tz.gettz(config[CONF_TZ])).isoformat())
+        content.update({"createdTime": datetime.now(
+                tz=dateutil.tz.gettz(config[CONF_TZ])).isoformat()})
     else:
-        content.setdefault("updatedTime",
-            datetime.now(tz=dateutil.tz.gettz(config[CONF_TZ])).isoformat())
+        content.update({"updatedTime": datetime.now(
+                tz=dateutil.tz.gettz(config[CONF_TZ])).isoformat()})
     #
     logger.debug("submit data: {}".format(json.dumps(content)))
-    if not config[__CONF_DB_CONN].submit(content):
-        return http_response("Registration failed.", status=503)
+    try:
+        if not config[__CONF_DB_CONN].submit(content):
+            return http_response("Registration failed.", status=503)
+    except Exception as e:
+        return http_response("something DB error", status=500, log_text=str(e))
     #
     logger.info(f"Submited data: {report_id}")
-    ## if you use content, you need to care aboout "_id":ObjectID().
+    ## convert the type of _id into a string because it's ObjectID().
     if content.get("_id"):
         _id = str(content.pop("_id"))
         content.update({"_id": f"{_id}"})
