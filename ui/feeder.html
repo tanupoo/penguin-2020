@@ -56,16 +56,16 @@ let residenceList = [];
 // value -> id
 
 const re_PLHDepartureDate = new RegExp("PLHDepartureDate\\d+$");
-const re_PLHDepartureTime = new RegExp("PLHDepartureTime\\d+$");
+const re_PLHDepartureTime = new RegExp("PLHDepartureTime\\d+Selected$");
 const re_PLHDepartureFromSelected = new RegExp("PLHDepartureFrom\\d+Selected$");
 const re_PLHDepartureFromText = new RegExp("PLHDepartureFrom\\d+Text$");
 const re_PLHArrivalDate = new RegExp("PLHArrivalDate\\d+$");
-const re_PLHArrivalTime = new RegExp("PLHArrivalTime\\d+$");
+const re_PLHArrivalTime = new RegExp("PLHArrivalTime\\d+Selected$");
 const re_PLHArrivalInSelected = new RegExp("PLHArrivalIn\\d+Selected$");
 const re_PLHArrivalInText = new RegExp("PLHArrivalIn\\d+Text$");
 const re_PLHDetailsTextarea = new RegExp("PLHDetails\\d+Textarea$");
 const re_PCHDate = new RegExp("PCHDate\\d+$");
-const re_PCHTime = new RegExp("PCHTime\\d+$");
+const re_PCHTime = new RegExp("PCHTime\\d+Selected$");
 const re_PCHDetailsTextarea = new RegExp("PCHDetails\\d+Textarea$");
 
 function debug_table(table)
@@ -332,22 +332,36 @@ function add_input_date(parent_obj, target_id, initial_value)
     });
 }
 
+/*
 function add_input_time(parent_obj, target_id, initial_value)
 {
-    let local_time = new Date();
-    let x = document.createElement("input");
-    x.type = "text";
-    x.id = target_id;
-    x.placeholder = M_PLACEHOLDER_TIME;
-    x.classList.add("inputTime");
-    parent_obj.appendChild(x);
-    jQuery(x).val(initial_value);
-    jQuery(x).datetimepicker({
+    let this_obj = document.createElement("input");
+    this_obj.type = "text";
+    this_obj.id = target_id;
+    this_obj.placeholder = M_PLACEHOLDER_TIME;
+    this_obj.classList.add("inputTime");
+    parent_obj.appendChild(this_obj);
+    jQuery(this_obj).val(initial_value);
+    jQuery(this_obj).datetimepicker({
         datepicker: false,
         format: "H:i",
         step: 30,
         defaultTime: "12:00",
     });
+}
+*/
+function add_input_time(parent_obj, target_id, initial_value)
+{
+    let this_obj = document.createElement("select");
+    this_obj.id = target_id + "Selected";
+    parent_obj.appendChild(this_obj);
+    jQuery(this_obj).select2ToTree({
+        treeData: {dataArr: time_list},
+        multiple: false,
+        dropdownAutoWidth: "auto",
+        width: "auto",
+        dropdownParent: jQuery("#divResidence"),
+    }).val(initial_value).trigger("change");
 }
 
 function add_input_date_time(parent_obj, args)
@@ -361,6 +375,18 @@ function add_input_date_time(parent_obj, args)
      *     time_initial,
      *     label_name,
      *     line_break
+     *
+     * if line_break is true,
+     * <div class="flex-v-block">
+     *   --> add_input_data() <--
+     *   --> add_input_time() <--
+     * </div>
+     *
+     * if line_break is false,
+     * <div class="flex-h-block">
+     *   --> add_input_data() <--
+     *   --> add_input_time() <--
+     * </div>
      */
     if (args.clear_content == true) {
         parent_obj.innerHTML = "";
@@ -368,22 +394,34 @@ function add_input_date_time(parent_obj, args)
     }
 
     let this_obj = document.createElement("div");
-    this_obj.classList.add("inline-block");
+    if (args.line_break == true) {
+        this_obj.classList.add("flex-v-block");
 
-    if (args.label_name != undefined) {
-        let x = document.createElement("label");
-        x.htmlFor = args.date_target_id;
-        x.innerHTML = args.label_name;
-        x.classList.add("label");
-        x.classList.add("left-label");
-        this_obj.appendChild(x);
+        if (args.label_name != undefined) {
+            let x = document.createElement("label");
+            x.htmlFor = args.date_target_id;
+            x.innerHTML = args.label_name;
+            x.classList.add("label");
+            x.classList.add("top-label");
+            this_obj.appendChild(x);
+        }
+    } else {
+        this_obj.classList.add("flex-h-block");
+
+        if (args.label_name != undefined) {
+            let x = document.createElement("label");
+            x.htmlFor = args.date_target_id;
+            x.innerHTML = args.label_name;
+            x.classList.add("label");
+            x.classList.add("left-label");
+            this_obj.appendChild(x);
+        }
     }
 
-    add_input_date(this_obj, args.date_target_id, args.date_initial);
+    if (args.date_target_id != null) {
+        add_input_date(this_obj, args.date_target_id, args.date_initial);
+    }
     if (args.time_target_id != null) {
-        if (args.line_break == true) {
-            this_obj.appendChild(document.createElement("br"));
-        }
         add_input_time(this_obj, args.time_target_id, args.time_initial);
     }
 
@@ -708,24 +746,12 @@ function make_data_entries()
         kv["arrivalIn"] = get_one_element_by_regex(row.cells[3], re_PLHArrivalInSelected).value;
         kv["arrivalInAnnex"] = get_one_element_by_regex(row.cells[3], re_PLHArrivalInText).value;
         kv["vehicles"] = [];
-        row.cells[4].childNodes.forEach(x => { // vehicles
-            x.childNodes.forEach(y => {
-                if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
-                    kv["vehicles"].push(y.firstChild.name);
-                }
-                // temporally removed: discussed with Tsuna-san, 26-Apr-2020
-                // can be deleted.  might be no more needed.
-                // if (y.firstChild.type == "textarea") {
-                //     kv["vehicleOthers"] = y.firstChild.value;
-                // }
-            });
+        Array.from(row.cells[4].querySelectorAll("input")).forEach(x => {
+            if (x.type == "checkbox" && x.checked == true) {
+                kv["vehicles"].push(x.name);
+                return x.name;
+            }
         });
-        /* add vehicleOthers if not exists. */
-        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
-        // can be deleted.  might be no more needed.
-        // if (kv.vehicleOthers == undefined) {
-        //    kv["vehicleOthers"] = "";
-        // }
         kv["details"] = get_one_element_by_regex(row.cells[5], re_PLHDetailsTextarea).value;
         data_entered["locationHistory"].push(kv);
     }
@@ -740,22 +766,11 @@ function make_data_entries()
         kv["conditionDate"] = get_one_element_by_regex(row.cells[0], re_PCHDate).value;
         kv["conditionTime"] = get_one_element_by_regex(row.cells[0], re_PCHTime).value;
         kv["conditions"] = [];
-        row.cells[1].childNodes.forEach(x => { // PCHStatus
-            x.childNodes.forEach(y => {
-                if (y.firstChild.type == "checkbox" && y.firstChild.checked == true) {
-                    kv["conditions"].push(y.firstChild.name);
-                }
-                // temporally removed: discussed with Tsuna-san, 26-Apr-2020
-                //if (y.firstChild.type == "textarea") {
-                //    kv["conditionOthers"] = y.firstChild.value;
-                //}
-            });
+        Array.from(row.cells[1].querySelectorAll("input")).forEach(x => {
+            if (x.type == "checkbox" && x.checked == true) {
+                kv["conditions"].push(x.name);
+            }
         });
-        /* add conditionOthers if not exists. */
-        // temporally removed: discussed with Tsuna-san, 26-Apr-2020
-        // if (kv.conditionOthers == undefined) {
-        //     kv["conditionOthers"] = "";
-        // }
         kv["details"] = get_one_element_by_regex(row.cells[2], re_PCHDetailsTextarea).value;
         data_entered["conditionHistory"].push(kv);
     }
