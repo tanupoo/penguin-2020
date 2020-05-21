@@ -1,114 +1,113 @@
-[
-    {
-        "reportId": "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9",
-        "publisher": "千葉県",
-        "publisherOthers": "",
-        "localId": "13",
-        "localSubId": "1",
-        "dateConfirmed": "2020-01-31",
-        "disease": "COVID-2019",
-        "diseaseOthers": "",
-        "age": "20s",
-        "gender": "Female",
-        "residence": "千葉県",
-        "residenceAnnex": "",
-        "locationHistory": [
-            {
-                "arrivalDate": "2020-01-16",
-                "arrivalIn": "大阪府",
-                "arrivalInAnnex": "",
-                "arrivalTime": "",
-                "departureDate": "2020-01-16",
-                "departureFrom": "千葉県",
-                "departureFromAnnex": "",
-                "departureTime": "",
-                "details": "",
-                "vehicleOthers": "",
-                "vehicles": [
-                    "Airplane"
-                ]
-            },
-            {
-                "arrivalDate": "2020-01-22",
-                "arrivalIn": "Others",
-                "arrivalInAnnex": "ツアー",
-                "arrivalTime": "",
-                "departureDate": "2020-01-17",
-                "departureFrom": "大阪府",
-                "departureFromAnnex": "",
-                "departureTime": "",
-                "details": "",
-                "vehicleOthers": "",
-                "vehicles": [
-                    "Bus"
-                ]
-            },
-            {
-                "arrivalDate": "2020-01-22",
-                "arrivalIn": "千葉県",
-                "arrivalInAnnex": "",
-                "arrivalTime": "",
-                "departureDate": "2020-01-22",
-                "departureFrom": "大阪府",
-                "departureFromAnnex": "",
-                "departureTime": "",
-                "details": "",
-                "vehicleOthers": "",
-                "vehicles": [
-                    "Bus"
-                ]
-            },
-            {
-                "arrivalDate": "2020-01-29",
-                "arrivalIn": "千葉県",
-                "arrivalInAnnex": "医療機関",
-                "arrivalTime": "",
-                "departureDate": "2020-01-29",
-                "departureFrom": "千葉県",
-                "departureFromAnnex": "",
-                "departureTime": "",
-                "details": "",
-                "vehicleOthers": "",
-                "vehicles": [
-                    "Unknown"
-                ]
-            },
-            {
-                "arrivalDate": "2020-01-30",
-                "arrivalIn": "千葉県",
-                "arrivalInAnnex": "医療機関",
-                "arrivalTime": "",
-                "departureDate": "2020-01-30",
-                "departureFrom": "千葉県",
-                "departureFromAnnex": "",
-                "departureTime": "",
-                "details": "",
-                "vehicleOthers": "",
-                "vehicles": [
-                    "Unknown"
-                ]
-            }
-        ],
-        "conditionHistory": [
-            {
-                "conditionDate": "2020-01-20",
-                "conditionOthers": "",
-                "conditionTime": "",
-                "conditions": [
-                    "Cough",
-                    "RunnyNose"
-                ],
-                "details": ""
-            },
-            {
-                "conditionDate": "2020-04-29",
-                "conditionOthers": "",
-                "conditionTime": "",
-                "conditions": [
-                    "RunnyNose"
-                ],
-                "details": ""
-            }
-        ]
-    }
-]
+{
+    "result": "success",
+    "plod": [
+        {
+            "dataSource": "https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html",
+            "publisher": "千葉県",
+            "publisherOthers": "",
+            "localId": "13,1",
+            "disease": "COVID-2019",
+            "diseaseOthers": "",
+            "dateConfirmed": "2020-01-31",
+            "age": "20s",
+            "gender": "Female",
+            "residence": "千葉県",
+            "residenceAnnex": "",
+            "closeContacts": "",
+            "locationHistory": [
+                {
+                    "departureDate": "2020-01-16",
+                    "departureTime": "",
+                    "departureFrom": "千葉県",
+                    "departureFromAnnex": "",
+                    "arrivalDate": "2020-01-16",
+                    "arrivalTime": "",
+                    "arrivalIn": "大阪府",
+                    "arrivalInAnnex": "",
+                    "vehicles": [
+                        "Airplane"
+                    ],
+                    "details": ""
+                },
+                {
+                    "departureDate": "2020-01-17",
+                    "departureTime": "",
+                    "departureFrom": "大阪府",
+                    "departureFromAnnex": "",
+                    "arrivalDate": "2020-01-17",
+                    "arrivalTime": "",
+                    "arrivalIn": "",
+                    "arrivalInAnnex": "ツアー",
+                    "vehicles": [
+                        "Bus"
+                    ],
+                    "details": ""
+                },
+                {
+                    "departureDate": "2020-01-22",
+                    "departureTime": "",
+                    "departureFrom": "大阪府",
+                    "departureFromAnnex": "",
+                    "arrivalDate": "2020-01-22",
+                    "arrivalTime": "",
+                    "arrivalIn": "千葉県",
+                    "arrivalInAnnex": "",
+                    "vehicles": [
+                        "Bus"
+                    ],
+                    "details": ""
+                },
+                {
+                    "departureDate": "2020-01-29",
+                    "departureTime": "",
+                    "departureFrom": "千葉県",
+                    "departureFromAnnex": "",
+                    "arrivalDate": "2020-01-29",
+                    "arrivalTime": "",
+                    "arrivalIn": "千葉県",
+                    "arrivalInAnnex": "医療機関",
+                    "vehicles": [
+                        "Unknown"
+                    ],
+                    "details": ""
+                },
+                {
+                    "departureDate": "2020-01-30",
+                    "departureTime": "",
+                    "departureFrom": "千葉県",
+                    "departureFromAnnex": "",
+                    "arrivalDate": "2020-01-30",
+                    "arrivalTime": "",
+                    "arrivalIn": "千葉県",
+                    "arrivalInAnnex": "医療機関",
+                    "vehicles": [
+                        "Unknown"
+                    ],
+                    "details": ""
+                }
+            ],
+            "conditionHistory": [
+                {
+                    "conditionDate": "2020-01-20",
+                    "conditionTime": "",
+                    "conditions": [
+                        "Cough",
+                        "RunnyNose"
+                    ],
+                    "details": ""
+                },
+                {
+                    "conditionDate": "2020-04-29",
+                    "conditionTime": "",
+                    "conditions": [
+                        "RunnyNose"
+                    ],
+                    "details": ""
+                }
+            ],
+            "reportId": "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9",
+            "updatedTime": "2020-05-21T22:57:20.630407+09:00",
+            "_id": "5ec4f05e7d153ee484463ea2"
+        }
+    ]
+}
