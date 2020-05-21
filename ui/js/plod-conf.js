@@ -293,10 +293,10 @@ const M_BUTTON_ADD_ABOVE = "↑追加";
 
 const M_CONFIRM_SUBMIT_DATA = "登録しますか？";
 const M_CONFIRM_CANCEL_SUBMISSION = "取り消しますか？";
-const M_CONFIRM_PLOD_FAILED_CREATION = " の登録に失敗しました。";
-const M_CONFIRM_PLOD_FAILED_DELETION = " の削除に失敗しました。";
-const M_CONFIRM_PLOD_CREATED = " が登録されました。";
-const M_CONFIRM_PLOD_DELETED = " が削除されました。";
+const M_CONFIRM_PLOD_FAILED_CREATION = "登録に失敗しました。";
+const M_CONFIRM_PLOD_FAILED_DELETION = "削除に失敗しました。";
+const M_CONFIRM_PLOD_CREATED = "登録されました。";
+const M_CONFIRM_PLOD_DELETED = "削除されました。";
 const M_CONFIRM_PLOD_ASK_DELETION = "削除しますか？";
 const M_ALERT_SELECT_OTHERS_AND_INPUT = "その他のフィールドに値を入れる場合は、選択肢からその他を選択してください。";
 const M_ALERT_SELECT_DATA = "データを選択してください。";
