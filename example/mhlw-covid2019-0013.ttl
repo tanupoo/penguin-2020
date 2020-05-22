@@ -17,12 +17,12 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-R01 a schema:Report ;
     schema:datePublished "2020-01-31"^^xsd:dateTime ;
     schema:publisher plod:千葉県 ;
     schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> ;
-    dcterms:isReferencedBy <http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html>.
+    dcterms:isReferencedBy <http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html> .
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01 a schema:Patient ;
     rdfs:label "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01" ;
     schema:subjectOf plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9 ;
-    schema:healthCondition <plod:COVID-19> ;
+    schema:healthCondition plod:COVID-19 ;
     plod:dateConfirmed "2020-01-31"^^xsd:dateTime ;
     foaf:age "20s" ;
     schema:gender "Female" ;
@@ -73,16 +73,20 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M05 a schema:MoveAction ;
     schema:instrument "Unknown"@ja .
 
 gnjp:千葉県 a schema:Place ;
-    rdfs:label "gnjp千葉県" .
+    rdfs:label "gnjp:千葉県" .
 
 gnjp:大阪府 a schema:Place ;
-    rdfs:label "gnjp大阪府" .
+    rdfs:label "gnjp:大阪府" .
 
 plod:千葉県 a schema:GovernmentOrganization ;
     schema:location "gnjp:千葉県" ;
     rdfs:seeAlso <http://hojin-info.go.jp/data/basic/4000020120006> .
 
-plod::COVID-19 a schema:InfectiousDisease ;
+<https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> a schema:WebPage .
+
+<http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html> a schema:WebPage .
+
+plod:COVID-19 a schema:InfectiousDisease ;
     rdfs:label "COVID-19" ;
     schema:name "2019-nCoV acute respiratory disease"@en ;
     schema:infectiousAgent "2019-nCoV" ;
