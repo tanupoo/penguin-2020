@@ -6,7 +6,7 @@ import nta_conum_dict
 #
 # XXX TO BE DEFINED
 #
-referencedBy = "http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html"
+referencedBy = "http://www.TO_BE_DEFINED.lg.jp/"
 
 #
 # by definition
@@ -35,52 +35,67 @@ __postfix = f"""\
 """
 
 #
+# add triple for the tale.
 #
-#
-postfix_geoname = {}
-postfix_publisher = {}
-postfix_disease = {}
-
-def finddb(db, search_key):
-    v = [ x[1] for x in nta_conum_dict.co_num_dict.items() if x[0] == search_key ]
+def get_v(db, search_key):
+    v = [ x[1] for x in db.items() if x[0] == search_key ]
     if len(v):
         return v[0]
     return None
 
-#
-# add triple for the tale.
-#
-def get_iri(key, prefix):
-    return f'{prefix}{key}' if (prefix is not None and len(prefix) > 0) else f'<{key}>'
+class t3_maker:
+    def __init__(self):
+        self.refs = {}
 
-def add_turtle_publisher(key, prefix):
-    conum = finddb(nta_conum_dict.co_num_dict, key)
-    return "\n".join([
-            f'{get_iri(key, prefix)} a schema:GovernmentOrganization ;',
-            f'    schema:location "gnjp:{key}" ;',
-            f'    rdfs:seeAlso <http://hojin-info.go.jp/data/basic/{conum}> .',
-            ""])
+    def append(self, name, prefix=None):
+        self.refs.setdefault(name, prefix)
 
-def add_turtle_location(key, prefix):
-    return "\n".join([
-            f'{get_iri(key, prefix)} a schema:Place ;',
-            f'    rdfs:label "{prefix}{key}" .',
-            ""])
+    def get_iri(self, key, prefix):
+        return f'{prefix}{key}' if (prefix is not None and len(prefix) > 0) else f'<{key}>'
 
-def add_turtle_webpage(key, prefix):
-    return "\n".join([
-            f'{get_iri(key, prefix)} a schema:WebPage .',
-            ""])
+class t3_webpage(t3_maker):
+    def finalize(self, buf):
+        for key,prefix in self.refs.items():
+            buf.append("\n".join([
+                f'{self.get_iri(key, prefix)} a schema:WebPage .',
+                ""]))
 
-def add_turtle_disease(key, prefix):
-    # XXX need to check if key is "COVID-19"
-    return "\n".join([
-            f'{get_iri(key, prefix)} a schema:InfectiousDisease ;',
-            f'    rdfs:label "COVID-19" ;',
-            f'    schema:name "2019-nCoV acute respiratory disease"@en ;',
-            f'    schema:infectiousAgent "2019-nCoV" ;',
-            f'    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1> .',
-            ""])
+class t3_place(t3_maker):
+    def finalize(self, buf):
+        for key,prefix in self.refs.items():
+            buf.append("\n".join([
+                    f'{self.get_iri(key, prefix)} a schema:Place ;',
+                    f'    rdfs:label "{prefix}{key}" .',
+                    ""]))
+
+class t3_publisher(t3_maker):
+    def finalize(self, buf):
+        t3_list = []
+        for key,prefix in self.refs.items():
+            conum = get_v(nta_conum_dict.co_num_dict, key)
+            t3_list.append(f'{self.get_iri(key, prefix)} a schema:GovernmentOrganization')
+            t3_list.append(f'    schema:location "gnjp:{key}"')
+            t3_list.append(f'    rdfs:seeAlso <http://hojin-info.go.jp/data/basic/{conum}>')
+            t3_list[-1] += " .\n"
+            buf.append(" ;\n".join(t3_list))
+
+class t3_disease(t3_maker):
+    def finalize(self, buf):
+        t3_list = []
+        for key,prefix in self.refs.items():
+            # XXX need to check if key is "COVID-19"
+            t3_list.append(f'{self.get_iri(key, prefix)} a schema:InfectiousDisease')
+            t3_list.append(f'    rdfs:label "COVID-19"')
+            t3_list.append(f'    schema:name "2019-nCoV acute respiratory disease"@en')
+            t3_list.append(f'    schema:infectiousAgent "2019-nCoV"')
+            t3_list.append(f'    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1>')
+            t3_list[-1] += " .\n"
+            buf.append(" ;\n".join(t3_list))
+
+t3x_disease = t3_disease()
+t3x_publisher = t3_publisher()
+t3x_place = t3_place()
+t3x_webpage = t3_webpage()
 
 #
 # converting value.
@@ -88,17 +103,17 @@ def add_turtle_disease(key, prefix):
 def cv_publisher(a):
     if a == "厚労省":
         a = "厚生労働省"
-    postfix_publisher.setdefault(a, prefix_plod)  # use it later.
+    t3x_publisher.append(a, prefix_plod)  # use it later.
     return f"{prefix_plod}{a}"
 
 def cv_location(a):
-    postfix_geoname.setdefault(a, prefix_geoname)  # use it later.
+    t3x_place.append(a, prefix_geoname)
     return f"{prefix_geoname}{a}"
 
 def cv_healthCondition(a):
     if a == "COVID-2019":
         a = "COVID-19"
-    postfix_disease.setdefault(a, prefix_plod)  # use it later.
+    t3x_disease.append(a, prefix_plod)  # use it later.
     return f"{prefix_plod}{a}"
 
 def make_date_time(obj, date_str, time_str):
@@ -124,7 +139,6 @@ def plod_json2turtle(plod_list):
     #
     # adding one or more PLOD in turtle.
     for jd in plod_list:
-        report_url = jd["dataSource"]
         reportId = jd["reportId"]
         publisher = cv_publisher(jd["publisher"])
         o_healthCondition = cv_healthCondition(jd["disease"])
@@ -134,28 +148,43 @@ def plod_json2turtle(plod_list):
         residence = cv_location(jd["residence"])
         patient_path = f"{reportId}-P01"
 
+        # schema:Event
         buf.append(f'''\
 {prefix_plod}{reportId} a schema:Event ;
     rdfs:label "{reportId}" .
-
-{prefix_plod}{reportId}-R01 a schema:Report ;
-    rdfs:label "{reportId}-R01" ;
-    schema:mainEntity {prefix_plod}{reportId} ;
-    {prefix_plod}numberOfPatients "1"^^xsd:integer ;
-    schema:datePublished "{dateConfirmed}"^^xsd:dateTime ;
-    schema:publisher {publisher} ;
-    schema:url <{report_url}> ;
-    dcterms:isReferencedBy <{referencedBy}> .
-
-{prefix_plod}{patient_path} a schema:Patient ;
-    rdfs:label "{patient_path}" ;
-    schema:subjectOf {prefix_plod}{reportId} ;
-    schema:healthCondition {o_healthCondition} ;
-    {prefix_plod}dateConfirmed "{dateConfirmed}"^^xsd:dateTime ;
-    foaf:age "{age}" ;
-    schema:gender "{gender}" ;
-    schema:homeLocation {residence} .
 ''')
+
+        # schema:Report
+        # XXX method 1
+        t3_list = []
+        t3_list.append(f'{prefix_plod}{reportId}-R01 a schema:Report')
+        t3_list.append(f'    rdfs:label "{reportId}-R01"')
+        t3_list.append(f'    schema:mainEntity {prefix_plod}{reportId}')
+        t3_list.append(f'    {prefix_plod}numberOfPatients "1"^^xsd:integer')
+        t3_list.append(f'    schema:datePublished "{dateConfirmed}"^^xsd:dateTime')
+        t3_list.append(f'    schema:publisher {publisher}')
+        report_url = jd.get("dataSource")
+        if report_url is not None and len(report_url) > 0:
+            t3_list.append(f'    schema:url <{report_url}>')
+            t3x_webpage.append(report_url)
+            t3_list.append(f'    dcterms:isReferencedBy <{referencedBy}>')
+            t3x_webpage.append(referencedBy)
+        t3_list[-1] += " .\n"
+        buf.append(" ;\n".join(t3_list))
+
+        # schema:Patient
+        # XXX method 2
+        t3_list = []
+        t3_list.append(f'{prefix_plod}{patient_path} a schema:Patient')
+        t3_list.append(f'    rdfs:label "{patient_path}"')
+        t3_list.append(f'    schema:subjectOf {prefix_plod}{reportId}')
+        t3_list.append(f'    schema:healthCondition {o_healthCondition}')
+        t3_list.append(f'    {prefix_plod}dateConfirmed "{dateConfirmed}"^^xsd:dateTime')
+        t3_list.append(f'    foaf:age "{age}"')
+        t3_list.append(f'    schema:gender "{gender}"')
+        t3_list.append(f'    schema:homeLocation {residence}')
+        t3_list[-1] += " .\n"
+        buf.append(" ;\n".join(t3_list))
 
         # adding locations
         labelMoveAction = 0;
@@ -194,16 +223,16 @@ def plod_json2turtle(plod_list):
             buf.append("")  # for a line separator.
 
         # Place
-        add_x(buf, postfix_geoname, add_turtle_location)
+        t3x_place.finalize(buf)
 
         # Publisher
-        add_x(buf, postfix_publisher, add_turtle_publisher)
+        t3x_publisher.finalize(buf)
 
         # WebPage
-        add_x(buf, { report_url: "", referencedBy: "" }, add_turtle_webpage)
+        t3x_webpage.finalize(buf)
 
         # Disease
-        add_x(buf, postfix_disease, add_turtle_disease)
+        t3x_disease.finalize(buf)
 
         # InfectiousDisease
         buf.append(__postfix)
@@ -211,10 +240,6 @@ def plod_json2turtle(plod_list):
         buf.append("")  # for a line separator.
 
     return "\n".join(buf)
-
-def add_x(buf, subject_list, func):
-    for key,prefix in subject_list.items():
-        buf.append(func(key, prefix))
 
 #
 #
@@ -225,5 +250,7 @@ if __name__ == "__main__":
     else:
         fd = sys.stdin
     jd = json.load(fd)
+    if jd.get("plod"):
+        jd = jd["plod"]
     turtle = plod_json2turtle(jd)
     print(turtle)
