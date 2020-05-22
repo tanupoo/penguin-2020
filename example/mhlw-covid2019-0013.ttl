@@ -16,7 +16,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-R01 a schema:Report ;
     plod:numberOfPatients "1"^^xsd:integer ;
     schema:datePublished "2020-01-31"^^xsd:dateTime ;
     schema:publisher plod:千葉県 ;
-    schema:url <http://www.pref.TO_BE_DEFINED.lg.jp/shippei/press/2019/ncov20200131.html> ;
+    schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> ;
     dcterms:isReferencedBy <http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html>.
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01 a schema:Patient ;
