@@ -10,7 +10,9 @@ referencedBy = "http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-i
 
 #
 # by definition
+#     NOTE: prefix must include a colon at the end.
 #
+prefix_geoname = "gnjp:"
 prefix_plod = "plod:"
 prefix_dict = {
         "rdf:": "<http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
@@ -19,52 +21,65 @@ prefix_dict = {
         "schema:": "<http://schema.org/>",
         "dcterms:": "<http://purl.org/dc/terms/>",
         "foaf:": "<http://xmlns.com/foaf/0.1/>",
-        "gnjp:": "<http://geonames.jp/resource/>",
+        prefix_geoname: "<http://geonames.jp/resource/>",
         prefix_plod: "<http://plod.info/rdf/>",
         }
 
-"""
-http://geonames.jp/resource
-http://geonames.jp
-"""
-
+#
+#
+#
 __postfix = f"""\
-{prefix_plod}:COVID-19 a schema:InfectiousDisease ;
-    rdfs:label "COVID-19" ;
-    schema:name "2019-nCoV acute respiratory disease"@en ;
-    schema:infectiousAgent "2019-nCoV" ;
-    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1> .
-
 <http://purl.bioontology.org/ontology/ICD10/U07.1> a schema:MedicalCode ;
     schema:codeValue "U07.1" ;
     schema:codingSystem "ICD-10" .
 """
 
+#
+#
+#
 postfix_geoname = {}
 postfix_publisher = {}
+postfix_disease = {}
 
 def finddb(db, search_key):
-    for k,v in db.items():
-        if k == search_key:
-            return v
+    v = [ x[1] for x in nta_conum_dict.co_num_dict.items() if x[0] == search_key ]
+    if len(v):
+        return v[0]
     return None
 
 #
 # add triple for the tale.
 #
+def get_iri(key, prefix):
+    return f'{prefix}{key}' if (prefix is not None and len(prefix) > 0) else f'<{key}>'
+
 def add_turtle_publisher(key, prefix):
     conum = finddb(nta_conum_dict.co_num_dict, key)
     return "\n".join([
-            f'{prefix_plod}{key} a schema:GovernmentOrganization ;',
+            f'{get_iri(key, prefix)} a schema:GovernmentOrganization ;',
             f'    schema:location "gnjp:{key}" ;',
             f'    rdfs:seeAlso <http://hojin-info.go.jp/data/basic/{conum}> .',
             ""])
 
 def add_turtle_location(key, prefix):
-    # f'<http://geonames.jp/resource/{a}> a schema:Place ;\n'
     return "\n".join([
-            f'{prefix}:{key} a schema:Place ;',
+            f'{get_iri(key, prefix)} a schema:Place ;',
             f'    rdfs:label "{prefix}{key}" .',
+            ""])
+
+def add_turtle_webpage(key, prefix):
+    return "\n".join([
+            f'{get_iri(key, prefix)} a schema:WebPage .',
+            ""])
+
+def add_turtle_disease(key, prefix):
+    # XXX need to check if key is "COVID-19"
+    return "\n".join([
+            f'{get_iri(key, prefix)} a schema:InfectiousDisease ;',
+            f'    rdfs:label "COVID-19" ;',
+            f'    schema:name "2019-nCoV acute respiratory disease"@en ;',
+            f'    schema:infectiousAgent "2019-nCoV" ;',
+            f'    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1> .',
             ""])
 
 #
@@ -73,22 +88,18 @@ def add_turtle_location(key, prefix):
 def cv_publisher(a):
     if a == "厚労省":
         a = "厚生労働省"
-    prefix = prefix_plod
-    name = f"{prefix}{a}"
-    postfix_publisher.setdefault(a, prefix)  # use it later.
-    return name
+    postfix_publisher.setdefault(a, prefix_plod)  # use it later.
+    return f"{prefix_plod}{a}"
 
 def cv_location(a):
-    prefix = "gnjp"
-    name = f"{prefix}:{a}"
-    postfix_geoname.setdefault(a, prefix)  # use it later.
-    return name
+    postfix_geoname.setdefault(a, prefix_geoname)  # use it later.
+    return f"{prefix_geoname}{a}"
 
 def cv_healthCondition(a):
-    db = {
-        "COVID-2019": f"{prefix_plod}COVID-19"
-    }
-    return finddb(db, a)
+    if a == "COVID-2019":
+        a = "COVID-19"
+    postfix_disease.setdefault(a, prefix_plod)  # use it later.
+    return f"{prefix_plod}{a}"
 
 def make_date_time(obj, date_str, time_str):
     if obj.get(date_str):
@@ -116,7 +127,7 @@ def plod_json2turtle(plod_list):
         report_url = jd["dataSource"]
         reportId = jd["reportId"]
         publisher = cv_publisher(jd["publisher"])
-        healthCondition = cv_healthCondition(jd["disease"])
+        o_healthCondition = cv_healthCondition(jd["disease"])
         dateConfirmed = jd["dateConfirmed"]
         age = jd["age"]
         gender = jd["gender"]
@@ -134,17 +145,18 @@ def plod_json2turtle(plod_list):
     schema:datePublished "{dateConfirmed}"^^xsd:dateTime ;
     schema:publisher {publisher} ;
     schema:url <{report_url}> ;
-    dcterms:isReferencedBy <{referencedBy}>.
+    dcterms:isReferencedBy <{referencedBy}> .
 
 {prefix_plod}{patient_path} a schema:Patient ;
     rdfs:label "{patient_path}" ;
     schema:subjectOf {prefix_plod}{reportId} ;
-    schema:healthCondition <{healthCondition}> ;
+    schema:healthCondition {o_healthCondition} ;
     {prefix_plod}dateConfirmed "{dateConfirmed}"^^xsd:dateTime ;
     foaf:age "{age}" ;
     schema:gender "{gender}" ;
     schema:homeLocation {residence} .
 ''')
+
         # adding locations
         labelMoveAction = 0;
         for x in jd["locationHistory"]:
@@ -182,12 +194,16 @@ def plod_json2turtle(plod_list):
             buf.append("")  # for a line separator.
 
         # Place
-        for key,prefix in postfix_geoname.items():
-            buf.append(add_turtle_location(key, prefix))
+        add_x(buf, postfix_geoname, add_turtle_location)
 
         # Publisher
-        for key,prefix in postfix_publisher.items():
-            buf.append(add_turtle_publisher(key, prefix))
+        add_x(buf, postfix_publisher, add_turtle_publisher)
+
+        # WebPage
+        add_x(buf, { report_url: "", referencedBy: "" }, add_turtle_webpage)
+
+        # Disease
+        add_x(buf, postfix_disease, add_turtle_disease)
 
         # InfectiousDisease
         buf.append(__postfix)
@@ -195,6 +211,11 @@ def plod_json2turtle(plod_list):
         buf.append("")  # for a line separator.
 
     return "\n".join(buf)
+
+def add_x(buf, subject_list, func):
+    for key,prefix in subject_list.items():
+        buf.append(func(key, prefix))
+
 #
 #
 #
