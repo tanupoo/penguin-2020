@@ -6,7 +6,6 @@ import nta_conum_dict
 #
 # XXX TO BE DEFINED
 #
-report_url = "http://www.pref.TO_BE_DEFINED.lg.jp/shippei/press/2019/ncov20200131.html"
 referencedBy = "http://www.pref.TO_BE_DEFINED.lg.jp/shippei/kansenshou/keihatu-index.html"
 
 #
@@ -114,6 +113,7 @@ def plod_json2turtle(plod_list):
     #
     # adding one or more PLOD in turtle.
     for jd in plod_list:
+        report_url = jd["dataSource"]
         reportId = jd["reportId"]
         publisher = cv_publisher(jd["publisher"])
         healthCondition = cv_healthCondition(jd["disease"])
