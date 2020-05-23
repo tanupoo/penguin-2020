@@ -8,7 +8,7 @@ import json
 
 ## Usage
 
-japanpost_rome2json.py (csv_file)
+jpost_rome_to_json.py (csv_file)
 
 ken_all_rome.csv
 
@@ -63,9 +63,14 @@ with open(opt.csv_rome) as fd:
     for _ in range(opt.skip_lines):
         it.__next__()
     for row in it:
-        a = "{}{}".format(row[1], row[2].split('　')[0])
-        b = "{}, {}".format(roman_canon(row[4]), roman_canon(row[5]))
-        rome_dict.update({ a: b })
+        # pref name, XXX loosy
+        pref_name = "{}".format(row[1])
+        pref_romaji = "{}".format(roman_canon(row[4]))
+        rome_dict.update({ pref_name: pref_romaji })
+        # city name
+        city_name = "{}{}".format(pref_name, row[2].split('　')[0])
+        city_romaji = "{}, {}".format(pref_romaji, roman_canon(row[5]))
+        rome_dict.update({ city_name: city_romaji })
 
 if opt.transx:
     print("cities_rome = ", end="")
