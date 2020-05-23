@@ -16,7 +16,7 @@ from pymongo import MongoClient
 import pymongo.errors
 from pymongo import ReturnDocument
 import uuid
-from json2turtle import plod_json2turtle
+from json2ttl import plod_json_to_turtle
 from bson.objectid import ObjectId
 import re
 
@@ -29,6 +29,7 @@ LOG_FMT = "%(asctime)s.%(msecs)d %(lineno)d %(message)s"
 LOG_DATE_FMT = "%Y-%m-%dT%H:%M:%S"
 
 ws_map = {}
+json2ttl = plod_json_to_turtle()
 
 #
 # config
@@ -394,7 +395,7 @@ async def provide_plod_handler(request):
     if output_format == "json":
         return http_response_json(result[1])
     elif output_format == "turtle":
-        return http_response_turtle(plod_json2turtle(result[1]))
+        return http_response_turtle(json2ttl.convert(result[1]))
 
 #
 # logging
