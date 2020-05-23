@@ -3,11 +3,19 @@
 import sys
 import csv
 import json
+import xlrd
 
 """
 ## Usage
 
-python mic_lglist_csv2select2tree.py mic-lglist-000618153.csv > lglist-select2-20200327.js
+python mic_lglist_csv2select2tree.py mic-lglist-000618153.csv -x
+
+## Input
+
+https://www.soumu.go.jp/denshijiti/code.html
+都道府県コード及び市区町村コード」（令和元年5月1日現在） 
+
+curl -o mic-lglist-20200327.xls https://www.soumu.go.jp/main_content/000618153.xls
 
 ## Output
 
@@ -28,43 +36,72 @@ const lgList = [
 ];
 """
 
-initial_code = "010006" # for skip the header.
+import argparse
 
-enable_javascript = True
-enable_compress = True
+def make_select2(rows):
 
-indent = None
-if enable_compress == False:
-    indent = 4
+    def append_inc(parent, a):
+        parent.append({
+                "id": a,
+                "text": a
+                })
 
-def append_inc(parent, a):
-    parent.append({
-            "id": a,
-            "text": a
-            })
-
-mydata = []
-with open(sys.argv[1]) as fd:
-    do_skip = True
-    for row in csv.reader(fd, dialect=csv.excel):
-        if do_skip is True:
-            if initial_code != row[0]:
+    lg_data = []
+    parent = None
+    for row in rows:
+        if parent is not None:
+            if parent["id"] == row[1].value:
+                append_inc(parent["inc"], "".join([row[1].value, row[2].value]))
                 continue
-            do_skip = False
-            # initialize.
-            parent = { "id": row[1], "text": row[1], "inc": [] }
-            continue
-        if parent["id"] == row[1]:
-            append_inc(parent["inc"], "".join([row[1], row[2]]))
-            continue
-        # next prefecture.
-        mydata.append(parent)
-        parent = { "id": row[1], "text": row[1], "inc": [] }
+            else:
+                # next prefecture.
+                lg_data.append(parent)
+                pass
+        # init
+        parent = { "id": row[1].value, "text": row[1].value, "inc": [] }
+    return lg_data
 
-if enable_javascript:
+def make_kv(rows):
+    lg_data = {}
+    for row in rows:
+        lg_data.update({ "{}{}".format(row[1].value, row[2].value): row[0].value })
+        #lg_data.update({ row[0].value: "{}{}".format(row[1].value, row[2].value) })
+    return lg_data
+
+#
+# main
+#
+ap = argparse.ArgumentParser()
+ap.add_argument("xls_file", help="XLS file taken from MIC.")
+ap.add_argument("-i", action="store", dest="indent", type=int,
+                help="specify the number of columns for indent. e.g. -i 4")
+ap.add_argument("-s", action="store", dest="skip_lines", type=int, default=1,
+                help="""specify the number of lines at the header
+                in the file to skip.""")
+ap.add_argument("-x", action="store_true", dest="transx",
+                help="enable to make a dict for other program (e.g. select2).")
+ap.add_argument("-d", action="store_true", dest="debug",
+                help="enable debug mode.")
+opt = ap.parse_args()
+
+xls_wb = xlrd.open_workbook(opt.xls_file)
+if opt.debug:
+    print("sheets =", xls_wb.sheet_names())
+xls_sheet = xls_wb.sheet_by_index(0)
+
+rows = xls_sheet.get_rows()
+for _ in range(opt.skip_lines):
+    row = rows.__next__()
+
+if opt.transx:
+    lg_data = make_select2(rows)
+else:
+    lg_data = make_kv(rows)
+
+if opt.transx:
     print("const lgList = ", end="")
 
-print(json.dumps(mydata, indent=indent, ensure_ascii=False))
+print(json.dumps(lg_data, indent=opt.indent, ensure_ascii=False))
 
-if enable_javascript:
+if opt.transx:
     print(";")
