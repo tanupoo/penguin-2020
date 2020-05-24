@@ -59,6 +59,7 @@ class t3_webpage(t3_maker):
             t3_list.append(f'{self.get_iri(key, prefix)} a schema:WebPage')
             t3_list[-1] += " .\n"
             buf.append(" ;\n".join(t3_list))
+        self.refs = {}
 
 class t3_place(t3_maker):
     def __init__(self, romaji_dict):
@@ -76,6 +77,7 @@ class t3_place(t3_maker):
                 t3_list.append(f'    rdfs:label "{prefix}{v}"')
             t3_list[-1] += " .\n"
             buf.append(" ;\n".join(t3_list))
+        self.refs = {}
 
 class t3_publisher(t3_maker):
     def __init__(self, conum_dict):
@@ -93,6 +95,7 @@ class t3_publisher(t3_maker):
                 t3_list.append(f'    rdfs:seeAlso <http://hojin-info.go.jp/data/basic/{v}>')
             t3_list[-1] += " .\n"
             buf.append(" ;\n".join(t3_list))
+        self.refs = {}
 
 class t3_disease(t3_maker):
     def finalize(self, buf):
@@ -106,6 +109,7 @@ class t3_disease(t3_maker):
             t3_list.append(f'    schema:code <http://purl.bioontology.org/ontology/ICD10/U07.1>')
             t3_list[-1] += " .\n"
             buf.append(" ;\n".join(t3_list))
+        self.refs = {}
 
 #
 # converting value.
