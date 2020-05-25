@@ -71,10 +71,10 @@ class t3_place(t3_maker):
         for key,prefix in self.refs.items():
             t3_list = []
             t3_list.append(f'{self.get_iri(key, prefix)} a schema:Place')
-            t3_list.append(f'    rdfs:label "{prefix}{key}"')
+            t3_list.append(f'    rdfs:label "{key}"')
             v = get_v(self.romaji_dict, key)
             if v is not None:
-                t3_list.append(f'    rdfs:label "{prefix}{v}"')
+                t3_list.append(f'    rdfs:label "{v}"')
             t3_list[-1] += " .\n"
             buf.append(" ;\n".join(t3_list))
         self.refs = {}
@@ -89,7 +89,7 @@ class t3_publisher(t3_maker):
         for key,prefix in self.refs.items():
             t3_list = []
             t3_list.append(f'{self.get_iri(key, prefix)} a schema:GovernmentOrganization')
-            t3_list.append(f'    schema:location "gnjp:{key}"')
+            t3_list.append(f'    schema:location gnjp:{key}')
             v = get_v(self.conum_dict, key)
             if v is not None:
                 t3_list.append(f'    rdfs:seeAlso <http://hojin-info.go.jp/data/basic/{v}>')
@@ -191,7 +191,7 @@ class plod_json_to_turtle:
             t3_list.append(f'    schema:publisher {publisher}')
             report_url = jd.get("dataSource")
             if report_url is not None and len(report_url) > 0:
-                t3_list.append(f'    schema:url <{report_url}>')
+                t3_list.append(f'    schema:url "{report_url}"^^xsd:anyURI')
                 self.t3x_webpage.append(report_url)
                 t3_list.append(f'    dcterms:isReferencedBy <{referencedBy}>')
                 self.t3x_webpage.append(referencedBy)
@@ -262,8 +262,6 @@ class plod_json_to_turtle:
 
             # InfectiousDisease
             buf.append(x_postfix)
-
-            buf.append("")  # for a line separator.
 
         return "\n".join(buf)
 
