@@ -16,7 +16,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-R01 a schema:Report ;
     plod:numberOfPatients "1"^^xsd:integer ;
     schema:datePublished "2020-01-31"^^xsd:dateTime ;
     schema:publisher plod:千葉県 ;
-    schema:url <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> ;
+    schema:url "https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html"^^xsd:anyURI ;
     dcterms:isReferencedBy <http://www.TO_BE_DEFINED.lg.jp/> .
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01 a schema:Patient ;
@@ -73,15 +73,15 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M05 a schema:MoveAction ;
     schema:instrument "Unknown"@ja .
 
 gnjp:千葉県 a schema:Place ;
-    rdfs:label "gnjp:千葉県" ;
-    rdfs:label "gnjp:Chiba-ken" .
+    rdfs:label "千葉県" ;
+    rdfs:label "Chiba-ken" .
 
 gnjp:大阪府 a schema:Place ;
-    rdfs:label "gnjp:大阪府" ;
-    rdfs:label "gnjp:Osaka-fu" .
+    rdfs:label "大阪府" ;
+    rdfs:label "Osaka-fu" .
 
 plod:千葉県 a schema:GovernmentOrganization ;
-    schema:location "gnjp:千葉県" ;
+    schema:location gnjp:千葉県 ;
     rdfs:seeAlso <http://hojin-info.go.jp/data/basic/4000020120006> .
 
 <https://www.pref.chiba.lg.jp/shippei/press/2019/ncov20200131.html> a schema:WebPage .
@@ -97,4 +97,3 @@ plod:COVID-19 a schema:InfectiousDisease ;
 <http://purl.bioontology.org/ontology/ICD10/U07.1> a schema:MedicalCode ;
     schema:codeValue "U07.1" ;
     schema:codingSystem "ICD-10" .
-
