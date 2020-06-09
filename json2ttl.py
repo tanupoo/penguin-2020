@@ -71,10 +71,10 @@ class t3_place(t3_maker):
         for key,prefix in self.refs.items():
             t3_list = []
             t3_list.append(f'{self.get_iri(key, prefix)} a schema:Place')
-            t3_list.append(f'    rdfs:label "{key}"')
+            t3_list.append(f'    rdfs:label "{key}"@ja')
             v = get_v(self.romaji_dict, key)
             if v is not None:
-                t3_list.append(f'    rdfs:label "{v}"')
+                t3_list.append(f'    rdfs:label "{v}"@en')
             t3_list[-1] += " .\n"
             buf.append(" ;\n".join(t3_list))
         self.refs = {}
