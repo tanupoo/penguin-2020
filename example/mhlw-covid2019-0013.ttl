@@ -73,12 +73,12 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M05 a schema:MoveAction ;
     schema:instrument "Unknown"@ja .
 
 gnjp:千葉県 a schema:Place ;
-    rdfs:label "千葉県" ;
-    rdfs:label "Chiba-ken" .
+    rdfs:label "千葉県"@ja ;
+    rdfs:label "Chiba-ken"@en .
 
 gnjp:大阪府 a schema:Place ;
-    rdfs:label "大阪府" ;
-    rdfs:label "Osaka-fu" .
+    rdfs:label "大阪府"@ja ;
+    rdfs:label "Osaka-fu"@en .
 
 plod:千葉県 a schema:GovernmentOrganization ;
     schema:location gnjp:千葉県 ;
