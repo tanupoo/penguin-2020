@@ -137,7 +137,6 @@ class db_connector():
             ret = self.col.find_one_and_replace({"reportId":report_id},
                                                 kv_data, upsert=True,
                                         return_document=ReturnDocument.AFTER)
-            print("xxx", ret)
             self.logger.debug("DB: Inserted: reportId={} _id={}"
                               .format(ret["reportId"], ret["_id"]))
             return True
@@ -477,19 +476,8 @@ logger.info("Starting Penguin, a PLOD server listening on {}://{}:{}/"
 # start loop
 loop = asyncio.get_event_loop()
 loop.set_debug(opt.debug)
-web_handler = app.make_handler()
-server_coro = loop.create_server(web_handler,
-                                 host=config.get(CONF_SERVER_ADDR),
-                                 port=config.get(CONF_SERVER_PORT),
-                                 ssl=config.get(__CONF_SSL_CTX))
-event = loop.run_until_complete(server_coro)
-try:
-    loop.run_forever()
-except KeyboardInterrupt:
-    pass
-finally:
-    loop.run_until_complete(web_handler.finish_connections(1.0))
-    event.close()
-    loop.run_until_complete(event.wait_closed())
-    loop.run_until_complete(app.finish())
+web.run_app(app,
+            host=config.get(CONF_SERVER_ADDR),
+            port=config.get(CONF_SERVER_PORT),
+            ssl_context=config.get(__CONF_SSL_CTX))
 loop.close()
