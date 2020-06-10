@@ -35,7 +35,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M01 a schema:MoveAction ;
     schema:fromLocation gnjp:千葉県 ;
     schema:endTime "2020-01-16"^^xsd:dateTime ;
     schema:toLocation gnjp:大阪府 ;
-    schema:instrument "Airplane"@ja .
+    schema:instrument "Airplane"@en .
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M02 a schema:MoveAction ;
     rdfs:label "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M02" ;
@@ -43,7 +43,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M02 a schema:MoveAction ;
     schema:startTime "2020-01-17"^^xsd:dateTime ;
     schema:fromLocation gnjp:大阪府 ;
     schema:endTime "2020-01-17"^^xsd:dateTime ;
-    schema:instrument "Bus"@ja .
+    schema:instrument "Bus"@en .
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M03 a schema:MoveAction ;
     rdfs:label "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M03" ;
@@ -52,7 +52,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M03 a schema:MoveAction ;
     schema:fromLocation gnjp:大阪府 ;
     schema:endTime "2020-01-22"^^xsd:dateTime ;
     schema:toLocation gnjp:千葉県 ;
-    schema:instrument "Bus"@ja .
+    schema:instrument "Bus"@en .
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M04 a schema:MoveAction ;
     rdfs:label "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M04" ;
@@ -61,7 +61,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M04 a schema:MoveAction ;
     schema:fromLocation gnjp:千葉県 ;
     schema:endTime "2020-01-29"^^xsd:dateTime ;
     schema:toLocation gnjp:千葉県 ;
-    schema:instrument "Unknown"@ja .
+    schema:instrument "Unknown"@en .
 
 plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M05 a schema:MoveAction ;
     rdfs:label "2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M05" ;
@@ -70,7 +70,7 @@ plod:2c5c6a22-c1b3-4097-b119-dad4c1ba57b9-P01-M05 a schema:MoveAction ;
     schema:fromLocation gnjp:千葉県 ;
     schema:endTime "2020-01-30"^^xsd:dateTime ;
     schema:toLocation gnjp:千葉県 ;
-    schema:instrument "Unknown"@ja .
+    schema:instrument "Unknown"@en .
 
 gnjp:千葉県 a schema:Place ;
     rdfs:label "千葉県"@ja ;
