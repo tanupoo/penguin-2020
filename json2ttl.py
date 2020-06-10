@@ -241,7 +241,7 @@ class plod_json_to_turtle:
 
                 if x.get("vehicles"):
                     for v in x["vehicles"]:
-                        buf.append(f'    schema:instrument "{v}"@ja ;')
+                        buf.append(f'    schema:instrument "{v}"@en ;')
 
                 # replace the end of char in the end of line into ".".
                 buf[-1] = buf[-1][:-1] + "."
@@ -262,6 +262,10 @@ class plod_json_to_turtle:
 
             # InfectiousDisease
             buf.append(x_postfix)
+
+        if buf[-1][-1] == "\n":
+            # remove the end of char of newline.
+            buf[-1] = buf[-1][:-1]
 
         return "\n".join(buf)
 
