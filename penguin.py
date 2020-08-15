@@ -189,16 +189,26 @@ def common_access_log(request):
     """
     pass
 
-def debug_http_message(headers, content):
+def debug_http_message(request):
     if config[CONF_DEBUG_LEVEL] > 1:
-        logger.debug("---BEGIN OF REQUESTED HEADER---")
-        for k,v in headers.items():
+        # header
+        logger.debug("---HEADER---")
+        for k,v in request.headers.items():
             logger.debug("{}: {}".format(k,v))
-        logger.debug("---END OF REQUESTED HEADER---")
-    if config[CONF_DEBUG_LEVEL] > 1:
-        logger.debug("---BEGIN OF REQUESTED DATA---")
-        logger.debug(content)
-        logger.debug("---END OF REQUESTED DATA---")
+        # body
+        t = await request.read()
+        if isinstance(t, bytes):
+            t = t.decode("utf-8")
+        elif isinstance(t, str):
+            pass
+        else:
+            return gen_http_response(
+                    "The payload type is neigther bytes nor str. {}"
+                    .format(type(t)),
+                    status=404)
+        logger.debug("---BODY---")
+        logger.debug(t)
+        logger.debug("---END---")
 
 async def provide_listview_handler(request):
     """
@@ -246,14 +256,14 @@ async def receive_plod_bulk_handler(request):
             e.g. { "result": "...", "plod": [ { PLOD }, ... ] }
     """
     common_access_log(request)
+    if not request.can_read_body:
+        return http_response("the body can not be read.", status=400)
+    debug_http_message(request)
     try:
-        if not request.can_read_body:
-            return http_response("the body can not be read.", status=400)
         content = await request.json()
     except json.decoder.JSONDecodeError as e:
         return http_response("The payload format was not likely JSON.",
                 status=502, log_text=str(e))
-    debug_http_message(request.headers, content)
     #
     if not config[__CONF_DB_CONN]:
         return http_response("DB hasn't been ready.", status=503)
@@ -290,14 +300,14 @@ async def receive_plod_handler(request):
     then it adds or updates updatedTime.
     """
     common_access_log(request)
+    if not request.can_read_body:
+        return http_response("the body can not be read.", status=400)
     try:
-        if not request.can_read_body:
-            return http_response("the body can not be read.", status=400)
         content = await request.json()
     except json.decoder.JSONDecodeError as e:
         return http_response("The payload format was not likely JSON.",
                 status=502, log_text=str(e))
-    debug_http_message(request.headers, content)
+    debug_http_message(request)
     #
     if not config[__CONF_DB_CONN]:
         return http_response("DB hasn't been ready.", status=503)
@@ -361,7 +371,7 @@ async def provide_plod_handler(request):
         except json.decoder.JSONDecodeError as e:
             return http_response("The payload format was not likely JSON.",
                     status=502, log_text=str(e))
-        debug_http_message(request.headers, content)
+        debug_http_message(request)
         db_filter = await request.json()
     elif request.method == "GET":
         condition = request.match_info["cond"]
