@@ -18,6 +18,10 @@ python mic_lglist_to_json.py mic-lglist.xls -x
 
 curl -o mic-lglist.xls https://www.soumu.go.jp/main_content/000618153.xls
 
+```
+団体コード 都道府県名 市町村名
+```
+
 ## Output with -x option
 
 const lgList = [
@@ -62,9 +66,17 @@ def make_select2(rows):
 
 def make_kv(rows):
     lg_data = {}
+    cities = []
+    pref = None
     for row in rows:
-        lg_data.update({ "{}{}".format(row[1].value, row[2].value): row[0].value })
-        #lg_data.update({ row[0].value: "{}{}".format(row[1].value, row[2].value) })
+        if row[2].value == "":
+            if len(cities) > 0:
+                lg_data.update({ pref: cities })
+            cities = []
+            pref = row[1].value
+        else:
+            cities.append(row[2].value)
+    lg_data.update({ pref: cities })
     return lg_data
 
 #
@@ -94,13 +106,25 @@ for _ in range(opt.skip_lines):
 
 if opt.transx:
     lg_data = make_select2(rows)
-else:
-    lg_data = make_kv(rows)
-
-if opt.transx:
-    print("const lgList = ", end="")
-
-print(json.dumps(lg_data, indent=opt.indent, ensure_ascii=False))
-
-if opt.transx:
+    if opt.transx:
+        print("const lgList = ", end="")
+    print(json.dumps(lg_data, indent=opt.indent, ensure_ascii=False))
     print(";")
+else:
+    print("{")
+    for pref,cities in make_kv(rows).items():
+        print(f"    '{pref}': [ ")
+        for i,k in enumerate(cities):
+            if i%4 == 0:
+                print(" "*8, end="")
+            print(f"'{k}'", end="")
+            # 0 1 2 3
+            # 4 5
+            if i%4 == 3:
+                print(",")
+            elif i+1 == len(cities):
+                print("")
+            else:
+                print(", ", end="")
+        print("    ],")
+    print("}")
