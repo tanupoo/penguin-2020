@@ -131,6 +131,10 @@ return:
 
     "result": "success"
 
+```e.g.
+% curl -X POST -d@buld-data.json -k https://plod.server/beak/bulk
+```
+
 - DELETE /tail
 
 reportIdを受け取り、PLODを削除する。
